@@ -1,28 +1,38 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:controls="clr-namespace:PruebaAPP.Controls"
+             xmlns:yt="clr-namespace:YoutubeExplode.Search;assembly=YoutubeExplode"
+             xmlns:vm="clr-namespace:PruebaAPP.Views.Android.ViewModels"
+             x:DataType="vm:AndroidPropertyViewModel"
              x:Class="PruebaAPP.Views.Android.Android_View_Search">
-    
+
     <Grid Margin="0,10,0,0">
-        <CollectionView ItemsSource="{Binding ListItems}" ItemsUpdatingScrollMode="KeepScrollOffset" ItemSizingStrategy="MeasureFirstItem" RemainingItemsThreshold="0" RemainingItemsThresholdReachedCommand="{Binding LoadMoreCommand}" SelectionMode="Single" SelectionChanged="Click_SelectedItems">
+        <CollectionView
+            x:Name="ResultsCollection"
+            Margin="10,0"
+            ItemsSource="{Binding ListItems}"
+            ItemsUpdatingScrollMode="KeepScrollOffset"
+            ItemSizingStrategy="MeasureFirstItem"
+            RemainingItemsThreshold="2"
+            RemainingItemsThresholdReached="ResultsCollection_RemainingItemsThresholdReached"
+            SelectionMode="Single"
+            SelectionChanged="Click_SelectedItems">
+
             <CollectionView.ItemTemplate>
-                <DataTemplate >
-                    <HorizontalStackLayout Padding="10,5" Spacing="15">
+                <DataTemplate x:DataType="yt:VideoSearchResult">
+                    <Grid ColumnDefinitions="Auto,*" Padding="10,5">
                         <VisualStateManager.VisualStateGroups>
                             <VisualStateGroup Name="CommonStates">
                                 <VisualState Name="Normal" />
                                 <VisualState Name="Selected">
                                     <VisualState.Setters>
-                                        <!-- Cambia el color a tu gusto -->
                                         <Setter Property="BackgroundColor" Value="#33000000"/>
                                     </VisualState.Setters>
                                 </VisualState>
                             </VisualStateGroup>
                         </VisualStateManager.VisualStateGroups>
-                        
-                        <!-- Imagen de fondo -->
-                        <Border WidthRequest="110" HeightRequest="80" VerticalOptions="Start">
+
+                        <Border Grid.Column="0" Margin="0,0,10,0" WidthRequest="110" HeightRequest="80" VerticalOptions="Start">
                             <Border.StrokeShape>
                                 <RoundRectangle CornerRadius="10"/>
                             </Border.StrokeShape>
@@ -32,22 +42,21 @@
                                 </Image.Source>
                             </Image>
                         </Border>
-                        
-                        <!-- Informacion -->
-                        <Label VerticalOptions="Center">
+
+                        <Label Grid.Column="1" HorizontalTextAlignment="Justify" VerticalOptions="Center">
                             <Label.FormattedText>
                                 <FormattedString>
-                                    <Span Text="{Binding Title}"/>
+                                    <Span Text="{Binding Title}" TextColor="White"/>
                                     <Span Text="&#10;"/>
                                     <Span Text="@" TextColor="Gray"/>
                                     <Span Text="{Binding Author.ChannelTitle}" TextColor="Gray"/>
                                     <Span Text="&#10;"/>
-                                    <Span Text="{Binding Duration}"/>
+                                    <Span Text="{Binding Duration}" TextColor="White"/>
                                 </FormattedString>
                             </Label.FormattedText>
                         </Label>
 
-                    </HorizontalStackLayout>
+                    </Grid>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>

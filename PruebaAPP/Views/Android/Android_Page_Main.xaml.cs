@@ -1,61 +1,68 @@
-using CommunityToolkit.Maui.Core;
-using CommunityToolkit.Maui.Views;
-using CommunityToolkit.Mvvm.ComponentModel;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.Runtime.ConstrainedExecution;
-using YoutubeExplode;
-using YoutubeExplode.Common;
-using YoutubeExplode.Videos.Streams;
-using CommunityToolkit.Mvvm.Input;
+using PruebaAPP.Views.Android.Services;
+using PruebaAPP.Views.Android.ViewModels;
+using YoutubeExplode.Search;
 
-namespace PruebaAPP.Views.Android;
-public partial class Android_Page_Main : ContentPage
+namespace PruebaAPP.Views.Android
 {
+    public partial class Android_Page_Main : ContentPage
+    {
+        private readonly AndroidPropertyViewModel _vm;
+        private readonly System.Timers.Timer _refreshTimer;
 
-    // Propiedades de la clase
-        // Almacenamiento
-            private readonly Android_Property vm = new();
-            bool issearch;
-
-    // Inicializacion de la pagina
         public Android_Page_Main()
-	        {
+        {
+            InitializeComponent();
 
-                // Inicializacion
-		            InitializeComponent();          // Inicializamos XAML
-                    this.BindingContext = vm;       // Establecemos Binding
-                    this.vm.mPlayer     = PlayerM;  // Establecemos reproductor
+            // Servicios
+                var mediaService = new MediaPlayerService(PlayerM);
+                var youtubeService = new YouTubeService();
 
-                // Mostramos contenido
-                    this.ModuleContainer.Content = new Android_View_Search(vm);
+            // ViewModel
+                _vm = new AndroidPropertyViewModel(youtubeService, mediaService, Dispatcher);
+                BindingContext = _vm;
 
-	        }
+            // Asignar el ContentView del Search
+                ModuleContainer.Content = new Android_View_Search
+                {
+                    BindingContext = _vm
+                };
 
+            // Timer para actualizar progreso
+                _refreshTimer = new System.Timers.Timer(1000);
+                _refreshTimer.Elapsed += (s, e) =>
+                {
+                    MainThread.BeginInvokeOnMainThread(() => _vm.UpdateProgress());
+                };
+                _refreshTimer.Start();
+        }
 
-    // Funciones de youtube explode
+        // Cuando el usuario selecciona un item en el CollectionView
+        private async void ResultsCollection_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var selected = e.CurrentSelection?.FirstOrDefault() as VideoSearchResult;
+            if (selected == null) return;
 
-    // Funciones del reproductor
+            // Limpiar selección visual
+            if (sender is CollectionView cv) cv.SelectedItem = null;
+
+            await _vm.ItemSelectionChanged(selected);
+        }
+
         private void MediaOpen_PlayerM(object sender, EventArgs e)
         {
-            this.vm.Refresh.Start();
-            Debug.WriteLine("Refresh Iniciado.");
+            //PlayerM.IsVisible = true;
         }
+
         private void MediaEnded_PlayerM(object sender, EventArgs e)
         {
-            // Detenemos refresh
-                this.vm.Refresh.Stop();
-                Debug.WriteLine("Refresh Detenido.");
-
-            // Quitamos todo los parametros
-                this.vm.Thumbnails = null;
-                this.vm.TitleSong = null;
-                this.vm.Channel = null;
-                this.vm.CurrentTime = TimeSpan.Zero;
-                this.vm.TotalTime = TimeSpan.Zero;
-                
+            //PlayerM.IsVisible = false;
         }
 
-
+        protected override void OnDisappearing()
+        {
+            base.OnDisappearing();
+            _refreshTimer?.Stop();
+            _refreshTimer?.Dispose();
+        }
+    }
 }

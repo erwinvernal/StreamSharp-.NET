@@ -1,77 +1,137 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
-             xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
-             xmlns:local="clr-namespace:PruebaAPP.Controls"
-             x:Class="PruebaAPP.Views.Android.Android_Page_Main"
-             Title="Android_Page_Main">
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
+    xmlns:local="clr-namespace:PruebaAPP.Controls"
+    xmlns:vm="clr-namespace:PruebaAPP.Views.Android.ViewModels"
+    xmlns:data="clr-namespace:PruebaAPP.Views.Android"
+    xmlns:yt="clr-namespace:YoutubeExplode.Search;assembly=YoutubeExplode"
+    x:DataType="vm:AndroidPropertyViewModel"
+    x:Class="PruebaAPP.Views.Android.Android_Page_Main"
+    Background="Black"
+    Title="Android_Page_Main">
 
-    <Grid RowDefinitions="*,Auto,Auto" RowSpacing="10" >
-        
+    <Grid RowDefinitions="Auto,*,1,110,50" RowSpacing="0">
+
+        <!-- Imagen de fondo -->
+        <Grid Grid.RowSpan="5"  Opacity="0.12">
+            <Image Source="{Binding Thumbnails}" Aspect="AspectFill"/>
+        </Grid>
+
+        <!-- Buscador -->
+        <Border Grid.Row="0" Margin="10">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="25"/>
+            </Border.StrokeShape>
+
+            <Grid ColumnDefinitions="*,1,70">
+                <local:EntrySB
+                    Grid.Column="0"
+                    Text="{Binding SearchText}"
+                    Margin="20,0,10,0"
+                    Placeholder="Buscar: Artista / Canción"
+                    PlaceholderColor="Gray"
+                    ClearButtonVisibility="WhileEditing"
+                    ReturnType="Search"
+                    ReturnCommand="{Binding SearchCommand}" />
+
+                <Rectangle Grid.Column="1" WidthRequest="1" Margin="10" Fill="Gray"/>
+                <ImageButton Grid.Column="2" Padding="10" Margin="0" Source="search.png" Command="{Binding SearchCommand}"/>
+            </Grid>
+        </Border>
+
         <!-- Contenido -->
-        <Grid Grid.Row="0" Margin="0" RowDefinitions="Auto,*" RowSpacing="10">
-            
-            <!-- Buscar -->
-            <Border Grid.Row="0" Margin="10">
-                <Border.StrokeShape>
-                    <RoundRectangle CornerRadius="25"/>
-                </Border.StrokeShape>
-                <Grid ColumnDefinitions="*,1,70">
-                    <local:EntrySB Grid.Column="0" Text="{Binding SearchText}" Margin="20,0,10,0" Placeholder="Buscar artista / canción" ClearButtonVisibility="WhileEditing" ReturnType="Search" ReturnCommand="{Binding SearchCommand}"/>
-                    <Rectangle Grid.Column="1" WidthRequest="1" Margin="10" Fill="Gray"/>
-                    <ImageButton Grid.Column="2" Padding="0" Margin="0" Source="play.png" Command="{Binding SearchCommand}"/>
-                </Grid>
-            </Border>
+        <Grid Grid.Row="1" Grid.RowSpan="4" Margin="0" RowSpacing="0">
 
             <!-- Items -->
-            <ContentView Grid.Row="1" x:Name="ModuleContainer"/>
-            
-            <!-- Reprocutor -->
+            <ContentView x:Name="ModuleContainer"/>
+
+            <!-- Reproductor (oculto, lo maneja MediaPlayerService) -->
             <toolkit:MediaElement x:Name="PlayerM" IsVisible="False" MediaOpened="MediaOpen_PlayerM" MediaEnded="MediaEnded_PlayerM"/>
-            
+
+            <!-- Indicador (overlay loading) -->
+            <Grid>
+                <Rectangle Fill="Black" Opacity="0.8"/>
+                <ActivityIndicator WidthRequest="100" HeightRequest="100" IsRunning="{Binding IsLoading}">
+                    <ActivityIndicator.Style>
+                        <Style TargetType="ActivityIndicator">
+                            <Setter Property="IsVisible" Value="False"/>
+                            <Style.Triggers>
+                                <DataTrigger TargetType="ActivityIndicator" Binding="{Binding IsLoading}" Value="True">
+                                    <Setter Property="IsVisible" Value="True"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ActivityIndicator.Style>
+                </ActivityIndicator>
+
+                <Grid.Style>
+                    <Style TargetType="Grid">
+                        <Setter Property="IsVisible" Value="False"/>
+                        <Style.Triggers>
+                            <DataTrigger TargetType="Grid" Binding="{Binding IsLoading}" Value="True">
+                                <Setter Property="IsVisible" Value="True"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Grid.Style>
+            </Grid>
+
         </Grid>
 
         <!-- Separador -->
-        <Rectangle Grid.Row="1" HeightRequest="2" Fill="Gray"/>
-        
+        <Rectangle Grid.Row="2" Fill="Black"/>
+
         <!-- Controles -->
-        <Grid Grid.Row="2" RowDefinitions="*,Auto" Margin="10" RowSpacing="10">
-            
+        <Grid Grid.Row="3" RowDefinitions="*,Auto">
+
+            <!-- Color de fondo -->
+            <Rectangle Grid.RowSpan="2" Fill="Black" Opacity="0.9" Margin="0,0,0,-1"/>
+
             <!-- Informacion -->
-            <Grid Grid.Row="0" ColumnDefinitions="Auto, *" ColumnSpacing="15">
+            <Grid Grid.Row="0" ColumnDefinitions="Auto, *, Auto" ColumnSpacing="15" Margin="20,10,20,0">
                 
-                <!-- Cover -->
+                <!-- Imagen Cover -->
                 <Border Grid.Column="0" WidthRequest="50" HeightRequest="50">
                     <Border.StrokeShape>
                         <RoundRectangle CornerRadius="10"/>
                     </Border.StrokeShape>
-                    <Image Aspect="AspectFill"  Source="{Binding Thumbnails}"/>
+                    <Image Aspect="AspectFill" Source="{Binding Thumbnails}"/>
                 </Border>
-                
-                <!-- Iformacion -->
+
+                <!-- Informacion -->
                 <StackLayout Grid.Column="1" VerticalOptions="Center">
-                    <Label Text="{Binding TitleSong}"/>
-                    <Label Text="{Binding Channel}" TextColor="Gray"/>
+                    <Label Text="{Binding TitleSong}" TextColor="White"/>
+                    <HorizontalStackLayout>
+                        <Label Text="{Binding Channel}" TextColor="Gray"/>
+                    </HorizontalStackLayout>
                 </StackLayout>
                 
+                <!-- Button de expancion -->
+                <HorizontalStackLayout Grid.Column="2">
+                    <ImageButton Grid.Column="2" Padding="5" Source="heart.png"/>
+                    <ImageButton Grid.Column="2" Padding="5" Source="heart.png"/>
+                </HorizontalStackLayout>
             </Grid>
-            
+
             <!-- Barra de progreso -->
-            <Grid Grid.Row="1" ColumnDefinitions="Auto,*,Auto">
-                
-                <!-- Current Time -->
-                <Label Grid.Column="0" Text="{Binding CurrentTime, StringFormat='{0:hh\\:mm\\:ss}', TargetNullValue='00:00'}"/>
-                
-                <!-- Bar Progress -->
-                <ProgressBar Grid.Column="1" HeightRequest="6" Margin="10,0" Progress="{Binding ProgressTime}" ProgressColor="Green"/>
-                
-                <!-- Total Time -->
-                <Label Grid.Column="2" Text="{Binding TotalTime, StringFormat='{0:hh\\:mm\\:ss}', TargetNullValue='00:00'}"/>
-                
+            <Grid Grid.Row="1" ColumnDefinitions="Auto,*,Auto" Margin="20,0,20,10">
+                <Label Grid.Column="0" Text="{Binding CurrentTime, StringFormat='{0:hh\\:mm\\:ss}', TargetNullValue='00:00'}" TextColor="White"/>
+                <ProgressBar Grid.Column="1" HeightRequest="6" Margin="10,0" Progress="{Binding ProgressTime}" ProgressColor="White"/>
+                <Label Grid.Column="2" Text="{Binding TotalTime, StringFormat='{0:hh\\:mm\\:ss}', TargetNullValue='00:00'}" TextColor="White"/>
             </Grid>
-            
+
         </Grid>
-        
+
+        <!-- Botones  -->
+        <Grid Grid.Row="4" ColumnDefinitions="*,*,*,*">
+            <Rectangle Grid.ColumnSpan="4" Fill="Black" Opacity="0.9" Margin="0,0,0,-1" />
+            <ImageButton Grid.Column="0" Padding="10" Source="home.png"     BackgroundColor="Transparent"/>
+            <ImageButton Grid.Column="1" Padding="10" Source="search.png"   BackgroundColor="Transparent"/>
+            <ImageButton Grid.Column="2" Padding="10" Source="playlist.png" BackgroundColor="Transparent"/>
+            <ImageButton Grid.Column="3" Padding="10" Source="heart.png"    BackgroundColor="Transparent"/>
+        </Grid>
     </Grid>
 </ContentPage>

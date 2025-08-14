@@ -60,25 +60,28 @@ namespace PruebaAPP.Views.Android
             [ObservableProperty]
             public partial double ProgressTime { get; set; }
 
-        // Funciones del timer
-        private async void Refresh_Elapsed(object? sender, ElapsedEventArgs e)
-                {
-                    await MainThread.InvokeOnMainThreadAsync(() =>
-                    {
-                        // Verificamos si no mandamos un error
-                            if (mPlayer is null) { throw new Exception("Al parecer no se inicializo el reproductor."); };
+            [ObservableProperty]
+            public partial bool IsLoading {  get; set; }
 
-                        // Actualizamos valores
-                            CurrentTime  = mPlayer.Position;
-                            TotalTime    = mPlayer.Duration;
-                            if (CurrentTime > TimeSpan.Zero && mPlayer.Duration > TimeSpan.Zero)
-                            {
-                                ProgressTime = mPlayer.Position.TotalSeconds / mPlayer.Duration.TotalSeconds;
-                            } else {
-                                ProgressTime = 0.0f;
-                            }
-                    });
-                }
+        // Funciones del timer
+            private async void Refresh_Elapsed(object? sender, ElapsedEventArgs e)
+                    {
+                        await MainThread.InvokeOnMainThreadAsync(() =>
+                        {
+                            // Verificamos si no mandamos un error
+                                if (mPlayer is null) { throw new Exception("Al parecer no se inicializo el reproductor."); };
+
+                            // Actualizamos valores
+                                CurrentTime  = mPlayer.Position;
+                                TotalTime    = mPlayer.Duration;
+                                if (CurrentTime > TimeSpan.Zero && mPlayer.Duration > TimeSpan.Zero)
+                                {
+                                    ProgressTime = mPlayer.Position.TotalSeconds / mPlayer.Duration.TotalSeconds;
+                                } else {
+                                    ProgressTime = 0.0f;
+                                }
+                        });
+                    }
 
         // Funciones de busqueda
             // Command action
@@ -100,7 +103,7 @@ namespace PruebaAPP.Views.Android
             {
                 if (IsSearch) return false;
                 IsSearch = true;
-
+                IsLoading = true;
                 try
                 {
                     if (!string.IsNullOrWhiteSpace(SearchText))
@@ -127,6 +130,7 @@ namespace PruebaAPP.Views.Android
                 finally
                 {
                     IsSearch = false;
+                    IsLoading = false;
                 }
 
                 return true;
@@ -170,57 +174,64 @@ namespace PruebaAPP.Views.Android
                 }
             }
             public async Task PlaySong(VideoSearchResult item)
-                        {
-                            // Reiniciamos controles
-                                // Reproductor
-                                    mPlayer!.Stop();
-                                    mPlayer.Source = null;
-            
-                                // Propiedades
-                                    Thumbnails  = null;
-                                    TitleSong   = "Recibiendo informacion...";
-                                    Channel     = "Espere por favor...";
-                                    CurrentTime = TimeSpan.Zero;
-                                    TotalTime   = TimeSpan.Zero;
-            
-                            // Preparación de la funcion
-                                IStreamInfo? StreamInfo = null;
-                                StreamManifest? StreamManifest = null;
-            
-                            // Variables de la funcion
-                                var youtube = new YoutubeClient();  // Inicializacion
-                                var link = item.Url;                // Url
-            
-                            // Evitar NetworkOnMainThreadException
-                                try {
-                                    await Task.Run(async () => {
-                                        StreamManifest = await youtube.Videos.Streams.GetManifestAsync(link);
-                                        StreamInfo = StreamManifest.GetAudioOnlyStreams().GetWithHighestBitrate();
-                                    });
-                                } catch (Exception ex) {
-                                    Debug.WriteLine(ex.Message);
-                                    return;
-                                }
-            
-                            // Ejecutamos Audio
-                                if (StreamInfo is null) { return; }
-                                if (StreamManifest is null) { return; }
-            
-                            // Establecemos informacion
-                                Thumbnails  = item.Thumbnails[0].Url;
-                                TitleSong   = item.Title;
-                                Channel     = item.Author.ChannelTitle;
+            {
 
+                // Iniciamos Activity
+                    IsLoading = true;
 
-                                // Reproducimos
-                                mPlayer.Source = StreamInfo.Url;
-                                mPlayer.Play();
+                // Reiniciamos controles
+                    // Reproductor
+                        mPlayer!.Stop();
+                        mPlayer.Source = null;
             
-                        }
+                    // Propiedades
+                        Thumbnails  = null;
+                        TitleSong   = "Recibiendo informacion...";
+                        Channel     = "Espere por favor...";
+                        CurrentTime = TimeSpan.Zero;
+                        TotalTime   = TimeSpan.Zero;
+            
+                // Preparación de la funcion
+                    IStreamInfo? StreamInfo = null;
+                    StreamManifest? StreamManifest = null;
+            
+                // Variables de la funcion
+                    var youtube = new YoutubeClient();  // Inicializacion
+                    var link = item.Url;                // Url
+            
+                // Evitar NetworkOnMainThreadException
+                    try {
+                        await Task.Run(async () => {
+                            StreamManifest = await youtube.Videos.Streams.GetManifestAsync(link);
+                            StreamInfo = StreamManifest.GetAudioOnlyStreams().GetWithHighestBitrate();
+                        });
+                    } catch (Exception ex) {
+                        await Shell.Current.DisplayAlert("Mensaje", "Intentelo de nuevo...", "Ok");
+                        Debug.WriteLine(ex.Message);
+                        return;
+                    } finally { 
+                        IsLoading = false; 
+                    }
+            
+                // Ejecutamos Audio
+                    if (StreamInfo is null) { return; }
+                    if (StreamManifest is null) { return; }
+            
+                // Establecemos informacion
+                    Thumbnails  = item.Thumbnails[0].Url;
+                    TitleSong   = item.Title;
+                    Channel     = item.Author.ChannelTitle;
+            
+            
+                // Reproducimos
+                    mPlayer.Source = StreamInfo.Url;
+                    mPlayer.Play();
+            
+            }
                 
 
         // Funciones de debugaccion
-            bool DebugError(Exception ex)
+            static bool DebugError(Exception ex)
             {
                 return true;
             }
