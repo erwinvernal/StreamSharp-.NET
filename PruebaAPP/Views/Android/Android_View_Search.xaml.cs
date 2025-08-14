@@ -1,7 +1,7 @@
-using System.Diagnostics;
-using YoutubeExplode;
-using YoutubeExplode.Videos.Streams;
 using CommunityToolkit.Maui.Views;
+using CommunityToolkit.Mvvm.Input;
+using System.Diagnostics;
+using YoutubeExplode.Search;
 
 namespace PruebaAPP.Views.Android;
 
@@ -13,65 +13,36 @@ public partial class Android_View_Search : ContentView
     // Inicializacion
 	    public Android_View_Search(Android_Property vm)
 	    {
-            this.vm = vm;
-            this.BindingContext = this.vm;
-		    InitializeComponent();
+            // Inicializacion
+		        InitializeComponent();
+                this.vm = vm;
+                this.BindingContext = this.vm;
+
+            // Enlazamos 
+                this.Loaded += Android_View_Search_Loaded;
 	    }
-
-    // Funciones de la clase
-        private async void OnBorderTapped(object sender, TappedEventArgs e)
+        private async void Android_View_Search_Loaded(object? sender, EventArgs e)
         {
-            if (sender is Border ctrl && ctrl.BindingContext is YoutubeExplode.Search.VideoSearchResult item)
-            {
+            await vm!.SearchInternal("Musica");
+            
+        }
 
-                // Verificamos que no sea null
-                    if (vm is null) { throw new Exception("no se inicializo el modalview."); }
-                    if (vm.mPlayer is null) { throw new Exception("No se inicializo el reproductor."); }
+        private async void Click_SelectedItems(object sender, SelectionChangedEventArgs e)
+        {
+            if (e.CurrentSelection == null || e.CurrentSelection.Count == 0)
+                return;
 
+            var item = e.CurrentSelection[0] as VideoSearchResult;
+            if (item == null)
+                return;
 
-                // Reiniciamos controles
-                    vm.mPlayer.Stop();
-                    vm.mPlayer.Source = null;
-                    vm.Thumbnails = null;
-                    vm.TitleSong = "Cargando...";
-                    vm.Channel = null;
-                    vm.CurrentTime = TimeSpan.Zero;
-                    vm.TotalTime = TimeSpan.Zero;
+            await vm!.ItemSelectionChanged(item);
 
-                // Preparación de la funcion
-                    IStreamInfo? StreamInfo = null;
-                    StreamManifest? StreamManifest = null;
+            // Espera un frame para que MAUI procese el cambio de selección
+            await Task.Yield(); // o Task.Delay(1);
+            
+            ((CollectionView)sender).SelectedItem = null;
 
-                // Variables de la funcion
-                    var youtube = new YoutubeClient();  // Inicializacion
-                    var link = item.Url;             // Url
-
-                // Evitar NetworkOnMainThreadException
-                    try
-                    {
-                        await Task.Run(async () => {
-                            StreamManifest = await youtube.Videos.Streams.GetManifestAsync(link);
-                            StreamInfo = StreamManifest.GetAudioOnlyStreams().GetWithHighestBitrate();
-                        });
-                    } catch (Exception ex) {
-                        Debug.WriteLine(ex.Message);
-                        return;
-                    }
-
-                // Ejecutamos Audio
-                    if (StreamInfo is null) { return; }
-                    if (StreamManifest is null) { return; }
-
-                // Establecemos informacion
-                    vm.Thumbnails = item.Thumbnails[2].Url;
-                    vm.TitleSong = item.Title;
-                    vm.Channel = item.Author.ChannelTitle;
-
-                // Reproducimos
-                    vm.mPlayer.Source = StreamInfo.Url;
-                    vm.mPlayer.Play();
-
-            }
         }
 
 }

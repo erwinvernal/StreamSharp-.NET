@@ -7,20 +7,20 @@
              x:Class="PruebaAPP.Views.Android.Android_Page_Main"
              Title="Android_Page_Main">
 
-    <Grid RowDefinitions="*,1,Auto" RowSpacing="10" >
+    <Grid RowDefinitions="*,Auto,Auto" RowSpacing="10" >
         
         <!-- Contenido -->
-        <Grid Margin="10" RowDefinitions="Auto,*" RowSpacing="10">
+        <Grid Grid.Row="0" Margin="0" RowDefinitions="Auto,*" RowSpacing="10">
             
             <!-- Buscar -->
-            <Border Grid.Row="0">
+            <Border Grid.Row="0" Margin="10">
                 <Border.StrokeShape>
                     <RoundRectangle CornerRadius="25"/>
                 </Border.StrokeShape>
                 <Grid ColumnDefinitions="*,1,70">
-                    <local:EntrySB Grid.Column="0" x:Name="txt_search" Margin="20,0,10,0" Placeholder="Buscar artista / canción" ReturnType="Search" />
+                    <local:EntrySB Grid.Column="0" Text="{Binding SearchText}" Margin="20,0,10,0" Placeholder="Buscar artista / canción" ClearButtonVisibility="WhileEditing" ReturnType="Search" ReturnCommand="{Binding SearchCommand}"/>
                     <Rectangle Grid.Column="1" WidthRequest="1" Margin="10" Fill="Gray"/>
-                    <ImageButton Grid.Column="2" Padding="0" Margin="0" Source="play.png" Clicked="Click_Search"/>
+                    <ImageButton Grid.Column="2" Padding="0" Margin="0" Source="play.png" Command="{Binding SearchCommand}"/>
                 </Grid>
             </Border>
 
@@ -33,57 +33,41 @@
         </Grid>
 
         <!-- Separador -->
-        <Rectangle Grid.Row="1" HeightRequest="1" Fill="Gray"/>
+        <Rectangle Grid.Row="1" HeightRequest="2" Fill="Gray"/>
         
         <!-- Controles -->
         <Grid Grid.Row="2" RowDefinitions="*,Auto" Margin="10" RowSpacing="10">
             
             <!-- Informacion -->
-            <Grid Grid.Row="0" ColumnDefinitions="Auto, Auto, *" ColumnSpacing="10">
+            <Grid Grid.Row="0" ColumnDefinitions="Auto, *" ColumnSpacing="15">
                 
                 <!-- Cover -->
                 <Border Grid.Column="0" WidthRequest="50" HeightRequest="50">
                     <Border.StrokeShape>
                         <RoundRectangle CornerRadius="10"/>
                     </Border.StrokeShape>
-                    <Image Aspect="Fill"  Source="{Binding Thumbnails}"/>
+                    <Image Aspect="AspectFill"  Source="{Binding Thumbnails}"/>
                 </Border>
                 
                 <!-- Iformacion -->
-                <StackLayout Grid.Column="1">
+                <StackLayout Grid.Column="1" VerticalOptions="Center">
                     <Label Text="{Binding TitleSong}"/>
                     <Label Text="{Binding Channel}" TextColor="Gray"/>
                 </StackLayout>
                 
-                <!-- Controles-->
-                <StackLayout Grid.Column="2" Orientation="Horizontal" HorizontalOptions="End" VerticalOptions="Center">
-                    <Border StrokeThickness="0">
-                        <Border.StrokeShape>
-                            <RoundRectangle CornerRadius="100"/>
-                        </Border.StrokeShape>
-                        <ImageButton WidthRequest="25" HeightRequest="25" Source="skipprevious.png"/>
-                    </Border>
-                    <Border StrokeThickness="0">
-                        <Border.StrokeShape>
-                            <RoundRectangle CornerRadius="100"/>
-                        </Border.StrokeShape>
-                        <ImageButton WidthRequest="25" HeightRequest="25" Source="play.png"/>
-                    </Border>
-
-                </StackLayout>
             </Grid>
             
             <!-- Barra de progreso -->
             <Grid Grid.Row="1" ColumnDefinitions="Auto,*,Auto">
                 
                 <!-- Current Time -->
-                <Label Grid.Column="0" Text="{Binding CurrentTime, StringFormat='{0:mm\\:ss}', TargetNullValue='00:00'}"/>
+                <Label Grid.Column="0" Text="{Binding CurrentTime, StringFormat='{0:hh\\:mm\\:ss}', TargetNullValue='00:00'}"/>
                 
                 <!-- Bar Progress -->
                 <ProgressBar Grid.Column="1" HeightRequest="6" Margin="10,0" Progress="{Binding ProgressTime}" ProgressColor="Green"/>
                 
                 <!-- Total Time -->
-                <Label Grid.Column="2" Text="{Binding TotalTime, StringFormat='{0:mm\\:ss}', TargetNullValue='00:00'}"/>
+                <Label Grid.Column="2" Text="{Binding TotalTime, StringFormat='{0:hh\\:mm\\:ss}', TargetNullValue='00:00'}"/>
                 
             </Grid>
             

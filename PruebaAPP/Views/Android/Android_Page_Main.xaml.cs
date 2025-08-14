@@ -33,54 +33,8 @@ public partial class Android_Page_Main : ContentPage
 
 	        }
 
-    // Funciones de la pagina
-        private async void Click_Search(object sender, EventArgs e)
-        {
-            await Search();
-        }
 
     // Funciones de youtube explode
-        [RelayCommand]
-        async Task Search()
-        {
-            // Criterio de cancelacion
-                if (this.issearch) { return; }
-
-            // Bloqueamos control
-                this.issearch = true;
-
-            // Iniciamos try
-                try
-                {
-                    // Criterios de cancelacion
-                        if (string.IsNullOrWhiteSpace(this.txt_search.Text)) { return; }
-
-                    // Reseteamos
-                        vm.ListItems = null;
-
-                    // Inicializamos yte
-                        var youtube = new YoutubeClient();
-                        var search = this.txt_search.Text;
-
-                    // Creamos lista
-                        var result = await youtube.Search.GetVideosAsync(search).CollectAsync(20);
-
-                    // Verificamos si se cancelo
-                        //if (!token.IsCancellationRequested) { return; }
-
-                    // Copiamos resultado
-                        vm.ListItems = result;
-
-                    // Borramos busqueda
-                        this.txt_search.Text = null;
-
-                } catch (Exception ex) {
-                    Debug.WriteLine(ex.Message);
-
-                } finally {
-                    this.issearch = false;
-                }
-        }
 
     // Funciones del reproductor
         private void MediaOpen_PlayerM(object sender, EventArgs e)

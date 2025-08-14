@@ -1,48 +1,53 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:PruebaAPP.Controls"
              x:Class="PruebaAPP.Views.Android.Android_View_Search">
     
-    <Grid>
-        <CollectionView ItemsSource="{Binding ListItems}">
-            <CollectionView.ItemsLayout>
-                <LinearItemsLayout Orientation="Vertical" ItemSpacing="0" />
-            </CollectionView.ItemsLayout>
+    <Grid Margin="0,10,0,0">
+        <CollectionView ItemsSource="{Binding ListItems}" ItemsUpdatingScrollMode="KeepScrollOffset" ItemSizingStrategy="MeasureFirstItem" RemainingItemsThreshold="0" RemainingItemsThresholdReachedCommand="{Binding LoadMoreCommand}" SelectionMode="Single" SelectionChanged="Click_SelectedItems">
             <CollectionView.ItemTemplate>
-                <DataTemplate>
-                    <Border Padding="10" StrokeThickness="0">
-                        <Border.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="OnBorderTapped" />
-                        </Border.GestureRecognizers>
+                <DataTemplate >
+                    <HorizontalStackLayout Padding="10,5" Spacing="15">
                         <VisualStateManager.VisualStateGroups>
                             <VisualStateGroup Name="CommonStates">
                                 <VisualState Name="Normal" />
-                                <VisualState Name="PointerOver">
+                                <VisualState Name="Selected">
                                     <VisualState.Setters>
-                                        <Setter Property="Background" Value="Gray"/>
+                                        <!-- Cambia el color a tu gusto -->
+                                        <Setter Property="BackgroundColor" Value="#33000000"/>
                                     </VisualState.Setters>
                                 </VisualState>
                             </VisualStateGroup>
                         </VisualStateManager.VisualStateGroups>
-                        <HorizontalStackLayout Spacing="10">
-                            <Border WidthRequest="70" HeightRequest="40">
-                                <Border.StrokeShape>
-                                    <RoundRectangle CornerRadius="10"/>
-                                </Border.StrokeShape>
-                                <Image Source="{Binding Thumbnails[2].Url}" Aspect="AspectFill"/>
-                            </Border>
-                            <Label VerticalOptions="Center">
-                                <Label.FormattedText>
-                                    <FormattedString>
-                                        <Span Text="{Binding Title, Mode=OneWay}" FontSize="14"/>
-                                        <Span Text="&#10;"/>
-                                        <Span Text="{Binding Author.ChannelTitle, Mode=OneWay}" FontSize="12"/>
-                                    </FormattedString>
-                                </Label.FormattedText>
-                            </Label>
-                        </HorizontalStackLayout>
-                    </Border>
+                        
+                        <!-- Imagen de fondo -->
+                        <Border WidthRequest="110" HeightRequest="80" VerticalOptions="Start">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="10"/>
+                            </Border.StrokeShape>
+                            <Image Aspect="AspectFill">
+                                <Image.Source>
+                                    <UriImageSource Uri="{Binding Thumbnails[0].Url}" CachingEnabled="True" />
+                                </Image.Source>
+                            </Image>
+                        </Border>
+                        
+                        <!-- Informacion -->
+                        <Label VerticalOptions="Center">
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="{Binding Title}"/>
+                                    <Span Text="&#10;"/>
+                                    <Span Text="@" TextColor="Gray"/>
+                                    <Span Text="{Binding Author.ChannelTitle}" TextColor="Gray"/>
+                                    <Span Text="&#10;"/>
+                                    <Span Text="{Binding Duration}"/>
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
 
+                    </HorizontalStackLayout>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
