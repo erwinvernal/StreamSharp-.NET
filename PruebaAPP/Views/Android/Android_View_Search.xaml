@@ -43,18 +43,11 @@
                             </Image>
                         </Border>
 
-                        <Label Grid.Column="1" HorizontalTextAlignment="Justify" VerticalOptions="Center">
-                            <Label.FormattedText>
-                                <FormattedString>
-                                    <Span Text="{Binding Title}" TextColor="White"/>
-                                    <Span Text="&#10;"/>
-                                    <Span Text="@" TextColor="Gray"/>
-                                    <Span Text="{Binding Author.ChannelTitle}" TextColor="Gray"/>
-                                    <Span Text="&#10;"/>
-                                    <Span Text="{Binding Duration}" TextColor="White"/>
-                                </FormattedString>
-                            </Label.FormattedText>
-                        </Label>
+                        <VerticalStackLayout Grid.Column="1">
+                            <Label Text="{Binding Title}" TextColor="White" LineBreakMode="TailTruncation" MaxLines="2" HorizontalTextAlignment="Justify"/>
+                            <Label Text="{Binding Author.ChannelTitle}" TextColor="Gray"/>
+                            <Label Text="{Binding Duration}" TextColor="White"/>
+                        </VerticalStackLayout>
 
                     </Grid>
                 </DataTemplate>

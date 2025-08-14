@@ -26,20 +26,7 @@
                 <RoundRectangle CornerRadius="25"/>
             </Border.StrokeShape>
 
-            <Grid ColumnDefinitions="*,1,70">
-                <local:EntrySB
-                    Grid.Column="0"
-                    Text="{Binding SearchText}"
-                    Margin="20,0,10,0"
-                    Placeholder="Buscar: Artista / Canción"
-                    PlaceholderColor="Gray"
-                    ClearButtonVisibility="WhileEditing"
-                    ReturnType="Search"
-                    ReturnCommand="{Binding SearchCommand}" />
-
-                <Rectangle Grid.Column="1" WidthRequest="1" Margin="10" Fill="Gray"/>
-                <ImageButton Grid.Column="2" Padding="10" Margin="0" Source="search.png" Command="{Binding SearchCommand}"/>
-            </Grid>
+            <SearchBar Text="{Binding SearchText}" Placeholder="Buscar: Artista / Canción" TextColor="White" PlaceholderColor="Gray" BackgroundColor="Transparent" SearchCommand="{Binding SearchCommand}"/>
         </Border>
 
         <!-- Contenido -->
@@ -51,34 +38,34 @@
             <!-- Reproductor (oculto, lo maneja MediaPlayerService) -->
             <toolkit:MediaElement x:Name="PlayerM" IsVisible="False" MediaOpened="MediaOpen_PlayerM" MediaEnded="MediaEnded_PlayerM"/>
 
-            <!-- Indicador (overlay loading) -->
-            <Grid>
-                <Rectangle Fill="Black" Opacity="0.8"/>
-                <ActivityIndicator WidthRequest="100" HeightRequest="100" IsRunning="{Binding IsLoading}">
-                    <ActivityIndicator.Style>
-                        <Style TargetType="ActivityIndicator">
-                            <Setter Property="IsVisible" Value="False"/>
-                            <Style.Triggers>
+        </Grid>
+        
+        <!-- Indicador (overlay loading) -->
+        <Grid Grid.Row="1" Margin="0,0,0,-2">
+            <Rectangle Fill="Black" Opacity="0.8"/>
+            <ActivityIndicator WidthRequest="100" HeightRequest="100" IsRunning="{Binding IsLoading}">
+                <ActivityIndicator.Style>
+                    <Style TargetType="ActivityIndicator">
+                        <Setter Property="IsVisible" Value="Collapse"/>
+                        <Style.Triggers>
                                 <DataTrigger TargetType="ActivityIndicator" Binding="{Binding IsLoading}" Value="True">
                                     <Setter Property="IsVisible" Value="True"/>
                                 </DataTrigger>
                             </Style.Triggers>
-                        </Style>
-                    </ActivityIndicator.Style>
-                </ActivityIndicator>
-
-                <Grid.Style>
-                    <Style TargetType="Grid">
-                        <Setter Property="IsVisible" Value="False"/>
-                        <Style.Triggers>
-                            <DataTrigger TargetType="Grid" Binding="{Binding IsLoading}" Value="True">
-                                <Setter Property="IsVisible" Value="True"/>
-                            </DataTrigger>
-                        </Style.Triggers>
                     </Style>
-                </Grid.Style>
-            </Grid>
-
+                </ActivityIndicator.Style>
+            </ActivityIndicator>
+        
+            <Grid.Style>
+                <Style TargetType="Grid">
+                    <Setter Property="IsVisible" Value="Collapse"/>
+                    <Style.Triggers>
+                        <DataTrigger TargetType="Grid" Binding="{Binding IsLoading}" Value="True">
+                            <Setter Property="IsVisible" Value="Visible"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Grid.Style>
         </Grid>
 
         <!-- Separador -->
@@ -91,19 +78,30 @@
             <Rectangle Grid.RowSpan="2" Fill="Black" Opacity="0.9" Margin="0,0,0,-1"/>
 
             <!-- Informacion -->
-            <Grid Grid.Row="0" ColumnDefinitions="Auto, *, Auto" ColumnSpacing="15" Margin="20,10,20,0">
+            <Grid Grid.Row="0" ColumnDefinitions="Auto, *, Auto" Margin="20,10,20,0">
                 
                 <!-- Imagen Cover -->
-                <Border Grid.Column="0" WidthRequest="50" HeightRequest="50">
+                <Border Grid.Column="0" WidthRequest="50" HeightRequest="50" StrokeThickness="0" Margin="0,0,15,0">
                     <Border.StrokeShape>
                         <RoundRectangle CornerRadius="10"/>
                     </Border.StrokeShape>
                     <Image Aspect="AspectFill" Source="{Binding Thumbnails}"/>
+
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="IsVisible" Value="Visible"/>
+                            <Style.Triggers>
+                                <DataTrigger TargetType="Border" Binding="{Binding Thumbnails}" Value="{x:Null}">
+                                    <Setter Property="IsVisible" Value="Collapse"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
                 </Border>
 
                 <!-- Informacion -->
-                <StackLayout Grid.Column="1" VerticalOptions="Center">
-                    <Label Text="{Binding TitleSong}" TextColor="White"/>
+                <StackLayout Grid.Column="1" VerticalOptions="Center" Margin="0,0,15,0">
+                    <Label Text="{Binding TitleSong}" HorizontalTextAlignment="Justify" TextColor="White" LineBreakMode="TailTruncation" MaxLines="2"/>
                     <HorizontalStackLayout>
                         <Label Text="{Binding Channel}" TextColor="Gray"/>
                     </HorizontalStackLayout>
@@ -111,9 +109,20 @@
                 
                 <!-- Button de expancion -->
                 <HorizontalStackLayout Grid.Column="2">
-                    <ImageButton Grid.Column="2" Padding="5" Source="heart.png"/>
-                    <ImageButton Grid.Column="2" Padding="5" Source="heart.png"/>
+                    <Border VerticalOptions="Center" StrokeThickness="0">
+                        <Border.StrokeShape>
+                            <Ellipse/>
+                        </Border.StrokeShape>
+                        <ImageButton Padding="10" Source="heartplus.png" BackgroundColor="Transparent"/>
+                    </Border>
+                    <Border VerticalOptions="Center" StrokeThickness="0">
+                        <Border.StrokeShape>
+                            <Ellipse/>
+                        </Border.StrokeShape>
+                        <ImageButton Padding="10" Source="expand.png"    BackgroundColor="Transparent"/>
+                    </Border>
                 </HorizontalStackLayout>
+                
             </Grid>
 
             <!-- Barra de progreso -->
@@ -128,6 +137,7 @@
         <!-- Botones  -->
         <Grid Grid.Row="4" ColumnDefinitions="*,*,*,*">
             <Rectangle Grid.ColumnSpan="4" Fill="Black" Opacity="0.9" Margin="0,0,0,-1" />
+
             <ImageButton Grid.Column="0" Padding="10" Source="home.png"     BackgroundColor="Transparent"/>
             <ImageButton Grid.Column="1" Padding="10" Source="search.png"   BackgroundColor="Transparent"/>
             <ImageButton Grid.Column="2" Padding="10" Source="playlist.png" BackgroundColor="Transparent"/>

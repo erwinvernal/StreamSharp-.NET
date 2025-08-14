@@ -27,7 +27,7 @@ namespace PruebaAPP.Views.Android.ViewModels
         [ObservableProperty] public partial string?   SearchText { get; set; }
         [ObservableProperty] public partial string?   TitleSong { get; set; }
         [ObservableProperty] public partial string?   Channel { get; set; }
-        [ObservableProperty] public partial string?   Thumbnails { get; set; }
+        [ObservableProperty] public partial string?   Thumbnails { get; set; } = null;
         [ObservableProperty] public partial TimeSpan? CurrentTime { get; set; }
         [ObservableProperty] public partial TimeSpan? TotalTime { get; set; }
         [ObservableProperty] public partial double    ProgressTime { get; set; }
@@ -171,7 +171,7 @@ namespace PruebaAPP.Views.Android.ViewModels
 
             Thumbnails = item.Thumbnails[0].Url;
             TitleSong = item.Title;
-            Channel = item.Author.ChannelTitle;
+            Channel = "@" + item.Author.ChannelTitle;
 
             _mediaService.Play(streamInfo.Url);
         }
