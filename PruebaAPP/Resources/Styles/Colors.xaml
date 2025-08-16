@@ -28,6 +28,14 @@
     <Color x:Key="Gray900">#212121</Color>
     <Color x:Key="Gray950">#141414</Color>
 
+    <Color x:Key="backg_night_0">#FF292B33</Color>
+    <Color x:Key="backg_night_1">#FF292B33</Color>
+    <Color x:Key="backg_night_2">#FF1C1E26</Color>
+
+    <Color x:Key="foreg_night_0">#FF99DFDC</Color>
+    <Color x:Key="foreg_night_1">#FFC3C4C6</Color>
+    <Color x:Key="foreg_night_2">#FFFFFFFF</Color>
+
     <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource Primary}"/>
     <SolidColorBrush x:Key="SecondaryBrush" Color="{StaticResource Secondary}"/>
     <SolidColorBrush x:Key="TertiaryBrush" Color="{StaticResource Tertiary}"/>
@@ -42,4 +50,12 @@
     <SolidColorBrush x:Key="Gray600Brush" Color="{StaticResource Gray600}"/>
     <SolidColorBrush x:Key="Gray900Brush" Color="{StaticResource Gray900}"/>
     <SolidColorBrush x:Key="Gray950Brush" Color="{StaticResource Gray950}"/>
+
+    <SolidColorBrush x:Key="brush_backg_night_0" Color="{StaticResource backg_night_0}"/>
+    <SolidColorBrush x:Key="brush_backg_night_1" Color="{StaticResource backg_night_0}"/>
+    <SolidColorBrush x:Key="brush_backg_night_2" Color="{StaticResource backg_night_0}"/>
+    <SolidColorBrush x:Key="brush_foreg_night_0" Color="{StaticResource foreg_night_0}"/>
+    <SolidColorBrush x:Key="brush_foreg_night_1" Color="{StaticResource foreg_night_1}"/>
+    <SolidColorBrush x:Key="brush_foreg_night_2" Color="{StaticResource foreg_night_2}"/>
+    
 </ResourceDictionary>

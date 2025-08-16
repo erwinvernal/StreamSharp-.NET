@@ -27,7 +27,13 @@ namespace PruebaAPP
 
         protected override Window CreateWindow(IActivationState? activationState)
         {
-            return new Window(new Android_Page_Main());
+            var win = new Window(new Android_Page_Main())
+            {
+                Width = 400,
+                X = 0,
+                Y = 0
+            };
+            return win;
         }
     }
 }

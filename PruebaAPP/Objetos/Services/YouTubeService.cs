@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;             // 👈 necesario para IAsyncEnumerator
 using YoutubeExplode;
 using YoutubeExplode.Search;
+using YoutubeExplode.Videos;
 using YoutubeExplode.Videos.Streams;
 
 public class YouTubeService
@@ -15,5 +16,12 @@ public class YouTubeService
     {
         var manifest = await _youtube.Videos.Streams.GetManifestAsync(videoUrl);
         return manifest.GetAudioOnlyStreams().GetWithHighestBitrate();
+    }
+
+    public async Task<VideoSearchResult> GetVideoDetailsAsync(string videoId)
+    {
+        Video a = await _youtube.Videos.GetAsync(videoId);
+        VideoSearchResult b = new(a.Id, a.Title, a.Author, a.Duration, a.Thumbnails);
+        return b;
     }
 }

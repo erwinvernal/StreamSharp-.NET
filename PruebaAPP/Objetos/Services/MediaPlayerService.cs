@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.Maui.Views;
 
-namespace PruebaAPP.Views.Android.Services
+namespace PruebaAPP.Objetos.Services
 {
     public class MediaPlayerService
     {

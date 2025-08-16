@@ -3,34 +3,25 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
-    xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
     xmlns:local="clr-namespace:PruebaAPP.Controls"
     xmlns:vm="clr-namespace:PruebaAPP.Views.Android.ViewModels"
     xmlns:data="clr-namespace:PruebaAPP.Views.Android"
     xmlns:yt="clr-namespace:YoutubeExplode.Search;assembly=YoutubeExplode"
-    x:DataType="vm:AndroidPropertyViewModel"
+    xmlns:md="clr-namespace:PruebaAPP.Objetos.Models"
     x:Class="PruebaAPP.Views.Android.Android_Page_Main"
-    Background="Black"
+    x:DataType="vm:AndroidPropertyViewModel"
+    BackgroundColor="{StaticResource backg_night_0}"
     Title="Android_Page_Main">
 
-    <Grid RowDefinitions="Auto,*,1,110,50" RowSpacing="0">
+    <Grid RowDefinitions="*,1,110,50" RowSpacing="0">
 
         <!-- Imagen de fondo -->
         <Grid Grid.RowSpan="5"  Opacity="0.12">
-            <Image Source="{Binding Thumbnails}" Aspect="AspectFill"/>
+            <Image Source="{Binding CurrentSong.Thumbnails}" Aspect="AspectFill"/>
         </Grid>
 
-        <!-- Buscador -->
-        <Border Grid.Row="0" Margin="10">
-            <Border.StrokeShape>
-                <RoundRectangle CornerRadius="25"/>
-            </Border.StrokeShape>
-
-            <SearchBar Text="{Binding SearchText}" Placeholder="Buscar: Artista / Canción" TextColor="White" PlaceholderColor="Gray" BackgroundColor="Transparent" SearchCommand="{Binding SearchCommand}"/>
-        </Border>
-
         <!-- Contenido -->
-        <Grid Grid.Row="1" Grid.RowSpan="4" Margin="0" RowSpacing="0">
+        <Grid Grid.Row="0" Grid.RowSpan="0" Margin="0" RowSpacing="0">
 
             <!-- Items -->
             <ContentView x:Name="ModuleContainer"/>
@@ -41,9 +32,9 @@
         </Grid>
         
         <!-- Indicador (overlay loading) -->
-        <Grid Grid.Row="1" Margin="0,0,0,-2">
-            <Rectangle Fill="Black" Opacity="0.8"/>
-            <ActivityIndicator WidthRequest="100" HeightRequest="100" IsRunning="{Binding IsLoading}">
+        <Grid Grid.Row="0" Grid.RowSpan="2" Margin="0,0,0,-2">
+            <Rectangle Fill="Black" Opacity="0.5"/>
+            <ActivityIndicator WidthRequest="100" HeightRequest="100" IsRunning="{Binding IsLoading}" Color="{StaticResource foreg_night_0}">
                 <ActivityIndicator.Style>
                     <Style TargetType="ActivityIndicator">
                         <Setter Property="IsVisible" Value="Collapse"/>
@@ -69,13 +60,13 @@
         </Grid>
 
         <!-- Separador -->
-        <Rectangle Grid.Row="2" Fill="Black"/>
+        <Rectangle Grid.Row="1" Fill="Black"/>
 
         <!-- Controles -->
-        <Grid Grid.Row="3" RowDefinitions="*,Auto">
+        <Grid Grid.Row="2" RowDefinitions="*,Auto">
 
             <!-- Color de fondo -->
-            <Rectangle Grid.RowSpan="2" Fill="Black" Opacity="0.9" Margin="0,0,0,-1"/>
+            <Rectangle Grid.RowSpan="2" Fill="{StaticResource backg_night_2}" Opacity="0.7" Margin="0,0,0,-1"/>
 
             <!-- Informacion -->
             <Grid Grid.Row="0" ColumnDefinitions="Auto, *, Auto" Margin="20,10,20,0">
@@ -85,25 +76,28 @@
                     <Border.StrokeShape>
                         <RoundRectangle CornerRadius="10"/>
                     </Border.StrokeShape>
-                    <Image Aspect="AspectFill" Source="{Binding Thumbnails}"/>
-
-                    <Border.Style>
-                        <Style TargetType="Border">
-                            <Setter Property="IsVisible" Value="Visible"/>
-                            <Style.Triggers>
-                                <DataTrigger TargetType="Border" Binding="{Binding Thumbnails}" Value="{x:Null}">
+                    <Grid>
+                        <Image Aspect="AspectFill" Source="{Binding CurrentSong.Thumbnails}"/>
+                        <ActivityIndicator WidthRequest="50" HeightRequest="50" IsRunning="{Binding IsLoading2}" Color="{StaticResource foreg_night_0}">
+                            <ActivityIndicator.Style>
+                                <Style TargetType="ActivityIndicator">
                                     <Setter Property="IsVisible" Value="Collapse"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Border.Style>
+                                    <Style.Triggers>
+                                        <DataTrigger TargetType="ActivityIndicator" Binding="{Binding IsLoading2}" Value="True">
+                                            <Setter Property="IsVisible" Value="True"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ActivityIndicator.Style>
+                        </ActivityIndicator>
+                    </Grid>
                 </Border>
 
                 <!-- Informacion -->
                 <StackLayout Grid.Column="1" VerticalOptions="Center" Margin="0,0,15,0">
-                    <Label Text="{Binding TitleSong}" HorizontalTextAlignment="Justify" TextColor="White" LineBreakMode="TailTruncation" MaxLines="2"/>
+                    <Label Text="{Binding CurrentSong.Title}" HorizontalTextAlignment="Justify" TextColor="{StaticResource foreg_night_2}" LineBreakMode="TailTruncation" MaxLines="2"/>
                     <HorizontalStackLayout>
-                        <Label Text="{Binding Channel}" TextColor="Gray"/>
+                        <Label Text="{Binding CurrentSong.Channel}" TextColor="{StaticResource foreg_night_1}"/>
                     </HorizontalStackLayout>
                 </StackLayout>
                 
@@ -113,13 +107,26 @@
                         <Border.StrokeShape>
                             <Ellipse/>
                         </Border.StrokeShape>
-                        <ImageButton Padding="10" Source="heartplus.png" BackgroundColor="Transparent"/>
+                        <Button FontSize="24" FontFamily="MaterialIconsOutlinedRegular" BackgroundColor="Transparent" Clicked="Click_AddFavoriteSong">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Text" Value="&#xe87e;"/>
+                                    <Setter Property="TextColor" Value="{StaticResource foreg_night_2}"/>
+                                    <Style.Triggers>
+                                        <DataTrigger TargetType="Button" Binding="{Binding CurrentSong.Favorite}" Value="True">
+                                            <Setter Property="Text" Value="&#xe87d;"/>
+                                            <Setter Property="TextColor" Value="{StaticResource foreg_night_0}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
                     </Border>
                     <Border VerticalOptions="Center" StrokeThickness="0">
                         <Border.StrokeShape>
                             <Ellipse/>
                         </Border.StrokeShape>
-                        <ImageButton Padding="10" Source="expand.png"    BackgroundColor="Transparent"/>
+                        <Button Text="&#xeae6;" FontSize="24" FontFamily="MaterialIconsOutlinedRegular" TextColor="{StaticResource foreg_night_2}" BackgroundColor="Transparent" Clicked="Click_OpenChannel"/>
                     </Border>
                 </HorizontalStackLayout>
                 
@@ -127,21 +134,21 @@
 
             <!-- Barra de progreso -->
             <Grid Grid.Row="1" ColumnDefinitions="Auto,*,Auto" Margin="20,0,20,10">
-                <Label Grid.Column="0" Text="{Binding CurrentTime, StringFormat='{0:hh\\:mm\\:ss}', TargetNullValue='00:00'}" TextColor="White"/>
-                <ProgressBar Grid.Column="1" HeightRequest="6" Margin="10,0" Progress="{Binding ProgressTime}" ProgressColor="White"/>
-                <Label Grid.Column="2" Text="{Binding TotalTime, StringFormat='{0:hh\\:mm\\:ss}', TargetNullValue='00:00'}" TextColor="White"/>
+                <Label Grid.Column="0" Text="{Binding CurrentSong.CurrentTimeFormatted}" TextColor="{StaticResource foreg_night_2}"/>
+                <ProgressBar Grid.Column="1" HeightRequest="6" Margin="10,0" Progress="{Binding CurrentSong.ProgressTime, TargetNullValue='1'}" BackgroundColor="Transparent" ProgressColor="{StaticResource foreg_night_0}"/>
+                <Label Grid.Column="2" Text="{Binding CurrentSong.TotalTimeFormatted}" TextColor="{StaticResource foreg_night_2}"/>
             </Grid>
 
         </Grid>
 
         <!-- Botones  -->
-        <Grid Grid.Row="4" ColumnDefinitions="*,*,*,*">
-            <Rectangle Grid.ColumnSpan="4" Fill="Black" Opacity="0.9" Margin="0,0,0,-1" />
+        <Grid Grid.Row="3" ColumnDefinitions="*,*,*,*">
+            <Rectangle Grid.ColumnSpan="4" Fill="{StaticResource backg_night_2}" Opacity="0.7" Margin="0,0,0,-1" />
 
-            <ImageButton Grid.Column="0" Padding="10" Source="home.png"     BackgroundColor="Transparent"/>
-            <ImageButton Grid.Column="1" Padding="10" Source="search.png"   BackgroundColor="Transparent"/>
-            <ImageButton Grid.Column="2" Padding="10" Source="playlist.png" BackgroundColor="Transparent"/>
-            <ImageButton Grid.Column="3" Padding="10" Source="heart.png"    BackgroundColor="Transparent"/>
+            <Button Grid.Column="0" Text="&#xe3a1;" FontSize="24" FontFamily="MaterialIconsOutlinedRegular" TextColor="{StaticResource foreg_night_2}" BackgroundColor="Transparent"/>
+            <Button Grid.Column="1" Text="&#xe8b6;" FontSize="24" FontFamily="MaterialIconsOutlinedRegular" TextColor="{StaticResource foreg_night_2}" BackgroundColor="Transparent" Clicked="Click_OpenSearch"/>
+            <Button Grid.Column="2" Text="&#xe03d;" FontSize="24" FontFamily="MaterialIconsOutlinedRegular" TextColor="{StaticResource foreg_night_2}" BackgroundColor="Transparent"/>
+            <Button Grid.Column="3" Text="&#xe87d;" FontSize="24" FontFamily="MaterialIconsOutlinedRegular" TextColor="{StaticResource foreg_night_2}" BackgroundColor="Transparent" Clicked="Click_OpenFavorite"/>
         </Grid>
     </Grid>
 </ContentPage>

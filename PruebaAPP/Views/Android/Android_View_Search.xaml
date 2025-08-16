@@ -6,32 +6,36 @@
              x:DataType="vm:AndroidPropertyViewModel"
              x:Class="PruebaAPP.Views.Android.Android_View_Search">
 
-    <Grid Margin="0,10,0,0">
-        <CollectionView
-            x:Name="ResultsCollection"
-            Margin="10,0"
-            ItemsSource="{Binding ListItems}"
-            ItemsUpdatingScrollMode="KeepScrollOffset"
-            ItemSizingStrategy="MeasureFirstItem"
-            RemainingItemsThreshold="2"
-            RemainingItemsThresholdReached="ResultsCollection_RemainingItemsThresholdReached"
-            SelectionMode="Single"
-            SelectionChanged="Click_SelectedItems">
+    <Grid Margin="0" RowDefinitions="Auto,*">
 
+        <!-- Buscador -->
+        <Border Grid.Row="0" Margin="10,10,10,0" ZIndex="0">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="25"/>
+            </Border.StrokeShape>
+            <SearchBar x:Name="txt_search" Text="{Binding SearchText}" Placeholder="Buscar: Artista / Canción" TextColor="{StaticResource foreg_night_2}" CancelButtonColor="{x:StaticResource foreg_night_2}" PlaceholderColor="{StaticResource foreg_night_1}" BackgroundColor="Transparent" SearchCommand="{Binding SearchCommand}" TextChanged="SearchBar_TextChanged"/>
+        </Border>
+        
+        <!-- Sugerencia -->
+        <CollectionView Grid.Row="1" x:Name="SuggestionsList" Margin="0,10" SelectionMode="Single" SelectionChanged="SuggestionsList_SelectionChanged">
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="x:String">
+                    <HorizontalStackLayout Padding="10">
+                        <Image WidthRequest="20" HeightRequest="20" Margin="0,0,5,0" Source="search.png"/>
+                        <Label Text="{Binding}" TextColor="White"/>
+                    </HorizontalStackLayout>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+        
+        <!-- Lista -->
+        <CollectionView Grid.Row="1" x:Name="ResultsCollection" Margin="0,10,0,0" ItemsSource="{Binding ListItems}" ItemsUpdatingScrollMode="KeepScrollOffset" ItemSizingStrategy="MeasureFirstItem" RemainingItemsThreshold="2" RemainingItemsThresholdReached="ResultsCollection_RemainingItemsThresholdReached" SelectionMode="Single" SelectionChanged="Click_SelectedItems">
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="yt:VideoSearchResult">
-                    <Grid ColumnDefinitions="Auto,*" Padding="10,5">
-                        <VisualStateManager.VisualStateGroups>
-                            <VisualStateGroup Name="CommonStates">
-                                <VisualState Name="Normal" />
-                                <VisualState Name="Selected">
-                                    <VisualState.Setters>
-                                        <Setter Property="BackgroundColor" Value="#33000000"/>
-                                    </VisualState.Setters>
-                                </VisualState>
-                            </VisualStateGroup>
-                        </VisualStateManager.VisualStateGroups>
+                    <Grid ColumnDefinitions="Auto,*" Padding="20,5">
 
+
+                        <!-- Cover -->
                         <Border Grid.Column="0" Margin="0,0,10,0" WidthRequest="110" HeightRequest="80" VerticalOptions="Start">
                             <Border.StrokeShape>
                                 <RoundRectangle CornerRadius="10"/>
@@ -43,6 +47,7 @@
                             </Image>
                         </Border>
 
+                        <!-- Informacion -->
                         <VerticalStackLayout Grid.Column="1">
                             <Label Text="{Binding Title}" TextColor="White" LineBreakMode="TailTruncation" MaxLines="2" HorizontalTextAlignment="Justify"/>
                             <Label Text="{Binding Author.ChannelTitle}" TextColor="Gray"/>
@@ -53,5 +58,6 @@
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
+
     </Grid>
 </ContentView>
