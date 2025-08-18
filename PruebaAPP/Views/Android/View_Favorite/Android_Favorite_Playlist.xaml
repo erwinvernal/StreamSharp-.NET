@@ -39,10 +39,10 @@
         <CollectionView Grid.Row="1" Margin="0,20,0,0" ItemsSource="{Binding Playlists}" SelectionMode="Single" SelectionChanged="Click_SelectedPlaylist">
             <CollectionView.ItemTemplate>
                 <DataTemplate>
-                    <Grid ColumnDefinitions="*,Auto">
+                    <Grid ColumnDefinitions="*,Auto" Padding="15,5">
                         
                         <!-- Informacion -->
-                        <HorizontalStackLayout Padding="20,0" x:DataType="fv:Playlist">
+                        <HorizontalStackLayout Padding="0,0" x:DataType="fv:Playlist">
                             <Label Text="&#xe03d;" FontSize="24" FontFamily="MaterialIconsOutlinedRegular" TextColor="{StaticResource foreg_night_2}"/>
                             <VerticalStackLayout Margin="5,0,0,0">
                                 <Label Text="{Binding Title}" TextColor="{StaticResource foreg_night_2}"/>
@@ -54,7 +54,7 @@
                         </HorizontalStackLayout>
                         
                         <!-- ELiminar -->
-                        <Button Grid.Column="2" 
+                        <Button Grid.Column="2"  WidthRequest="52" HeightRequest="52"
                                 Text="&#xe872;" 
                                 FontSize="24" 
                                 FontFamily="MaterialIconsRegular" 

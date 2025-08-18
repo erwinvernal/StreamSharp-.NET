@@ -28,8 +28,8 @@ namespace PruebaAPP.Views.Android.ViewModels
                     _dispatcher         = dispatcher;
 
                     // Cargamos lista de favoritos
-                    Favoritos = new ObservableCollection<Objetos.Models.Favorite>(_favoritosService.GetAll());
-                    Playlists = new ObservableCollection<Objetos.Models.Playlist>(_playlistService.GetAll());
+                    Favoritos = new ObservableCollection<Favorite>(_favoritosService.GetAll());
+                    Playlists = new ObservableCollection<Playlist>(_playlistService.GetAll());
 
                     // Precarga por defecto
                     SearchText = "Música";
@@ -48,17 +48,6 @@ namespace PruebaAPP.Views.Android.ViewModels
             private readonly IDispatcher        _dispatcher;
 
         // =============================================================================================
-        // == Declaracion de variables
-        // =============================================================================================
-            private bool _isSearching;
-            private bool _isLoadingMore;
-            private IAsyncEnumerator<VideoSearchResult>? _searchEnumerator;
-            private int _loadedCount = 0;
-            private string _currentSearch = string.Empty;
-            private readonly List<VideoSearchResult> _cache = [];
-            private CancellationTokenSource? _cts;
-
-        // =============================================================================================
         // == Otras propiedades
         // =============================================================================================
             [ObservableProperty] public partial View? CurrentView { get; set; }
@@ -72,65 +61,71 @@ namespace PruebaAPP.Views.Android.ViewModels
             // Declaracion de la lista de resultados
             public ObservableCollection<VideoSearchResult> ListItems { get; set; } = [];
             private bool _isPlayingSong = false;
+            private readonly List<VideoSearchResult> _cache = [];
+            private string _currentSearch = string.Empty;
+            private IAsyncEnumerator<VideoSearchResult>? _searchEnumerator;
+            private bool _isLoadingMore;
+            private bool _isSearching;
+            private int _loadedCount = 0;
 
             // Comandos de busqueda
             [RelayCommand] public async Task Search()
-            {
-
-                // Criterio de cancelación   
-                if (_isSearching || string.IsNullOrWhiteSpace(SearchText)) return;
-
-                // Activamos variables
-                _isSearching = true;
-                IsLoading = true;
-
-                // Comenzamos el campo
-                try
                 {
-                    // Declaramos variables de reintentos
-                    int maxretis = 3;
-                    int retris = 0;
-                    bool retry = false;
 
-                    // Iniciamos ciclo
-                    do
+                    // Criterio de cancelación   
+                    if (_isSearching || string.IsNullOrWhiteSpace(SearchText)) return;
+
+                    // Activamos variables
+                    _isSearching = true;
+                    IsLoading = true;
+
+                    // Comenzamos el campo
+                    try
                     {
-                        try
+                        // Declaramos variables de reintentos
+                        int maxretis = 3;
+                        int retris = 0;
+                        bool retry = false;
+
+                        // Iniciamos ciclo
+                        do
                         {
+                            try
+                            {
 
-                            // Preconfiguramos
-                            _currentSearch = SearchText.Trim();
-                            _loadedCount = 0;
-                            _cache.Clear();
-                            ListItems.Clear();
+                                // Preconfiguramos
+                                _currentSearch = SearchText.Trim();
+                                _loadedCount = 0;
+                                _cache.Clear();
+                                ListItems.Clear();
 
-                            // Obtenemos listado
-                            _searchEnumerator = _youtubeService.GetSearchEnumerator(_currentSearch);
+                                // Obtenemos listado
+                                _searchEnumerator = _youtubeService.GetSearchEnumerator(_currentSearch);
 
-                            // Descargamos lista
-                            await LoadMore(10);
+                                // Descargamos lista
+                                await LoadMore(10);
 
-                            // Si todo salio bien limpeamos 
-                            SearchText = string.Empty;
+                                // Si todo salio bien limpeamos 
+                                SearchText = string.Empty;
 
-                        }
-                        catch
-                        {
-                            retris++;
-                            if (retris > maxretis) return;
-                            await Task.Delay(1000);
-                            retry = true;
-                        }
+                            }
+                            catch
+                            {
+                                retris++;
+                                if (retris > maxretis) return;
+                                await Task.Delay(1000);
+                                retry = true;
+                            }
 
-                    } while (retry);
+                        } while (retry);
+                    }
+                    finally
+                    {
+                        _isSearching = false;
+                        IsLoading = false;
+                    }
+
                 }
-                finally
-                {
-                    _isSearching = false;
-                    IsLoading = false;
-                }
-
-            }
             [RelayCommand] public async Task PlaySong(VideoSearchResult item)
             {
                 // Validamos
@@ -140,43 +135,40 @@ namespace PruebaAPP.Views.Android.ViewModels
                 // Cambiamos estado
                 _isPlayingSong = true;
                 CurrentSong = new Song();
+                IsLoading2 = true;
 
                 // Empezamos proceso
                 try
                 {
-                    IsLoading2 = true;
-
                     // Detener la canción actual si hay una
-                    if (_mediaService.Player.CurrentState == MediaElementState.Playing)
-                        _mediaService.Player.Stop();
+                    if (_mediaService.Player.CurrentState == MediaElementState.Playing) _mediaService.Player.Stop();
 
                     // Obtener stream
                     IStreamInfo? streamInfo = null;
-                    try
-                    {
+                    try {
+
                         streamInfo = await Task.Run(() => _youtubeService.GetBestAudioStreamAsync(item.Url));
-                    }
-                    catch (Exception ex)
-                    {
+
+                    } catch (Exception ex) {
                         Debug.WriteLine($"Error al obtener stream: {ex.Message}");
                         return;
                     }
 
-                    if (streamInfo == null)
-                        return;
+                    // Verificamos si hay datos
+                    if (streamInfo is null) return;
 
                     // Asignar CurrentSong
                     CurrentSong = new Song()
                     {
-                        Id = item.Id,
-                        Title = item.Title,
-                        Channel = item.Author,
-                        Thumbnails = item.Thumbnails,
-                        Duration = item.Duration,
-                        CurrentTime = TimeSpan.Zero,
-                        TotalTime = item.Duration ?? TimeSpan.Zero,
+                        Id           = item.Id,
+                        Title        = item.Title,
+                        Channel      = item.Author,
+                        Thumbnails   = item.Thumbnails,
+                        Duration     = item.Duration,
+                        CurrentTime  = TimeSpan.Zero,
+                        TotalTime    = TimeSpan.Zero,
                         ProgressTime = 0,
-                        Favorite = _favoritosService.Exists(item.Id)
+                        Favorite     = _favoritosService.Exists(item.Id)
                     };
 
                     // Reproducir
@@ -189,22 +181,33 @@ namespace PruebaAPP.Views.Android.ViewModels
             }
             [RelayCommand] public async Task PlaySongById(string id)
             {
-                if (string.IsNullOrWhiteSpace(id))
-                    return;
+                // Validamos
+                if (string.IsNullOrWhiteSpace(id)) return;
+
+                // Detener la canción actual si hay una
+                if (_mediaService.Player.CurrentState == MediaElementState.Playing) _mediaService.Player.Stop();
+
+                // Cambiamos estado
+                IsLoading2  = true;
+                CurrentSong = new Song();
 
                 // Obtener detalles del video
                 VideoSearchResult item;
-                try
-                {
+                try {
+
+                    // Descargamos manifiesto
                     item = await _youtubeService.GetVideoDetailsAsync(id);
-                }
-                catch (Exception ex)
-                {
+
+                    // Lanzamos comando para reproducir
+                    await PlaySong(item);
+
+                } catch (Exception ex) {
                     Debug.WriteLine($"Error al obtener detalles: {ex.Message}");
                     return;
+                } finally { 
+                    IsLoading2 = false;
                 }
 
-                await PlaySong(item);
             }
             [RelayCommand] public async Task LoadMore(int count = 10)
             {
@@ -224,12 +227,12 @@ namespace PruebaAPP.Views.Android.ViewModels
                         loaded++;
                         _loadedCount++;
                     }
-                    if (newItems.Count > 0)
-                        await _dispatcher.DispatchAsync(() =>
-                        {
-                            foreach (var i in newItems) ListItems.Add(i);
-                            return;
-                        });
+
+                    if (newItems.Count > 0) await _dispatcher.DispatchAsync(() =>
+                    {
+                        foreach (var i in newItems) ListItems.Add(i);
+                        return;
+                    });
 
                     // 2️⃣ Consumir enumerador
                     var enumeratorItems = new List<VideoSearchResult>();
@@ -265,6 +268,7 @@ namespace PruebaAPP.Views.Android.ViewModels
                             loaded++;
                         }
                     }
+
                     if (enumeratorItems.Count > 0)
                         //await _dispatcher.DispatchAsync(() => {
                         foreach (var i in enumeratorItems) ListItems.Add(i);
@@ -295,13 +299,14 @@ namespace PruebaAPP.Views.Android.ViewModels
         // == Favoritos
         // =============================================================================================
             // Declaración de la colección de favoritos
-            public ObservableCollection<Objetos.Models.Favorite> Favoritos { get; } = [];
+            public ObservableCollection<Favorite> Favoritos { get; } = [];
 
             // Funciones para manejar favoritos
-            [RelayCommand] public void AddFavorite(Objetos.Models.Favorite favorito)
+            [RelayCommand] public void AddFavorite(Favorite favorito)
             {
-                _favoritosService.Add(favorito);
-                Favoritos.Add(favorito);
+                bool result = _favoritosService.Add(favorito);
+                if (result)
+                    Favoritos.Add(favorito);
             }
             [RelayCommand] public async Task DeleteFavorite(string id)
             {
@@ -318,8 +323,7 @@ namespace PruebaAPP.Views.Android.ViewModels
 
                 // Eliminar de la lista observable del ViewModel
                 var item = Favoritos.FirstOrDefault(f => f.Id == id);
-                if (item != null)
-                    Favoritos.Remove(item);
+                if (item != null) Favoritos.Remove(item);
 
                 // Verificamos si la cancion esta corriendo
                 if (CurrentSong != null && !string.IsNullOrEmpty(CurrentSong.Id) && item != null && !string.IsNullOrEmpty(item.Id) && CurrentSong.Id == item.Id)
@@ -328,16 +332,22 @@ namespace PruebaAPP.Views.Android.ViewModels
                 }
 
             }
-            [RelayCommand] public void ChangeFavoriteType(FType newType)
+            [RelayCommand] public void Favorite_PlayAll()
             {
 
-                // Traer filtrados desde el servicio
-                var filtrados = _favoritosService.GetByType(newType);
+                // Creamos una playlist temporal
+                Playlist playlist = new()
+                {
+                    Id    = "0",
+                    Title = "Mis lista de favoritos",
+                    Items = Favoritos
+                };
 
-                // Refrescar la colección sin reemplazarla
-                Favoritos.Clear();
-                foreach (var fav in filtrados)
-                    Favoritos.Add(fav);
+                // Establecemos playlist
+                SelectedPlaylist = playlist;
+
+                // Abrimos ventana
+                CurrentView = new Android_View_Playlist();
 
             }
 
@@ -349,7 +359,7 @@ namespace PruebaAPP.Views.Android.ViewModels
             public record PlaylistRemoveParam(string PlaylistId, string FavoriteId);
 
             // Propiedades de control de playlist
-            [ObservableProperty] public partial Playlist? SelectedPlaylist { get; set; }
+            [ObservableProperty] public partial Playlist? SelectedPlaylist { get; set; } = new Playlist();
             
             // Comandos de control de playlist
             [RelayCommand] public async Task Playlist_Created()
@@ -419,17 +429,22 @@ namespace PruebaAPP.Views.Android.ViewModels
             }
             [RelayCommand] public async Task Playlist_ToDelete(PlaylistRemoveParam param)
             {
+                // Verificamos si hay parametro
                 if (param == null) return;
 
+                // Buscamos page principal
                 var mainPage = Application.Current?.Windows.FirstOrDefault()?.Page;
-                if (mainPage == null) return;
+                if (mainPage is null) return;
 
-                bool result = await mainPage.DisplayAlert(
-                    "¿Quitar de esta playlist?",
-                    "Esta acción no se puede restaurar. ¿Estás seguro de continuar?",
-                    "Quitar", "Cancelar");
+                // Pedimos confirmacion
+                string title        = "¿Quitar de esta playlist?";
+                string description  = "Esta acción no se puede restaurar. ¿Estás seguro de continuar?";
+                string accept       = "Quitar";
+                string cancel       = "Cancelar";
+                bool result         = await mainPage.DisplayAlert(title, description, cancel, accept);
                 if (!result) return;
 
+                // Procesamos eliminacion
                 var pl = Playlists.FirstOrDefault(p => p.Id == param.PlaylistId);
                 if (pl == null) return;
 
@@ -438,6 +453,7 @@ namespace PruebaAPP.Views.Android.ViewModels
 
                 _playlistService.RemoveFavorite(param.PlaylistId, param.FavoriteId);
                 pl.Items.Remove(song);
+
             }
             [RelayCommand] public async Task Playlist_ClearAll()
             {
@@ -463,6 +479,7 @@ namespace PruebaAPP.Views.Android.ViewModels
             // Declaracion de variables
             public bool HasCurrentSong => CurrentSong != null;
             public int CurrentSongIndex;
+            public bool IsBlockClick;
 
             // Propiedades de control de media
             [ObservableProperty] public partial MediaElementState CurrentMediaState { get; set; }
@@ -516,46 +533,84 @@ namespace PruebaAPP.Views.Android.ViewModels
             }
             [RelayCommand] public async Task MediaP_SkipNext()
             {
-                try
-                {
+                // Verificamos si esta bloqueado el click
+                if (IsBlockClick) return;
+
+                // Bloqueamos campo
+                IsBlockClick = true;
+
+                // Procesamos
+                try {
+
+                    // Validamos
                     if (SelectedPlaylist != null && CurrentSongIndex < SelectedPlaylist.Items.Count - 1)
                     {
+                        // Subimos el index
                         CurrentSongIndex++;
+
+                        // aplicamos false a todo los items
+                        foreach (Favorite ob in SelectedPlaylist.Items) { 
+                            if (ob.IsPlay == 1 ) 
+                                ob.IsPlay = 2; // Reproducido
+                        }
+
+                        // Seleccionamos el items
                         var prevSong = SelectedPlaylist.Items[CurrentSongIndex];
-                        if (!string.IsNullOrEmpty(prevSong.Id))
+
+                        // Establecemos cambio
+                        if (!string.IsNullOrEmpty(prevSong.Id)) 
                             await PlaySongById(prevSong.Id);
-                    }
-                    else
-                    {
-                        // O reinicia playlist o deja en estado detenido
-                        CurrentSongIndex = 0;
-                    }
-                }
-                catch (Exception ex)
-                {
+                            prevSong.IsPlay = 1;
+                            
+
+                    } else { CurrentSongIndex = 0; }
+
+                } catch (Exception ex) {
+                    CurrentSongIndex = 0;
                     Debug.WriteLine($"Error MediaEnded: {ex.Message}");
-                }
+
+                } finally { IsBlockClick = false; }
             }
             [RelayCommand] public async Task MediaP_SkipPrevious()
             {
-                try
-                {
+                // Verificamos si esta bloqueado el click
+                if (IsBlockClick) return;
+
+                // Bloqueamos campo
+                IsBlockClick = true;
+
+                // Procesamos
+                try {
+
+                    // Validamos 
                     if (SelectedPlaylist != null && CurrentSongIndex < SelectedPlaylist.Items.Count - 1)
                     {
-                        CurrentSongIndex--;
+                        // Bajamos el index
+                        if (CurrentSongIndex>0) 
+                            CurrentSongIndex--;
+
+
+                        // aplicamos false a todo los items
+                        foreach (Favorite ob in SelectedPlaylist.Items) { 
+                            if (ob.IsPlay == 1 ) 
+                                ob.IsPlay = 2; // Reproducido
+                        }
+
+                        // Seleccionamos el items
                         var prevSong = SelectedPlaylist.Items[CurrentSongIndex];
-                        if (!string.IsNullOrEmpty(prevSong.Id))
+
+                        // Establecemos cambio
+                        if (!string.IsNullOrEmpty(prevSong.Id)) 
                             await PlaySongById(prevSong.Id);
+                            prevSong.IsPlay = 1;
                     }
-                    else
-                    {
-                        // O reinicia playlist o deja en estado detenido
-                        CurrentSongIndex = 0;
-                    }
-                }
-                catch (Exception ex)
-                {
+                    else { CurrentSongIndex = 0; }
+
+                } catch (Exception ex) {
+                    CurrentSongIndex = 0;
                     Debug.WriteLine($"Error MediaEnded: {ex.Message}");
+                } finally { 
+                    IsBlockClick = false;
                 }
             }
 

@@ -12,9 +12,9 @@
         <HorizontalStackLayout Grid.Row="0" Margin="10,10,20,10">
             <Label Text="&#xe03d;" FontSize="30" FontFamily="MaterialIconsOutlinedRegular" TextColor="{StaticResource foreg_night_1}"/>
             <VerticalStackLayout Margin="10,0,0,0">
-                <Label Text="{Binding SelectedPlaylist.Title}" TextColor="{StaticResource foreg_night_2}"/>
+                <Label Text="{Binding SelectedPlaylist.Title, TargetNullValue='Sin playlist activa'}" TextColor="{StaticResource foreg_night_2}"/>
                 <HorizontalStackLayout>
-                    <Label Text="{Binding SelectedPlaylist.Items.Count}" TextColor="{StaticResource foreg_night_1}"/>
+                    <Label Text="{Binding SelectedPlaylist.Items.Count, TargetNullValue='0'}" TextColor="{StaticResource foreg_night_1}"/>
                     <Label Text=" Canciones" TextColor="{StaticResource foreg_night_1}"/>
                 </HorizontalStackLayout>
             </VerticalStackLayout>
@@ -32,7 +32,7 @@
         <CollectionView Grid.Row="2" ItemsSource="{Binding SelectedPlaylist.Items}" SelectionMode="Single" SelectionChanged="Click_PlayPlaylist">
             <CollectionView.ItemTemplate>
                 <DataTemplate>
-                    <Grid x:DataType="pl:Favorite" Margin="20,0" Padding="10,5" ColumnDefinitions="Auto,*,Auto">
+                    <Grid x:DataType="pl:Favorite"  Padding="15,5" ColumnDefinitions="Auto,*,Auto">
                         
                         <!-- Cover -->
                         <Border Grid.Column="0" Margin="0,0,10,0" StrokeThickness="0" WidthRequest="50" HeightRequest="50" VerticalOptions="Start">
@@ -41,11 +41,29 @@
                             </Border.StrokeShape>
                             <Grid>
 
+                                <!-- Imagen -->
                                 <Image x:Name="MainImage" Aspect="AspectFill">
                                     <Image.Source>
                                         <UriImageSource Uri="{Binding Thumbnails}" CacheValidity="7.00:00:00" CachingEnabled="True" />
                                     </Image.Source>
                                 </Image>
+
+                                <!-- Play -->
+                                <Grid Margin="-1">
+                                    <Rectangle Opacity="0.7" Fill="{StaticResource backg_night_0}"/>
+                                    <Label Text="&#xe037;" FontSize="30" FontFamily="MaterialIconsRegular" TextColor="{StaticResource foreg_night_2}" VerticalOptions="Center" HorizontalOptions="Center"/>
+                                    
+                                    <Grid.Style>
+                                        <Style TargetType="Grid">
+                                            <Setter Property="IsVisible" Value="Collapse"/>
+                                            <Style.Triggers>
+                                                <DataTrigger TargetType="Grid" Binding="{Binding IsPlay}" Value="1">
+                                                    <Setter Property="IsVisible" Value="Visible"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Grid.Style>
+                                </Grid>
 
                                 <!-- Loader mientras carga -->
                                 <ActivityIndicator WidthRequest="50" HeightRequest="50"
@@ -58,9 +76,21 @@
 
                         <!-- Informacion -->
                         <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
-                            <Label Text="{Binding Title}" TextColor="{StaticResource foreg_night_2}" MaxLines="2" LineBreakMode="TailTruncation"/>
+                            <Label Grid.Column="0" LineBreakMode="TailTruncation">
+                                <Label.Style>
+                                    <Style TargetType="Label">
+                                        <Setter Property="Text" Value="{Binding Title}"/>
+                                        <Setter Property="TextColor" Value="{StaticResource foreg_night_2}"/>
+                                        <Style.Triggers>    
+                                            <DataTrigger TargetType="Label" Binding="{Binding IsPlay}" Value="1">
+                                                <Setter Property="TextColor" Value="{StaticResource foreg_night_0}"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Label.Style>
+                            </Label>
                             <Grid ColumnDefinitions="*,Auto">
-                                <Label Grid.Column="0" Text="{Binding Author}"   TextColor="{StaticResource foreg_night_1}" LineBreakMode="TailTruncation"/>
+                                <Label Text="{Binding Author}" TextColor="{StaticResource foreg_night_1}" MaxLines="2" LineBreakMode="TailTruncation"/>
                                 <Label Grid.Column="1" Text="{Binding Duracion}" TextColor="{StaticResource foreg_night_2}"/>
                             </Grid>
                         </VerticalStackLayout>

@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.Input;
+using PruebaAPP.Objetos.Models;
 using PruebaAPP.Views.Android.ViewModels;
 using System.Diagnostics;
 using System.Net.Http.Json;
@@ -127,12 +128,15 @@ namespace PruebaAPP.Views.Android
                 try
                 {
 
+                    // Validamos entrada
                     if (string.IsNullOrWhiteSpace(query))
                         return [];
 
+                    // Hacemos peticion
                     var url = $"https://suggestqueries.google.com/complete/search?client=firefox&ds=yt&q={Uri.EscapeDataString(query)}";
                     var result = await _http.GetFromJsonAsync<object[]>(url, token);
 
+                    // Procesamos resulados
                     if (result?.Length > 1 && result[1] is JsonElement suggestionsElement && suggestionsElement.ValueKind == JsonValueKind.Array)
                     {
                         return suggestionsElement
@@ -147,8 +151,81 @@ namespace PruebaAPP.Views.Android
                     Debug.WriteLine($"Ocurrio un error en: {ex.Message}");
                 }
 
+                // En caso de fallar, lista en blanco.
                 return new List<string>();
 
             }
+
+        private async void Click_SelectedItemMenu(object sender, EventArgs e)
+        {
+            if (sender is Button btn && btn.BindingContext is VideoSearchResult psr)
+            {
+                // Obtener la página actual de forma segura usando la ventana asociada
+                var page = this.Window?.Page;
+                if (page == null)
+                {
+                    Debug.WriteLine("No se pudo obtener la página actual para mostrar el menú contextual.");
+                    return;
+                }
+
+                // Verificar si el favorito es nulo o no tiene un ID válido
+                if (psr is null || string.IsNullOrWhiteSpace(psr.Id)) return;
+
+                // Abrir el menú contextual
+                string   title = "Selecciona acción";
+                string   cancel = "Cancelar";
+                string[] param = { "Reproducir", "Agregar a favoritos", "Agregar a una playlist" };
+                string   action = await page.DisplayActionSheet(title, cancel, null, param);
+
+                // Ejecutar la acción seleccionada
+                if (BindingContext is AndroidPropertyViewModel vm)
+                {
+                    switch (action)
+                    {
+                        case "Reproducir":
+                            await vm.PlaySong(psr);
+                            break;
+
+                        case "Agregar a favoritos":
+
+                            // Agregamos
+                            var favorito = new Favorite
+                            {
+                                Id          = psr.Id,
+                                Title       = psr.Title,
+                                Author      = psr.Author.ChannelTitle ?? string.Empty,
+                                Thumbnails  = psr.Thumbnails?.FirstOrDefault()?.Url ?? string.Empty,
+                                Duracion    = psr.Duration.ToString()
+
+                            };
+
+                            // Ejecutamos
+                            if (vm.AddFavoriteCommand.CanExecute(favorito))
+                                vm.AddFavoriteCommand.Execute(favorito);
+
+                            break;
+
+                        case "Agregar a una playlist":
+
+                            // Agregamos
+                            var fav = new Favorite
+                            {
+                                Id          = psr.Id,
+                                Title       = psr.Title,
+                                Author      = psr.Author.ChannelTitle ?? string.Empty,
+                                Thumbnails  = psr.Thumbnails?.FirstOrDefault()?.Url ?? string.Empty,
+                                Duracion    = psr.Duration.ToString()
+
+                            };
+
+                            // Ejecutamos
+                            if (vm.Playlist_ToAddCommand.CanExecute(fav))
+                                vm.Playlist_ToAddCommand.Execute(fav);
+
+                            break;
+                    }
+                }
+            }
+        }
     }
 }

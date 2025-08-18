@@ -36,15 +36,39 @@ public partial class Android_Favorite_Song : ContentView
         }
     }
 
-    private void Click_Delete(object sender, EventArgs e)
+    private async void Click_Menu(object sender, EventArgs e)
     {
-        if (sender is Button btn && btn.BindingContext is Objetos.Models.Favorite fav)
+        if (sender is Button btn && btn.BindingContext is Favorite fav)
         {
+            // Obtener la página actual de forma segura usando la ventana asociada
+            var page = this.Window?.Page;
+            if (page == null)
+            {
+                Debug.WriteLine("No se pudo obtener la página actual para mostrar el menú contextual.");
+                return;
+            }
+
+            // Verificar si el favorito es nulo o no tiene un ID válido
+            if (fav is null || string.IsNullOrWhiteSpace(fav.Id)) return;
+
+            // Abrir el menú contextual
+            string   title  = "Selecciona acción";
+            string   cancel = "Cancelar";
+            string[] param  = { "Reproducir", "Eliminar" };
+            string   action = await page.DisplayActionSheet(title, cancel, null, param);
+
+            // Ejecutar la acción seleccionada
             if (BindingContext is AndroidPropertyViewModel vm)
             {
-                if (!string.IsNullOrWhiteSpace(fav.Id))
+                switch (action)
                 {
-                    _ = vm.DeleteFavorite(fav.Id);
+                    case "Reproducir":
+                        await vm.PlaySongById(fav.Id!);
+                        break;
+
+                    case "Eliminar":
+                        await vm.DeleteFavorite(fav.Id!);
+                        break;
                 }
             }
         }

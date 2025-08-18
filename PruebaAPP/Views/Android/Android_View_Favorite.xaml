@@ -26,8 +26,8 @@
                     </Setter>
                 </Style>
             </HorizontalStackLayout.Resources>
-            <RadioButton x:Name="rb0" ClassId="0" Content="Canciones" TextColor="{StaticResource foreg_night_2}" BackgroundColor="Transparent" Style="{StaticResource RButton}" CheckedChanged="Click_Changetype"/>
-            <RadioButton x:Name="rb1" ClassId="1" Content="Playlist"  TextColor="{StaticResource foreg_night_2}" BackgroundColor="Transparent" Style="{StaticResource RButton}" CheckedChanged="Click_Changetype" />
+            <RadioButton x:Name="rb0" ClassId="0" Content="Favoritos"       TextColor="{StaticResource foreg_night_2}" BackgroundColor="Transparent" Style="{StaticResource RButton}" CheckedChanged="Click_Changetype"/>
+            <RadioButton x:Name="rb1" ClassId="1" Content="Mis Playlist"    TextColor="{StaticResource foreg_night_2}" BackgroundColor="Transparent" Style="{StaticResource RButton}" CheckedChanged="Click_Changetype" />
             <RadioButton x:Name="rb2" ClassId="2" IsVisible="Collapse" Content="Canales"   TextColor="{StaticResource foreg_night_2}" BackgroundColor="Transparent" Style="{StaticResource RButton}" CheckedChanged="Click_Changetype"/>
         </HorizontalStackLayout>
 

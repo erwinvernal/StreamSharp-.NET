@@ -96,18 +96,37 @@
 
                 <!-- Informacion -->
                 <StackLayout Grid.Column="1" VerticalOptions="Center" Margin="0,0,15,0">
-                    <Label Text="{Binding CurrentSong.Title}" HorizontalTextAlignment="Start" TextColor="{StaticResource foreg_night_2}" LineBreakMode="TailTruncation" MaxLines="2"/>
-                    <HorizontalStackLayout>
-                        <Label Text="{Binding CurrentSong.Channel.ChannelTitle}" TextColor="{StaticResource foreg_night_1}"/>
-                    </HorizontalStackLayout>
+                    <Label HorizontalTextAlignment="Start" TextColor="{StaticResource foreg_night_2}" LineBreakMode="TailTruncation" MaxLines="2">
+                        <Label.Style>
+                            <Style TargetType="Label">
+                                <Setter Property="Text" Value="{Binding CurrentSong.Title}"/>
+                                <Style.Triggers>
+                                    <DataTrigger TargetType="Label" Binding="{Binding IsLoading2}" Value="True">
+                                        <Setter Property="Text" Value="Cargando..."/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Label.Style>
+                    </Label>
+                    <Label TextColor="{StaticResource foreg_night_1}">
+                        <Label.Style>
+                            <Style TargetType="Label">
+                                <Setter Property="Text" Value="{Binding CurrentSong.Channel.ChannelTitle}"/>
+                                <Style.Triggers>
+                                    <DataTrigger TargetType="Label" Binding="{Binding IsLoading2}" Value="True">
+                                        <Setter Property="Text" Value="Espere por favor..."/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Label.Style>
+                    </Label>
                 </StackLayout>
                 
                 <!-- Button de expancion -->
                 <HorizontalStackLayout Grid.Column="2">
-                    <Border VerticalOptions="Center" StrokeThickness="0">
-                        <Border.StrokeShape>
-                            <Ellipse/>
-                        </Border.StrokeShape>
+                    
+                    <!-- Favoritos -->
+                    <Border HeightRequest="52" StrokeThickness="0" StrokeShape="Ellipse" VerticalOptions="Center">
                         <Button FontSize="24" FontFamily="MaterialIconsOutlinedRegular" BackgroundColor="Transparent" Clicked="Click_AddFavoriteSong">
                             <Button.Style>
                                 <Style TargetType="Button">
@@ -123,6 +142,9 @@
                             </Button.Style>
                         </Button>
                     </Border>
+                    
+                    <!-- Agregar a la playlist -->
+                    
                 </HorizontalStackLayout>
                 
             </Grid>

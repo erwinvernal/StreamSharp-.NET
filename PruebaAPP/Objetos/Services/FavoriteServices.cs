@@ -40,10 +40,6 @@ namespace PruebaAPP.Objetos.Services
         // Obtener todos los favoritos
             public List<Favorite> GetAll() => _favorite;
 
-        // Obtener por Type
-            public List<Favorite> GetByType(FType Type)
-                => _favorite.Where(f => f.Type == Type).ToList();
-
         // Retornar
             public Favorite? GetValue(string id)
             {
@@ -51,19 +47,21 @@ namespace PruebaAPP.Objetos.Services
             }
 
         // Agregar favorito
-            public void Add(Favorite favorito)
+            public bool Add(Favorite favorito)
             {
-                if (!_favorite.Any(f => f.Id == favorito.Id && f.Type == favorito.Type))
+                if (!_favorite.Any(f => f.Id == favorito.Id))
                 {
                     _favorite.Add(favorito);
                     Save();
+                    return true;
                 }
+                return false;
             }
 
         // Eliminar favorito
             public void Delete(Favorite favorito)
             {
-                var item = _favorite.FirstOrDefault(f => f.Id == favorito.Id && f.Type == favorito.Type);
+                var item = _favorite.FirstOrDefault(f => f.Id == favorito.Id);
                 if (item != null)
                 {
                     _favorite.Remove(item);
@@ -82,7 +80,7 @@ namespace PruebaAPP.Objetos.Services
 
         // Verificar si existe
             public bool Exists(Favorite favorito)
-                    => _favorite.Any(f => f.Id == favorito.Id && f.Type == favorito.Type);
+                    => _favorite.Any(f => f.Id == favorito.Id);
             public bool Exists(string id)
             {
                 return _favorite.Any(f => f.Id == id);
@@ -90,9 +88,9 @@ namespace PruebaAPP.Objetos.Services
 
         // Limpiar todos (opcional)
             public void Clear()
-                {
-                    _favorite.Clear();
-                    Save();
-                }
+            {
+                _favorite.Clear();
+                Save();
+            }
     }
 }

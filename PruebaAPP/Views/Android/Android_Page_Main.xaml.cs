@@ -51,14 +51,14 @@ namespace PruebaAPP.Views.Android
             await _vm.PlaySong(selected);
         }
 
-        private void Click_AddFavoriteSong(object sender, EventArgs e)
+        private async void Click_AddFavoriteSong(object sender, EventArgs e)
         {
             if (_vm.CurrentSong is not null && !string.IsNullOrEmpty(_vm.CurrentSong.Id))
             {
                 if (_vm.CurrentSong.Favorite == true)
                 {
                     // Eliminamos
-                    _ = _vm.DeleteFavorite(_vm.CurrentSong.Id!);
+                    await _vm.DeleteFavorite(_vm.CurrentSong.Id!);
 
                     // Cambiamos icono
                     _vm.CurrentSong.Favorite = false;
@@ -66,14 +66,13 @@ namespace PruebaAPP.Views.Android
                 else
                 {
                     // Agregamos
-                    var favorito = new Objetos.Models.Favorite
+                    var favorito = new Favorite
                     {
                         Id         = _vm.CurrentSong.Id,
                         Title      = _vm.CurrentSong.Title,
                         Author     = _vm.CurrentSong.Channel?.ChannelTitle ?? string.Empty,
                         Thumbnails = _vm.CurrentSong.Thumbnails?.FirstOrDefault()?.Url ?? string.Empty,
-                        Duracion   = _vm.CurrentSong.Duration.ToString(),
-                        Type       = FType.Cancion
+                        Duracion   = _vm.CurrentSong.Duration.ToString()
 
                     };
 
@@ -84,8 +83,8 @@ namespace PruebaAPP.Views.Android
                     // Cambiamos icono
                     _vm.CurrentSong.Favorite = true;
 
-                    //
-                    _ = _vm.Playlist_ToAdd(favorito);
+                    // Agregamos a favoritos
+                    await _vm.Playlist_ToAdd(favorito);
 
                 }
             }

@@ -39,8 +39,15 @@ public partial class Android_Favorite_Playlist : ContentView
         }
     }
 
-    private void Click_DeletePlayList(object sender, EventArgs e)
+    private async void Click_DeletePlayList(object sender, EventArgs e)
     {
-
+        try
+        {
+            if (BindingContext is AndroidPropertyViewModel vm)
+            {
+            }
+        } catch (Exception ex) {
+            Debug.WriteLine($"Error al eliminar favorito: {ex.Message}");
+        }
     }
 }
