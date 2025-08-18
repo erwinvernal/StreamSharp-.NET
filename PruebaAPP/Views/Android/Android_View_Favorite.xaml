@@ -2,87 +2,38 @@
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:PruebaAPP.Views.Android.ViewModels"
-             xmlns:fv="clr-namespace:PruebaAPP.Objetos.Models"
              x:DataType="vm:AndroidPropertyViewModel"
              x:Class="PruebaAPP.Views.Android.Android_View_Favorite">
 
-    <Grid RowDefinitions=".1*, Auto, *">
+    <Grid RowDefinitions="Auto, Auto, *">
         
         <!-- Titulo -->
-        <Label Text="Favoritos" Margin="20,10" FontSize="16" FontAttributes="Bold" TextColor="{StaticResource foreg_night_2}" VerticalOptions="Center"/>
+        <Label Text="Favoritos" IsVisible="False" Margin="20,10" FontSize="16" FontAttributes="Bold" TextColor="{StaticResource foreg_night_2}" VerticalOptions="Center"/>
         
         <!-- Botones -->
-        <Grid Grid.Row="1" ColumnDefinitions="Auto,*" Margin="10,0,10,10">
-            
-            <!-- Reproducir todo -->
-            <Border Grid.Column="0" Margin="0,0,10,0" StrokeThickness="0.5" Stroke="{StaticResource foreg_night_1}">
-                <Border.StrokeShape>
-                    <RoundRectangle CornerRadius="50"/>
-                </Border.StrokeShape>
-                <Button Text="Reproducir Todo" TextColor="{StaticResource foreg_night_2}" BackgroundColor="{StaticResource backg_night_0}"/>
-            </Border>
-            
-            <!-- Otros -->
-            <HorizontalStackLayout Grid.Column="1" HorizontalOptions="Center" RadioButtonGroup.GroupName="MnuFav">
-                <HorizontalStackLayout.Resources>
-                    <Style x:Key="RButton" TargetType="RadioButton">
-                        <Setter Property="ControlTemplate">
-                            <Setter.Value>
-                                <ControlTemplate>
-                                    <VerticalStackLayout HeightRequest="23"  WidthRequest="80" Spacing="5">
-                                        <Label Text="{TemplateBinding Content, Mode=OneWay}" HorizontalTextAlignment="Center" TextColor="{StaticResource foreg_night_2}" BackgroundColor="Transparent"/>
-                                        <Rectangle HeightRequest="1" Fill="{StaticResource foreg_night_0}" IsVisible="{TemplateBinding IsChecked}"/>
-                                    </VerticalStackLayout>
-                                </ControlTemplate>
-                            </Setter.Value>
-                        </Setter>
-                    </Style>
-                </HorizontalStackLayout.Resources>
-                <RadioButton x:Name="rb0" Content="Canciones" TextColor="{StaticResource foreg_night_2}" BackgroundColor="Transparent" Style="{StaticResource RButton}" ClassId="0" CheckedChanged="Click_Changetype"/>
-                <RadioButton x:Name="rb1" Content="Playlist"  TextColor="{StaticResource foreg_night_2}" BackgroundColor="Transparent" Style="{StaticResource RButton}" ClassId="1" CheckedChanged="Click_Changetype"/>
-                <RadioButton x:Name="rb2" Content="Canales"   TextColor="{StaticResource foreg_night_2}" BackgroundColor="Transparent" Style="{StaticResource RButton}" ClassId="2" CheckedChanged="Click_Changetype"/>
-            </HorizontalStackLayout>
+        <HorizontalStackLayout Grid.Row="1" Margin="10" HorizontalOptions="Center" RadioButtonGroup.GroupName="MnuFav">
+            <HorizontalStackLayout.Resources>
+                <Style x:Key="RButton" TargetType="RadioButton">
+                    <Setter Property="ControlTemplate">
+                        <Setter.Value>
+                            <ControlTemplate>
+                                <VerticalStackLayout HeightRequest="23" WidthRequest="80" Spacing="5">
+                                    <Label Text="{TemplateBinding Content, Mode=OneWay}" HorizontalTextAlignment="Center" TextColor="{StaticResource foreg_night_2}" BackgroundColor="Transparent"/>
+                                    <Rectangle HeightRequest="1" Fill="{StaticResource foreg_night_0}" IsVisible="{TemplateBinding IsChecked}"/>
+                                </VerticalStackLayout>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </HorizontalStackLayout.Resources>
+            <RadioButton x:Name="rb0" ClassId="0" Content="Canciones" TextColor="{StaticResource foreg_night_2}" BackgroundColor="Transparent" Style="{StaticResource RButton}" CheckedChanged="Click_Changetype"/>
+            <RadioButton x:Name="rb1" ClassId="1" Content="Playlist"  TextColor="{StaticResource foreg_night_2}" BackgroundColor="Transparent" Style="{StaticResource RButton}" CheckedChanged="Click_Changetype" />
+            <RadioButton x:Name="rb2" ClassId="2" IsVisible="Collapse" Content="Canales"   TextColor="{StaticResource foreg_night_2}" BackgroundColor="Transparent" Style="{StaticResource RButton}" CheckedChanged="Click_Changetype"/>
+        </HorizontalStackLayout>
 
-        </Grid>
-        
         <!-- Lista de -->
-        <CollectionView Grid.Row="2" ItemsSource="{Binding Favoritos}" SelectionMode="Single" SelectionChanged="Click_SelectItems">
-            <CollectionView.ItemTemplate>
-                <DataTemplate x:DataType="fv:Favorite">
-                    <Grid ColumnDefinitions="Auto,*,Auto" Padding="20,5">
-
-                        <!-- Cover -->
-                        <Border Grid.Column="0" Margin="0,0,10,0" WidthRequest="110" HeightRequest="80" VerticalOptions="Start">
-                            <Border.StrokeShape>
-                                <RoundRectangle CornerRadius="10"/>
-                            </Border.StrokeShape>
-                            <Image Aspect="AspectFill">
-                                <Image.Source>
-                                    <UriImageSource Uri="{Binding Thumbnails}" CachingEnabled="True" />
-                                </Image.Source>
-                            </Image>
-                        </Border>
-
-                        <!-- Informacion -->
-                        <VerticalStackLayout Grid.Column="1" Margin="0,0,10,0">
-                            <Label Text="{Binding Title}"    TextColor="{StaticResource foreg_night_2}" LineBreakMode="TailTruncation" MaxLines="2" HorizontalTextAlignment="Justify"/>
-                            <Label Text="{Binding Author}"   TextColor="{StaticResource foreg_night_1}"/>
-                            <Label Text="{Binding Duracion}" TextColor="{StaticResource foreg_night_2}"/>
-                        </VerticalStackLayout>
-
-                        <!-- Icono de eliminar -->
-                        <Button Grid.Column="2" 
-                                Text="&#xe872;" 
-                                FontSize="24" 
-                                FontFamily="MaterialIconsRegular" 
-                                TextColor="{StaticResource foreg_night_2}" 
-                                BackgroundColor="Transparent"
-                                VerticalOptions="Start"
-                                Clicked="Click_Delete"/>
-
-                    </Grid>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
+        <ContentView Grid.Row="2" x:Name="ContainerView"/>
+        
+        
     </Grid>
 </ContentView>

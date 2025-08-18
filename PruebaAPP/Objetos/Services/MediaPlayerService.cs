@@ -13,15 +13,13 @@ namespace PruebaAPP.Objetos.Services
 
         public void Play(string url)
         {
-            Player.Stop();
             Player.Source = url;
             Player.Play();
         }
 
-        public void Stop()
+        public void Pause()
         {
-            Player.Stop();
-            Player.Source = null;
+            Player.Pause();
         }
 
         public TimeSpan CurrentTime => Player.Position;

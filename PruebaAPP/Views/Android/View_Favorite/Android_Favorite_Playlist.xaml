@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:PruebaAPP.Views.Android.ViewModels"
+             xmlns:fv="clr-namespace:PruebaAPP.Objetos.Models"
+             x:DataType="vm:AndroidPropertyViewModel"
+             x:Class="PruebaAPP.Views.Android.View_Favorite.Android_Favorite_Playlist">
+    <Grid RowDefinitions="Auto,*">
+        
+        <!-- Lista de controles -->
+        <HorizontalStackLayout Margin="20,0,10,0" Spacing="10" HorizontalOptions="Start">
+            
+            <!-- Boton -->
+            <Border HeightRequest="40">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="25"/>
+                </Border.StrokeShape>
+                <Button Text="Nueva playlist" TextColor="{StaticResource foreg_night_2}" BackgroundColor="{StaticResource backg_night_0}" Command="{Binding Playlist_CreatedCommand}"/>
+            </Border>
+            <Border HeightRequest="40">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="25"/>
+                </Border.StrokeShape>
+                <Button Text="Quitar todo" TextColor="{StaticResource foreg_night_2}" BackgroundColor="{StaticResource backg_night_0}" Command="{Binding Playlist_ClearAllCommand}"/>
+            </Border>
+
+            <!-- Nombre de la carpeta seleccionada -->
+            <VerticalStackLayout Margin="10,0,0,0" IsVisible="Collapse">
+                <Label Text="Sin Titulo" TextColor="{StaticResource foreg_night_2}" VerticalOptions="Center"/>
+                <HorizontalStackLayout>
+                    <Label Text="0" Margin="0,0,5,0" TextColor="{StaticResource foreg_night_1}" VerticalOptions="Center"/>
+                    <Label Text="Canciones" TextColor="{StaticResource foreg_night_1}" VerticalOptions="Center"/>
+                </HorizontalStackLayout>
+            </VerticalStackLayout>
+            
+        </HorizontalStackLayout>
+        
+        <!-- Collection View -->
+        <CollectionView Grid.Row="1" Margin="0,20,0,0" ItemsSource="{Binding Playlists}" SelectionMode="Single" SelectionChanged="Click_SelectedPlaylist">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Grid ColumnDefinitions="*,Auto">
+                        
+                        <!-- Informacion -->
+                        <HorizontalStackLayout Padding="20,0" x:DataType="fv:Playlist">
+                            <Label Text="&#xe03d;" FontSize="24" FontFamily="MaterialIconsOutlinedRegular" TextColor="{StaticResource foreg_night_2}"/>
+                            <VerticalStackLayout Margin="5,0,0,0">
+                                <Label Text="{Binding Title}" TextColor="{StaticResource foreg_night_2}"/>
+                                <HorizontalStackLayout>
+                                    <Label Text="{Binding Items.Count}" TextColor="{StaticResource foreg_night_1}"/>
+                                    <Label Text="Canciones" Margin="5,0,0,0" TextColor="{StaticResource foreg_night_1}"/>
+                                </HorizontalStackLayout>
+                            </VerticalStackLayout>
+                        </HorizontalStackLayout>
+                        
+                        <!-- ELiminar -->
+                        <Button Grid.Column="2" 
+                                Text="&#xe872;" 
+                                FontSize="24" 
+                                FontFamily="MaterialIconsRegular" 
+                                TextColor="{StaticResource foreg_night_2}" 
+                                BackgroundColor="Transparent"
+                                VerticalOptions="Start"
+                                Clicked="Click_DeletePlayList"/>
+                    </Grid>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+        
+    </Grid>
+</ContentView>

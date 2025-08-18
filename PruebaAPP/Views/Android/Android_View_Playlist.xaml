@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:pl="clr-namespace:PruebaAPP.Objetos.Models"
+             xmlns:vm="clr-namespace:PruebaAPP.Views.Android.ViewModels"
+             x:DataType="vm:AndroidPropertyViewModel"
+             x:Class="PruebaAPP.Views.Android.Android_View_Playlist">
+
+    <Grid RowDefinitions="Auto,Auto,*">
+        
+        <!-- Titulo -->
+        <HorizontalStackLayout Grid.Row="0" Margin="10,10,20,10">
+            <Label Text="&#xe03d;" FontSize="30" FontFamily="MaterialIconsOutlinedRegular" TextColor="{StaticResource foreg_night_1}"/>
+            <VerticalStackLayout Margin="10,0,0,0">
+                <Label Text="{Binding SelectedPlaylist.Title}" TextColor="{StaticResource foreg_night_2}"/>
+                <HorizontalStackLayout>
+                    <Label Text="{Binding SelectedPlaylist.Items.Count}" TextColor="{StaticResource foreg_night_1}"/>
+                    <Label Text=" Canciones" TextColor="{StaticResource foreg_night_1}"/>
+                </HorizontalStackLayout>
+            </VerticalStackLayout>
+        </HorizontalStackLayout>
+        
+        <!-- Controles -->
+        <Border Grid.Row="1" Margin="10" HeightRequest="40" IsVisible="Collapse">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="25"/>
+            </Border.StrokeShape>
+            <Button Text="Reproducir todo" TextColor="{StaticResource foreg_night_2}" Background="{StaticResource backg_night_0}"/>
+        </Border>
+
+        <!-- Lista de canciones -->
+        <CollectionView Grid.Row="2" ItemsSource="{Binding SelectedPlaylist.Items}" SelectionMode="Single" SelectionChanged="Click_PlayPlaylist">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Grid x:DataType="pl:Favorite" Margin="20,0" Padding="10,5" ColumnDefinitions="Auto,*,Auto">
+                        
+                        <!-- Cover -->
+                        <Border Grid.Column="0" Margin="0,0,10,0" StrokeThickness="0" WidthRequest="50" HeightRequest="50" VerticalOptions="Start">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="10"/>
+                            </Border.StrokeShape>
+                            <Grid>
+
+                                <Image x:Name="MainImage" Aspect="AspectFill">
+                                    <Image.Source>
+                                        <UriImageSource Uri="{Binding Thumbnails}" CacheValidity="7.00:00:00" CachingEnabled="True" />
+                                    </Image.Source>
+                                </Image>
+
+                                <!-- Loader mientras carga -->
+                                <ActivityIndicator WidthRequest="50" HeightRequest="50"
+                                                   IsRunning="{Binding Source={x:Reference MainImage}, Path=IsLoading}" 
+                                                   Color="{StaticResource foreg_night_2}" 
+                                                   IsVisible="{Binding Source={x:Reference MainImage}, Path=IsLoading}" />
+
+                            </Grid>
+                        </Border>
+
+                        <!-- Informacion -->
+                        <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
+                            <Label Text="{Binding Title}" TextColor="{StaticResource foreg_night_2}" MaxLines="2" LineBreakMode="TailTruncation"/>
+                            <Grid ColumnDefinitions="*,Auto">
+                                <Label Grid.Column="0" Text="{Binding Author}"   TextColor="{StaticResource foreg_night_1}" LineBreakMode="TailTruncation"/>
+                                <Label Grid.Column="1" Text="{Binding Duracion}" TextColor="{StaticResource foreg_night_2}"/>
+                            </Grid>
+                        </VerticalStackLayout>
+                        
+                        <!-- Control de quitar -->
+                        <Button Grid.Column="2" 
+                                    Text="&#xe872;" 
+                                    FontSize="24" 
+                                    FontFamily="MaterialIconsRegular" 
+                                    TextColor="{StaticResource foreg_night_2}" 
+                                    BackgroundColor="Transparent"
+                                    Clicked="Click_Delete"/>
+
+                    </Grid>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+        
+    </Grid>
+</ContentView>

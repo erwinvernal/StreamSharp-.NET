@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using YoutubeExplode.Common;
 
 namespace PruebaAPP.Objetos.Models
 {
@@ -7,8 +8,8 @@ namespace PruebaAPP.Objetos.Models
         // Propiedades de la clase
             [ObservableProperty] public partial string? Id { get; set; }
             [ObservableProperty] public partial string? Title { get; set; }
-            [ObservableProperty] public partial string? Channel { get; set; }
-            [ObservableProperty] public partial string? Thumbnails { get; set; }
+            [ObservableProperty] public partial Author? Channel { get; set; }
+            [ObservableProperty] public partial IReadOnlyList<Thumbnail>? Thumbnails { get; set; }
             [ObservableProperty] public partial TimeSpan? Duration { get; set; }
             [ObservableProperty] public partial TimeSpan? CurrentTime { get; set; }
             [ObservableProperty] public partial TimeSpan? TotalTime { get; set; }

@@ -1,4 +1,6 @@
+using Microsoft.Maui.Controls.Platform.Compatibility;
 using PruebaAPP.Objetos.Models;
+using PruebaAPP.Views.Android.View_Favorite;
 using PruebaAPP.Views.Android.ViewModels;
 using System.Diagnostics;
 using YoutubeExplode.Search;
@@ -10,46 +12,9 @@ public partial class Android_View_Favorite : ContentView
 	public Android_View_Favorite()
 	{
 		InitializeComponent();
+        ContainerView.Content = new Android_Favorite_Song();
+
         rb0.IsChecked = true; // Seleccionar por defecto
-    }
-
-    private async void Click_SelectItems(object sender, SelectionChangedEventArgs e)
-    {
-        try
-        {
-            if (BindingContext is AndroidPropertyViewModel vm)
-            {
-                if (e.CurrentSelection?.FirstOrDefault() is not Favorite selected)
-                    return;
-
-                // Limpiar selección visual
-                if (sender is CollectionView cv)
-                    cv.SelectedItem = null;
-
-                if (!string.IsNullOrWhiteSpace(selected.Id))
-                {
-                    await vm.PlaySongById(selected.Id);
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"Error al reproducir favorito: {ex.Message}");
-        }
-    }
-
-    private void Click_Delete(object sender, EventArgs e)
-    {
-        if (sender is Button btn && btn.BindingContext is Favorite fav)
-        {
-            if (BindingContext is AndroidPropertyViewModel vm)
-            {
-                if (!string.IsNullOrWhiteSpace(fav.Id))
-                {
-                    vm.DeleteFavorite(fav.Id);
-                }
-            }
-        }
     }
 
     private void Click_Changetype(object sender, CheckedChangedEventArgs e)
@@ -60,9 +25,8 @@ public partial class Android_View_Favorite : ContentView
             {
                 switch (tipo)
                 {
-                    case 0: vm.ChangeFavoriteType(FType.Cancion); break;
-                    case 1: vm.ChangeFavoriteType(FType.Playlist); break;
-                    case 2: vm.ChangeFavoriteType(FType.Canal); break;
+                    case 0: ContainerView.Content = new Android_Favorite_Song(); break;
+                    case 1: ContainerView.Content = new Android_Favorite_Playlist(); break;
                     default: break;
                 }
             }

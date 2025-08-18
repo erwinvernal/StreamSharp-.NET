@@ -8,26 +8,27 @@
     xmlns:data="clr-namespace:PruebaAPP.Views.Android"
     xmlns:yt="clr-namespace:YoutubeExplode.Search;assembly=YoutubeExplode"
     xmlns:md="clr-namespace:PruebaAPP.Objetos.Models"
+    xmlns:tk="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     x:Class="PruebaAPP.Views.Android.Android_Page_Main"
     x:DataType="vm:AndroidPropertyViewModel"
     BackgroundColor="{StaticResource backg_night_0}"
     Title="Android_Page_Main">
 
-    <Grid RowDefinitions="*,1,110,50" RowSpacing="0">
+    <Grid RowDefinitions="*,1,Auto,50" RowSpacing="0">
 
         <!-- Imagen de fondo -->
         <Grid Grid.RowSpan="5"  Opacity="0.12">
-            <Image Source="{Binding CurrentSong.Thumbnails}" Aspect="AspectFill"/>
+            <Image Source="{Binding CurrentSong.Thumbnails[3].Url}" Aspect="AspectFill"/>
         </Grid>
 
         <!-- Contenido -->
         <Grid Grid.Row="0" Grid.RowSpan="0" Margin="0" RowSpacing="0">
 
             <!-- Items -->
-            <ContentView x:Name="ModuleContainer"/>
+            <ContentView Content="{Binding CurrentView}"/>
 
             <!-- Reproductor (oculto, lo maneja MediaPlayerService) -->
-            <toolkit:MediaElement x:Name="PlayerM" IsVisible="False" MediaOpened="MediaOpen_PlayerM" MediaEnded="MediaEnded_PlayerM"/>
+            <toolkit:MediaElement x:Name="PlayerM" IsVisible="False" MediaOpened="MediaOpen_PlayerM" MediaEnded="MediaEnded_PlayerM" StateChanged="StateChanged_PlayerM" />
 
         </Grid>
         
@@ -63,7 +64,7 @@
         <Rectangle Grid.Row="1" Fill="Black"/>
 
         <!-- Controles -->
-        <Grid Grid.Row="2" RowDefinitions="*,Auto">
+        <Grid Grid.Row="2" HeightRequest="110" RowDefinitions="*,Auto" IsVisible="{Binding HasCurrentSong}">
 
             <!-- Color de fondo -->
             <Rectangle Grid.RowSpan="2" Fill="{StaticResource backg_night_2}" Opacity="0.7" Margin="0,0,0,-1"/>
@@ -77,7 +78,7 @@
                         <RoundRectangle CornerRadius="10"/>
                     </Border.StrokeShape>
                     <Grid>
-                        <Image Aspect="AspectFill" Source="{Binding CurrentSong.Thumbnails}"/>
+                        <Image Aspect="AspectFill" Source="{Binding CurrentSong.Thumbnails[0].Url}"/>
                         <ActivityIndicator WidthRequest="50" HeightRequest="50" IsRunning="{Binding IsLoading2}" Color="{StaticResource foreg_night_0}">
                             <ActivityIndicator.Style>
                                 <Style TargetType="ActivityIndicator">
@@ -95,9 +96,9 @@
 
                 <!-- Informacion -->
                 <StackLayout Grid.Column="1" VerticalOptions="Center" Margin="0,0,15,0">
-                    <Label Text="{Binding CurrentSong.Title}" HorizontalTextAlignment="Justify" TextColor="{StaticResource foreg_night_2}" LineBreakMode="TailTruncation" MaxLines="2"/>
+                    <Label Text="{Binding CurrentSong.Title}" HorizontalTextAlignment="Start" TextColor="{StaticResource foreg_night_2}" LineBreakMode="TailTruncation" MaxLines="2"/>
                     <HorizontalStackLayout>
-                        <Label Text="{Binding CurrentSong.Channel}" TextColor="{StaticResource foreg_night_1}"/>
+                        <Label Text="{Binding CurrentSong.Channel.ChannelTitle}" TextColor="{StaticResource foreg_night_1}"/>
                     </HorizontalStackLayout>
                 </StackLayout>
                 
@@ -122,12 +123,6 @@
                             </Button.Style>
                         </Button>
                     </Border>
-                    <Border VerticalOptions="Center" StrokeThickness="0">
-                        <Border.StrokeShape>
-                            <Ellipse/>
-                        </Border.StrokeShape>
-                        <Button Text="&#xeae6;" FontSize="24" FontFamily="MaterialIconsOutlinedRegular" TextColor="{StaticResource foreg_night_2}" BackgroundColor="Transparent" Clicked="Click_OpenChannel"/>
-                    </Border>
                 </HorizontalStackLayout>
                 
             </Grid>
@@ -142,13 +137,13 @@
         </Grid>
 
         <!-- Botones  -->
-        <Grid Grid.Row="3" ColumnDefinitions="*,*,*,*">
+        <Grid Grid.Row="3" x:Name="BarButttonContainer" ColumnDefinitions="*,*,*,*">
             <Rectangle Grid.ColumnSpan="4" Fill="{StaticResource backg_night_2}" Opacity="0.7" Margin="0,0,0,-1" />
 
-            <Button Grid.Column="0" Text="&#xe3a1;" FontSize="24" FontFamily="MaterialIconsOutlinedRegular" TextColor="{StaticResource foreg_night_2}" BackgroundColor="Transparent"/>
-            <Button Grid.Column="1" Text="&#xe8b6;" FontSize="24" FontFamily="MaterialIconsOutlinedRegular" TextColor="{StaticResource foreg_night_2}" BackgroundColor="Transparent" Clicked="Click_OpenSearch"/>
-            <Button Grid.Column="2" Text="&#xe03d;" FontSize="24" FontFamily="MaterialIconsOutlinedRegular" TextColor="{StaticResource foreg_night_2}" BackgroundColor="Transparent"/>
-            <Button Grid.Column="3" Text="&#xe87d;" FontSize="24" FontFamily="MaterialIconsOutlinedRegular" TextColor="{StaticResource foreg_night_2}" BackgroundColor="Transparent" Clicked="Click_OpenFavorite"/>
+            <Button Grid.Column="0" ClassId="0" Text="&#xe3a1;" FontSize="24" FontFamily="MaterialIconsOutlinedRegular" TextColor="{StaticResource foreg_night_2}" BackgroundColor="Transparent" Clicked="Click_OpenView"/>
+            <Button Grid.Column="1" ClassId="1" Text="&#xe8b6;" FontSize="24" FontFamily="MaterialIconsOutlinedRegular" TextColor="{StaticResource foreg_night_0}" BackgroundColor="Transparent" Clicked="Click_OpenView"/>
+            <Button Grid.Column="2" ClassId="2" Text="&#xe03d;" FontSize="24" FontFamily="MaterialIconsOutlinedRegular" TextColor="{StaticResource foreg_night_2}" BackgroundColor="Transparent" Clicked="Click_OpenView"/>
+            <Button Grid.Column="3" ClassId="3" Text="&#xe87d;" FontSize="24" FontFamily="MaterialIconsOutlinedRegular" TextColor="{StaticResource foreg_night_2}" BackgroundColor="Transparent" Clicked="Click_OpenView"/>
         </Grid>
     </Grid>
 </ContentPage>
