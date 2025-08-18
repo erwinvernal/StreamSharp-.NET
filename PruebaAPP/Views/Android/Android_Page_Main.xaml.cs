@@ -149,6 +149,8 @@ namespace PruebaAPP.Views.Android
 
         private void MediaEnded_PlayerM(object sender, EventArgs e)
         {
+            // Detener y limpiar antes de reproducir siguiente
+            _vm.MediaP_Stop();
             _ = _vm.MediaP_SkipNext();
         }
     }

@@ -479,7 +479,8 @@ namespace PruebaAPP.Views.Android.ViewModels
             }
             [RelayCommand] public void MediaP_Stop()
             {
-                _mediaService.Player.Stop();
+                //_mediaService.Player.Stop();
+                //_mediaService.Player.Source = null;
             }
             [RelayCommand] public void MediaP_Replay()
             {
@@ -515,29 +516,47 @@ namespace PruebaAPP.Views.Android.ViewModels
             }
             [RelayCommand] public async Task MediaP_SkipNext()
             {
-                if (SelectedPlaylist == null || SelectedPlaylist.Items.Count == 0)
-                    return;
-
-                // Aumentar índice y validar límites
-                CurrentSongIndex++;
-                if (CurrentSongIndex >= SelectedPlaylist.Items.Count)
-                    CurrentSongIndex = 0; // Loop al inicio
-
-                var nextSong = SelectedPlaylist.Items[CurrentSongIndex];
-                await PlaySongById(nextSong.Id);
+                try
+                {
+                    if (SelectedPlaylist != null && CurrentSongIndex < SelectedPlaylist.Items.Count - 1)
+                    {
+                        CurrentSongIndex++;
+                        var prevSong = SelectedPlaylist.Items[CurrentSongIndex];
+                        if (!string.IsNullOrEmpty(prevSong.Id))
+                            await PlaySongById(prevSong.Id);
+                    }
+                    else
+                    {
+                        // O reinicia playlist o deja en estado detenido
+                        CurrentSongIndex = 0;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error MediaEnded: {ex.Message}");
+                }
             }
             [RelayCommand] public async Task MediaP_SkipPrevious()
             {
-                if (SelectedPlaylist == null || SelectedPlaylist.Items.Count == 0)
-                    return;
-
-                // Disminuir índice y validar límites
-                CurrentSongIndex--;
-                if (CurrentSongIndex < 0)
-                    CurrentSongIndex = SelectedPlaylist.Items.Count - 1; // Loop al final
-
-                var prevSong = SelectedPlaylist.Items[CurrentSongIndex];
-                await PlaySongById(prevSong.Id);
+                try
+                {
+                    if (SelectedPlaylist != null && CurrentSongIndex < SelectedPlaylist.Items.Count - 1)
+                    {
+                        CurrentSongIndex--;
+                        var prevSong = SelectedPlaylist.Items[CurrentSongIndex];
+                        if (!string.IsNullOrEmpty(prevSong.Id))
+                            await PlaySongById(prevSong.Id);
+                    }
+                    else
+                    {
+                        // O reinicia playlist o deja en estado detenido
+                        CurrentSongIndex = 0;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error MediaEnded: {ex.Message}");
+                }
             }
 
             // Funciones auxiliares
