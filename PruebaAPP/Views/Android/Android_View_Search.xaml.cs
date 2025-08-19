@@ -189,32 +189,33 @@ namespace PruebaAPP.Views.Android
                         case "Agregar a favoritos":
 
                             // Agregamos
-                            var favorito = new Favorite
+                            var favorito = new Song
                             {
                                 Id          = psr.Id,
                                 Title       = psr.Title,
-                                Author      = psr.Author.ChannelTitle ?? string.Empty,
-                                Thumbnails  = psr.Thumbnails?.FirstOrDefault()?.Url ?? string.Empty,
-                                Duracion    = psr.Duration.ToString()
+                                Author      = psr.Author,
+                                Thumbnails  = psr.Thumbnails,
+                                Duration    = psr.Duration,
+                                IsFavorite  = true
 
                             };
 
                             // Ejecutamos
-                            if (vm.AddFavoriteCommand.CanExecute(favorito))
-                                vm.AddFavoriteCommand.Execute(favorito);
+                            if (vm.Favorite_AddCommand.CanExecute(favorito))
+                                vm.Favorite_AddCommand.Execute(favorito);
 
                             break;
 
                         case "Agregar a una playlist":
 
                             // Agregamos
-                            var fav = new Favorite
+                            var fav = new Song
                             {
                                 Id          = psr.Id,
                                 Title       = psr.Title,
-                                Author      = psr.Author.ChannelTitle ?? string.Empty,
-                                Thumbnails  = psr.Thumbnails?.FirstOrDefault()?.Url ?? string.Empty,
-                                Duracion    = psr.Duration.ToString()
+                                Author      = psr.Author,
+                                Thumbnails  = psr.Thumbnails,
+                                Duration    = psr.Duration
 
                             };
 

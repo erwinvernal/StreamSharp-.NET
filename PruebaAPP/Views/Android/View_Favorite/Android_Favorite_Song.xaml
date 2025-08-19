@@ -36,7 +36,7 @@
         <!-- Lista -->
         <CollectionView Grid.Row="1" ItemsSource="{Binding Favoritos}" SelectionMode="Single" ItemsUpdatingScrollMode="KeepScrollOffset" ItemSizingStrategy="MeasureFirstItem" SelectionChanged="Click_SelectItems">
             <CollectionView.ItemTemplate>
-                <DataTemplate x:DataType="fv:Favorite">
+                <DataTemplate x:DataType="fv:Song">
                     <Grid ColumnDefinitions="Auto,*,Auto" Padding="15,5">
 
                             <!-- Cover -->

@@ -15,7 +15,7 @@
                 <Border.StrokeShape>
                     <RoundRectangle CornerRadius="25"/>
                 </Border.StrokeShape>
-                <Button Text="Nueva playlist" TextColor="{StaticResource foreg_night_2}" BackgroundColor="{StaticResource backg_night_0}" Command="{Binding Playlist_CreatedCommand}"/>
+                <Button Text="Nueva playlist" TextColor="{StaticResource foreg_night_2}" BackgroundColor="{StaticResource backg_night_0}" Command="{Binding Playlist_MenuGeneralCommand}"/>
             </Border>
             <Border HeightRequest="40">
                 <Border.StrokeShape>

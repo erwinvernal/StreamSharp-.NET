@@ -1,13 +1,16 @@
-﻿using System.Collections.ObjectModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using System.Collections.ObjectModel;
 
 namespace PruebaAPP.Objetos.Models
 {
-    public class Playlist
+    public partial class Playlist : ObservableObject
     {
-        public string Id { get; set; } = Guid.NewGuid().ToString(); // Identificador único
-        public string? Title { get; set; } = null;           // Nombre de la playlist
-        public DateTime? CurrentDate { get; set; } = null;           // Nombre de la playlist
-        public ObservableCollection<Favorite> Items { get; set; } = [];          // Lista de canciones
+        [ObservableProperty] public partial string Id { get; set; }  // Identificador único
+        [ObservableProperty] public partial string? Title { get; set; } = null;           // Nombre de la playlist
+        [ObservableProperty] public partial DateTime? CurrentDate { get; set; } = null;           // Nombre de la playlist
+        [ObservableProperty] public partial ObservableCollection<Song> Items { get; set; } = [];          // Lista de canciones
 
+        // Propiedad calculada
+        public TimeSpan TotalDuration => Items.Aggregate(TimeSpan.Zero, (total, song) => total + song.Duration.GetValueOrDefault());
     }
 }

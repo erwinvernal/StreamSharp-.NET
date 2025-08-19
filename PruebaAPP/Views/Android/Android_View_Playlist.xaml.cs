@@ -14,7 +14,7 @@ public partial class Android_View_Playlist : ContentView
 
     private void Click_Delete(object sender, EventArgs e)
     {
-        if (sender is Button btn && btn.BindingContext is Objetos.Models.Favorite fav)
+        if (sender is Button btn && btn.BindingContext is Objetos.Models.Song fav)
         {
             if (BindingContext is AndroidPropertyViewModel vm && vm.SelectedPlaylist != null && fav.Id != null)
             {
@@ -32,7 +32,7 @@ public partial class Android_View_Playlist : ContentView
         {
             if (BindingContext is AndroidPropertyViewModel vm)
             {
-                if (e.CurrentSelection?.FirstOrDefault() is not Favorite selected)
+                if (e.CurrentSelection?.FirstOrDefault() is not Song selected)
                     return;
 
                 // Limpiar selección visual
@@ -56,5 +56,35 @@ public partial class Android_View_Playlist : ContentView
         {
             Debug.WriteLine($"Error al reproducir favorito: {ex.Message}");
         }
+    }
+
+    private void Click_SelectedPlaylist(object sender, SelectionChangedEventArgs e)
+    {
+
+    }
+
+    private async void Click_DeletePlayList(object sender, EventArgs e)
+    {
+        try
+        {
+            // Obtenemos la playlist asociada al botón
+            if (sender is Button btn && btn.BindingContext is Playlist playlist)
+            {
+                if (BindingContext is AndroidPropertyViewModel vm)
+                {
+                    // Borramos playlist
+                    await vm.Playlist_Delete(playlist.Id);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error al eliminar playlist: {ex.Message}");
+        }
+    }
+
+    private void Click_Menu(object sender, EventArgs e)
+    {
+
     }
 }

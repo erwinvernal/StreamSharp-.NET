@@ -111,7 +111,7 @@
                     <Label TextColor="{StaticResource foreg_night_1}">
                         <Label.Style>
                             <Style TargetType="Label">
-                                <Setter Property="Text" Value="{Binding CurrentSong.Channel.ChannelTitle}"/>
+                                <Setter Property="Text" Value="{Binding CurrentSong.Author.ChannelTitle}"/>
                                 <Style.Triggers>
                                     <DataTrigger TargetType="Label" Binding="{Binding IsLoading2}" Value="True">
                                         <Setter Property="Text" Value="Espere por favor..."/>

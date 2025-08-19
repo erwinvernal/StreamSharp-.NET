@@ -17,7 +17,7 @@ public partial class Android_Favorite_Song : ContentView
         {
             if (BindingContext is AndroidPropertyViewModel vm)
             {
-                if (e.CurrentSelection?.FirstOrDefault() is not Objetos.Models.Favorite selected)
+                if (e.CurrentSelection?.FirstOrDefault() is not Objetos.Models.Song selected)
                     return;
 
                 // Limpiar selección visual
@@ -38,7 +38,7 @@ public partial class Android_Favorite_Song : ContentView
 
     private async void Click_Menu(object sender, EventArgs e)
     {
-        if (sender is Button btn && btn.BindingContext is Favorite fav)
+        if (sender is Button btn && btn.BindingContext is Song fav)
         {
             // Obtener la página actual de forma segura usando la ventana asociada
             var page = this.Window?.Page;
@@ -67,7 +67,7 @@ public partial class Android_Favorite_Song : ContentView
                         break;
 
                     case "Eliminar":
-                        await vm.DeleteFavorite(fav.Id!);
+                        await vm.Favorite_Delete(fav.Id!);
                         break;
                 }
             }
@@ -76,7 +76,7 @@ public partial class Android_Favorite_Song : ContentView
 
     private async void Click_AddToPlaylist(object sender, EventArgs e)
     {
-        if (sender is Button btn && btn.BindingContext is Objetos.Models.Favorite fav)
+        if (sender is Button btn && btn.BindingContext is Objetos.Models.Song fav)
         {
             if (BindingContext is AndroidPropertyViewModel vm)
             {

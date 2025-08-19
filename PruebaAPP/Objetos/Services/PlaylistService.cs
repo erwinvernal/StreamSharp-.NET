@@ -19,11 +19,18 @@ namespace PruebaAPP.Objetos.Services
         // Cargar JSON
         private void Load()
         {
-            if (File.Exists(_filePath))
+            // Verificar si el archivo existe
+            if (!File.Exists(_filePath)) return;
+
+            // Intentar leer el archivo JSON
+            try
             {
                 var json = File.ReadAllText(_filePath);
                 _playlists = JsonSerializer.Deserialize<List<Playlist>>(json) ?? [];
+            } catch { 
+                ClearAll();
             }
+
         }
 
         // Guardar JSON
@@ -64,7 +71,7 @@ namespace PruebaAPP.Objetos.Services
         }
 
         // Agregar canción a playlist
-        public void AddFavorite(string playlistId, Favorite favorito)
+        public void AddFavorite(string playlistId, Song favorito)
         {
             var pl = _playlists.FirstOrDefault(p => p.Title == playlistId);
             if (pl != null && !pl.Items.Any(f => f.Title == favorito.Title))
@@ -90,7 +97,7 @@ namespace PruebaAPP.Objetos.Services
         }
 
         // Obtener canciones de una playlist
-        public ObservableCollection<Favorite> GetFavorites(string playlistId)
+        public ObservableCollection<Song> GetFavorites(string playlistId)
         {
             return _playlists.FirstOrDefault(p => p.Id == playlistId)?.Items ?? [];
         }

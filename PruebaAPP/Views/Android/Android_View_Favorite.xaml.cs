@@ -15,7 +15,7 @@ public partial class Android_View_Favorite : ContentView
         {
             if (BindingContext is AndroidPropertyViewModel vm)
             {
-                if (e.CurrentSelection?.FirstOrDefault() is not Objetos.Models.Favorite selected)
+                if (e.CurrentSelection?.FirstOrDefault() is not Objetos.Models.Song selected)
                     return;
 
                 // Limpiar selección visual
@@ -38,7 +38,7 @@ public partial class Android_View_Favorite : ContentView
     }
     private async void Click_SelectedItemsMenu(object sender, EventArgs e)
     {
-        if (sender is Button btn && btn.BindingContext is Objetos.Models.Favorite fav)
+        if (sender is Button btn && btn.BindingContext is Objetos.Models.Song fav)
         {
             // Obtener la página actual de forma segura usando la ventana asociada
             var page = this.Window?.Page;
@@ -52,10 +52,10 @@ public partial class Android_View_Favorite : ContentView
             if (fav is null || string.IsNullOrWhiteSpace(fav.Id)) return;
 
             // Abrir el menú contextual
-            string title = "Selecciona acción";
-            string cancel = "Cancelar";
-            string[] param = { "Reproducir", "Eliminar" };
-            string action = await page.DisplayActionSheet(title, cancel, null, param);
+            string   title  = "Selecciona acción";
+            string   cancel = "Cancelar";
+            string[] param  = { "Reproducir", "Quitar de favoritos", "Agregar a una playlist", "Almacenar en memoria" };
+            string   action = await page.DisplayActionSheet(title, cancel, null, param);
 
             // Ejecutar la acción seleccionada
             if (BindingContext is AndroidPropertyViewModel vm)
@@ -66,11 +66,55 @@ public partial class Android_View_Favorite : ContentView
                         await vm.PlaySongById(fav.Id!);
                         break;
 
-                    case "Eliminar":
-                        await vm.DeleteFavorite(fav.Id!);
+                    case "Quitar de favoritos":
+                        await vm.Favorite_Delete(fav.Id!);
+                        break;
+
+                    case "Agregar a una playlist":
+                        await vm.Playlist_ToAdd(fav);
+                        break;
+
+                    case "Almacenar en memoria":
                         break;
                 }
             }
         }
+    }
+    private async void Click_PlayAll(object sender, EventArgs e)
+    {
+        if (BindingContext is AndroidPropertyViewModel vm)
+        {
+        
+            // Creamos una playlist temporal con los favoritos
+            var tempPlaylist = new Objetos.Models.Playlist
+            {
+                Id = "temp_favorites",
+                Title = "Mis Favoritos",
+                CurrentDate = DateTime.Now,
+                Items = vm.Favoritos
+            };
+        
+            // Asignamos la playlist temporal a la propiedad SelectedPlaylist
+            vm.SelectedPlaylist = tempPlaylist;
+        
+            // Limpiamos el índice actual de la canción
+            vm.CurrentSongIndex = 0;
+        
+            // Reproducimos la playlist temporal
+            if (tempPlaylist.Items.Count > 0)
+            {
+                // Reproducir la primera canción de la lista
+                var firstSong = tempPlaylist.Items.FirstOrDefault();
+                if (firstSong != null && !string.IsNullOrWhiteSpace(firstSong.Id))
+                {
+                    await vm.PlaySongById(firstSong.Id);
+                }
+            }
+            else
+            {
+                Debug.WriteLine("No hay canciones en la lista de favoritos para reproducir.");
+            }
+        }
+        
     }
 }

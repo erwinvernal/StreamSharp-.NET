@@ -7,7 +7,7 @@ namespace PruebaAPP.Objetos.Services
     {
         // Variables del servicio
             private readonly string _filePath;
-            private List<Favorite> _favorite = [];
+            private List<Song> _favorite = [];
 
         // Inicializacion del contructor
             public FavoriteServices(string fileName = "favoritos.json")
@@ -24,7 +24,7 @@ namespace PruebaAPP.Objetos.Services
                     try
                     {
                         var json = File.ReadAllText(_filePath);
-                        _favorite = JsonSerializer.Deserialize<List<Favorite>>(json) ?? [];
+                        _favorite = JsonSerializer.Deserialize<List<Song>>(json) ?? [];
 
                     } catch{
                         Clear();
@@ -32,7 +32,7 @@ namespace PruebaAPP.Objetos.Services
                 }
                 else
                 {
-                    _favorite = new List<Favorite>();
+                    _favorite = new List<Song>();
                 }
             }
 
@@ -44,16 +44,16 @@ namespace PruebaAPP.Objetos.Services
             }
 
         // Obtener todos los favoritos
-            public List<Favorite> GetAll() => _favorite;
+            public List<Song> GetAll() => _favorite;
 
         // Retornar
-            public Favorite? GetValue(string id)
+            public Song? GetValue(string id)
             {
                 return _favorite.FirstOrDefault(f => f.Id == id);
             }
 
         // Agregar favorito
-            public bool Add(Favorite favorito)
+            public bool Add(Song favorito)
             {
                 if (!_favorite.Any(f => f.Id == favorito.Id))
                 {
@@ -65,7 +65,7 @@ namespace PruebaAPP.Objetos.Services
             }
 
         // Eliminar favorito
-            public void Delete(Favorite favorito)
+            public void Delete(Song favorito)
             {
                 var item = _favorite.FirstOrDefault(f => f.Id == favorito.Id);
                 if (item != null)
@@ -85,7 +85,7 @@ namespace PruebaAPP.Objetos.Services
             }
 
         // Verificar si existe
-            public bool Exists(Favorite favorito)
+            public bool Exists(Song favorito)
                     => _favorite.Any(f => f.Id == favorito.Id);
             public bool Exists(string id)
             {

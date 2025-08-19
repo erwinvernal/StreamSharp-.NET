@@ -58,7 +58,7 @@ namespace PruebaAPP.Views.Android
                 if (_vm.CurrentSong.IsFavorite == true)
                 {
                     // Eliminamos
-                    await _vm.DeleteFavorite(_vm.CurrentSong.Id!);
+                    await _vm.Favorite_Delete(_vm.CurrentSong.Id!);
 
                     // Cambiamos icono
                     _vm.CurrentSong.IsFavorite = false;
@@ -66,19 +66,20 @@ namespace PruebaAPP.Views.Android
                 else
                 {
                     // Agregamos
-                    var favorito = new Favorite
+                    var favorito = new Song
                     {
                         Id         = _vm.CurrentSong.Id,
                         Title      = _vm.CurrentSong.Title,
-                        Author     = _vm.CurrentSong.Channel?.ChannelTitle ?? string.Empty,
-                        Thumbnails = _vm.CurrentSong.Thumbnails?.FirstOrDefault()?.Url ?? string.Empty,
-                        Duracion   = _vm.CurrentSong.Duration.ToString()
+                        Author     = _vm.CurrentSong.Author,
+                        Thumbnails = _vm.CurrentSong.Thumbnails,
+                        Duration   = _vm.CurrentSong.Duration,
+                        IsFavorite = true
 
                     };
 
                     // Ejecutar el comando
-                    if (_vm.AddFavoriteCommand.CanExecute(favorito))
-                        _vm.AddFavoriteCommand.Execute(favorito);
+                    if (_vm.Favorite_AddCommand.CanExecute(favorito))
+                        _vm.Favorite_AddCommand.Execute(favorito);
 
                     // Cambiamos icono
                     _vm.CurrentSong.IsFavorite = true;

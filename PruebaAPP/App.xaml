@@ -16,7 +16,7 @@
             <!-- Convertidores -->
             <cv:TimeSpanFormatConverter x:Key="TimeSpanFormat"/>
             <cv:TextNormalizerConverter x:Key="TextNormalizer"/>
-            <cv:IdToColorConverter      x:Key="IdToColor"/>
+            <cv:IntToBoolConverter      x:Key="IntToBool"/>
             
         </ResourceDictionary>
     </Application.Resources>

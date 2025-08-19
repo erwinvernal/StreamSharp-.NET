@@ -9,7 +9,7 @@
     <Grid RowDefinitions="Auto,1,*" Margin="0,10,0,0" RowSpacing="10">
         
         <!-- Barra Titulo -->
-        <Grid ColumnDefinitions="Auto,*,Auto" Margin="15,0">
+        <Grid ColumnDefinitions="Auto,*" Margin="15,0,15,15">
             
             <!-- Icono -->
             <Label Grid.Column="0" Text="&#xe03d;" Margin="0,0,5,0" FontSize="25" FontFamily="MaterialIconsOutlinedRegular" TextColor="{StaticResource foreg_night_1}"/>
@@ -20,94 +20,103 @@
                 <Label>
                     <Label.FormattedText>
                         <FormattedString>
-                            <Span Text="0" TextColor="{StaticResource foreg_night_1}"/>
+                            <Span Text="{Binding Playlists.Count}" TextColor="{StaticResource foreg_night_1}"/>
                             <Span Text=" Playlist - " TextColor="{StaticResource foreg_night_1}"/>
-                            <Span Text="{Binding SelectedPlaylist.Items.Count}" TextColor="{StaticResource foreg_night_1}"/>
-                            <Span Text=" Canciones" TextColor="{StaticResource foreg_night_1}"/>
+                            <Span Text="{Binding Playlist_GetTotalSong}" TextColor="{StaticResource foreg_night_1}"/>
+                            <Span Text=" Canciones - " TextColor="{StaticResource foreg_night_1}"/>
+                            <Span Text="{Binding Playlists_GetTotalDuration, Converter={StaticResource TimeSpanFormat}}" TextColor="{StaticResource foreg_night_1}"/>
+                            <Span Text=" Duración" TextColor="{StaticResource foreg_night_1}"/>
                         </FormattedString>
                     </Label.FormattedText>
                 </Label>
             </VerticalStackLayout>
             
-            <!-- Controles -->
-            <Button Grid.Column="2" Text="&#xe5d4;" FontSize="24" FontFamily="MaterialIconsOutlinedRegular" TextColor="{StaticResource foreg_night_2}" BackgroundColor="Transparent"/>
-
         </Grid>
         
         <!-- Separador -->
         <Rectangle Grid.Row="1" HeightRequest="2" Fill="{StaticResource backg_night_2}"/>
 
+        <!-- Reproducir todo -->
+        <HorizontalStackLayout Grid.Row="2" Margin="0,-36,20,0" HorizontalOptions="End" VerticalOptions="Start" Spacing="10">
+            <Border WidthRequest="35" HeightRequest="35" StrokeThickness="0" StrokeShape="Ellipse">
+                <Button Text="&#xe872;" FontSize="20" FontFamily="MaterialIconsRegular" Padding="0" TextColor="{StaticResource foreg_night_2}" BackgroundColor="DarkRed" Command="{Binding Playlist_ClearAllCommand}"/>
+            </Border>
+            <Border WidthRequest="52" HeightRequest="52" StrokeThickness="1" Stroke="{StaticResource backg_night_2}" StrokeShape="Ellipse">
+                <Button Text="&#xe145;" FontSize="24" FontFamily="MaterialIconsRegular" Padding="0" TextColor="{StaticResource foreg_night_2}" BackgroundColor="{StaticResource backg_night_0}" Command="{Binding Playlist_CreatedCommand}"/>
+            </Border>
+        </HorizontalStackLayout>
+        
         <!-- Lista de canciones -->
-        <CollectionView Grid.Row="2" ItemsSource="{Binding SelectedPlaylist.Items}" SelectionMode="Single" SelectionChanged="Click_PlayPlaylist">
-            <CollectionView.ItemTemplate>
-                <DataTemplate x:DataType="pl:Favorite">
-                    <Grid ColumnDefinitions="Auto,*" Padding="15,5">
-                        
-                        <!-- Cover -->
-                        <Border Grid.Column="0" Margin="0,0,10,0" StrokeThickness="0" WidthRequest="40" HeightRequest="40" VerticalOptions="Start">
-                            <Border.StrokeShape>
-                                <RoundRectangle CornerRadius="10"/>
-                            </Border.StrokeShape>
-                            <Grid>
+        <Grid Grid.Row="2" Margin="0,20,0,0">
 
-                                <!-- Imagen -->
-                                <Image x:Name="MainImage" Aspect="AspectFill">
-                                    <Image.Source>
-                                        <UriImageSource Uri="{Binding Thumbnails}" CacheValidity="7.00:00:00" CachingEnabled="True" />
-                                    </Image.Source>
-                                </Image>
+            <!-- Contenido -->
+            <CollectionView ItemsSource="{Binding Playlists}" SelectionMode="Single" SelectionChanged="Click_SelectedPlaylist">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="pl:Playlist">
+                        <Grid ColumnDefinitions="Auto,*,Auto" Padding="15,5">
 
-                                <!-- Play -->
-                                <Grid Margin="-1">
-                                    <Rectangle Opacity="0.7" Fill="{StaticResource backg_night_0}"/>
-                                    <Label Text="&#xe037;" FontSize="30" FontFamily="MaterialIconsRegular" TextColor="{StaticResource foreg_night_2}" VerticalOptions="Center" HorizontalOptions="Center"/>
-                                    
-                                    <Grid.Style>
-                                        <Style TargetType="Grid">
-                                            <Setter Property="IsVisible" Value="Collapse"/>
-                                            <Style.Triggers>
-                                                <DataTrigger TargetType="Grid" Binding="{Binding IsPlay}" Value="1">
-                                                    <Setter Property="IsVisible" Value="Visible"/>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Grid.Style>
+                            <!-- Cover -->
+                            <Border WidthRequest="40" HeightRequest="40" StrokeThickness="0">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="10"/>
+                                </Border.StrokeShape>
+                                <Grid RowDefinitions="*,*" ColumnDefinitions="*,*">
+                                    <Rectangle Grid.RowSpan="2" Grid.ColumnSpan="2" Margin="-1" Fill="{StaticResource backg_night_2}"/>
+                                    <Image Grid.Row="0" Grid.Column="0" Source="{Binding Items[0].Thumbnails[0].Url}" Aspect="AspectFill"/>
+                                    <Image Grid.Row="0" Grid.Column="1" Source="{Binding Items[1].Thumbnails[0].Url}" Aspect="AspectFill"/>
+                                    <Image Grid.Row="1" Grid.Column="0" Source="{Binding Items[2].Thumbnails[0].Url}" Aspect="AspectFill"/>
+                                    <Image Grid.Row="1" Grid.Column="1" Source="{Binding Items[3].Thumbnails[0].Url}" Aspect="AspectFill"/>
                                 </Grid>
+                            </Border>
 
-                                <!-- Loader mientras carga -->
-                                <ActivityIndicator WidthRequest="40" HeightRequest="40"
-                                                   IsRunning="{Binding Source={x:Reference MainImage}, Path=IsLoading}" 
-                                                   Color="{StaticResource foreg_night_2}" 
-                                                   IsVisible="{Binding Source={x:Reference MainImage}, Path=IsLoading}" />
+                            <!-- Informacion -->
+                            <VerticalStackLayout Grid.Column="1" Margin="10,0,0,0" VerticalOptions="Center" >
+                                <Label Text="{Binding Title}" TextColor="{StaticResource foreg_night_2}"/>
+                                <HorizontalStackLayout>
+                                    <Label Text="{Binding Items.Count}" TextColor="{StaticResource foreg_night_1}"/>
+                                    <Label Text="Canciones" Margin="5,0,0,0" TextColor="{StaticResource foreg_night_1}"/>
+                                    <Label Text="-" Margin="5,0,0,0" TextColor="{StaticResource foreg_night_1}"/>
+                                    <Label Text="{Binding TotalDuration, Converter={StaticResource TimeSpanFormat}}" Margin="5,0,0,0"  TextColor="{StaticResource foreg_night_1}"/>
+                                    <Label Text="Duración" Margin="5,0,0,0" TextColor="{StaticResource foreg_night_1}"/>
+                                </HorizontalStackLayout>
+                            </VerticalStackLayout>
 
-                            </Grid>
-                        </Border>
+                            <!-- ELiminar -->
+                            <Button Grid.Column="2"  WidthRequest="40" HeightRequest="40"
+                                    Text="&#xe872;" 
+                                    FontSize="24" 
+                                    Padding="0"
+                                    FontFamily="MaterialIconsRegular" 
+                                    TextColor="{StaticResource foreg_night_2}" 
+                                    BackgroundColor="Transparent"
+                                    VerticalOptions="Start"
+                                    Clicked="Click_DeletePlayList"/>
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
 
-                        <!-- Informacion -->
-                        <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
-                            <Label Grid.Column="0" LineBreakMode="TailTruncation">
-                                <Label.Style>
-                                    <Style TargetType="Label">
-                                        <Setter Property="Text" Value="{Binding Title}"/>
-                                        <Setter Property="TextColor" Value="{StaticResource foreg_night_2}"/>
-                                        <Style.Triggers>    
-                                            <DataTrigger TargetType="Label" Binding="{Binding IsPlay}" Value="1">
-                                                <Setter Property="TextColor" Value="{StaticResource foreg_night_0}"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Label.Style>
-                            </Label>
-                            <Grid ColumnDefinitions="*,Auto">
-                                <Label Text="{Binding Author}" TextColor="{StaticResource foreg_night_1}" MaxLines="2" LineBreakMode="TailTruncation"/>
-                                <Label Grid.Column="1" Text="{Binding Duracion, Converter={StaticResource TimeSpanFormat}}" TextColor="{StaticResource foreg_night_1}"/>
-                            </Grid>
-                        </VerticalStackLayout>
-                       
-                    </Grid>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
+            <!-- Si no se encuentra nada -->
+            <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center">
+                <VerticalStackLayout.Style>
+                    <Style TargetType="VerticalStackLayout">
+                        <Setter Property="IsVisible" Value="Collapse"/>
+                        <Style.Triggers>
+                            <DataTrigger TargetType="VerticalStackLayout" Binding="{Binding Playlists.Count}" Value="0">
+                                <Setter Property="IsVisible" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </VerticalStackLayout.Style>
+                <Label Grid.Column="0" Text="🚀" Margin="0,0,0,10" FontSize="42" HorizontalTextAlignment="Center" TextColor="{StaticResource foreg_night_1}"/>
+                <Label WidthRequest="300" Text="Aún no has creado ninguna playlist. Empieza una nueva para disfrutar tu música como quieras." HorizontalTextAlignment="Center" TextColor="{StaticResource foreg_night_2}"/>
+
+                <!-- Boton de crear -->
+                <Button Text="➕ Crear playlist" Margin="0,40,0,0" TextColor="{StaticResource foreg_night_2}" BackgroundColor="{StaticResource backg_night_2}" Command="{Binding Playlist_CreatedCommand}"/>
+                
+            </VerticalStackLayout>
+            
+        </Grid>
 
     </Grid>
 </ContentView>
