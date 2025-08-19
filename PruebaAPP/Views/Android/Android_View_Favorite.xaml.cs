@@ -1,33 +1,74 @@
-using Microsoft.Maui.Controls.Platform.Compatibility;
-using PruebaAPP.Objetos.Models;
-using PruebaAPP.Views.Android.View_Favorite;
 using PruebaAPP.Views.Android.ViewModels;
 using System.Diagnostics;
-using YoutubeExplode.Search;
 
 namespace PruebaAPP.Views.Android;
-
 public partial class Android_View_Favorite : ContentView
 {
 	public Android_View_Favorite()
 	{
 		InitializeComponent();
-        ContainerView.Content = new Android_Favorite_Song();
-
-        rb0.IsChecked = true; // Seleccionar por defecto
     }
 
-    private void Click_Changetype(object sender, CheckedChangedEventArgs e)
+    private async void Click_SelectItemsPlay(object sender, SelectionChangedEventArgs e)
     {
-        if (BindingContext is AndroidPropertyViewModel vm && e.Value) // Solo cuando se selecciona
+        try
         {
-            if (sender is RadioButton rb && int.TryParse(rb.ClassId, out int tipo))
+            if (BindingContext is AndroidPropertyViewModel vm)
             {
-                switch (tipo)
+                if (e.CurrentSelection?.FirstOrDefault() is not Objetos.Models.Favorite selected)
+                    return;
+
+                // Limpiar selección visual
+                if (sender is CollectionView cv)
+                    cv.SelectedItem = null;
+
+                if (!string.IsNullOrWhiteSpace(selected.Id))
                 {
-                    case 0: ContainerView.Content = new Android_Favorite_Song(); break;
-                    case 1: ContainerView.Content = new Android_Favorite_Playlist(); break;
-                    default: break;
+                    await vm.PlaySongById(selected.Id);
+                }
+
+                OnPropertyChanged(nameof(selected.Id));
+            }
+
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error al reproducir favorito: {ex.Message}");
+        }
+    }
+    private async void Click_SelectedItemsMenu(object sender, EventArgs e)
+    {
+        if (sender is Button btn && btn.BindingContext is Objetos.Models.Favorite fav)
+        {
+            // Obtener la página actual de forma segura usando la ventana asociada
+            var page = this.Window?.Page;
+            if (page == null)
+            {
+                Debug.WriteLine("No se pudo obtener la página actual para mostrar el menú contextual.");
+                return;
+            }
+
+            // Verificar si el favorito es nulo o no tiene un ID válido
+            if (fav is null || string.IsNullOrWhiteSpace(fav.Id)) return;
+
+            // Abrir el menú contextual
+            string title = "Selecciona acción";
+            string cancel = "Cancelar";
+            string[] param = { "Reproducir", "Eliminar" };
+            string action = await page.DisplayActionSheet(title, cancel, null, param);
+
+            // Ejecutar la acción seleccionada
+            if (BindingContext is AndroidPropertyViewModel vm)
+            {
+                switch (action)
+                {
+                    case "Reproducir":
+                        await vm.PlaySongById(fav.Id!);
+                        break;
+
+                    case "Eliminar":
+                        await vm.DeleteFavorite(fav.Id!);
+                        break;
                 }
             }
         }

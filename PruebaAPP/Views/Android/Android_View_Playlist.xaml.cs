@@ -44,17 +44,10 @@ public partial class Android_View_Playlist : ContentView
                 if (items == null)
                     return;
 
-                // aplicamos false a todo los items
-                foreach (Favorite ob in items) { 
-                    if (ob.IsPlay == 1 ) 
-                        ob.IsPlay = 2; // Reproducido
-                }
-
                 int index = items.IndexOf(selected);
                 if (index >= 0 && !string.IsNullOrWhiteSpace(selected.Id))
                 {
                     vm.CurrentSongIndex = index;
-                    selected.IsPlay = 1;
                     await vm.PlaySongById(selected.Id);
                 }
             }

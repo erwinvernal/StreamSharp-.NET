@@ -168,8 +168,11 @@ namespace PruebaAPP.Views.Android.ViewModels
                         CurrentTime  = TimeSpan.Zero,
                         TotalTime    = TimeSpan.Zero,
                         ProgressTime = 0,
-                        Favorite     = _favoritosService.Exists(item.Id)
+                        IsFavorite   = _favoritosService.Exists(item.Id)
                     };
+
+                    // Actualizamos
+                    UpdateSong();
 
                     // Reproducir
                     _mediaService.Play(streamInfo.Url);
@@ -293,7 +296,33 @@ namespace PruebaAPP.Views.Android.ViewModels
                     CurrentSong?.ProgressTime = 0.0;
                 }
             }
+            public void UpdateSong()
+            {
+                foreach (Favorite favorite in Favoritos)
+                {
+                    if (favorite.Id == CurrentSong?.Id)
+                    {
+                        favorite.IsPlay = true;
+                    
+                    } else {
+                        favorite.IsPlay = false;
+                    }
+                }
 
+                foreach (Playlist playlist in Playlists)
+                {
+                    foreach (Favorite favorite in playlist.Items) 
+                    { 
+                        if (favorite.Id == CurrentSong?.Id)
+                        {
+                            favorite.IsPlay = true;
+                    
+                        } else {
+                            favorite.IsPlay = false;
+                        }
+                    }
+                }
+            }
 
         // =============================================================================================
         // == Favoritos
@@ -328,7 +357,7 @@ namespace PruebaAPP.Views.Android.ViewModels
                 // Verificamos si la cancion esta corriendo
                 if (CurrentSong != null && !string.IsNullOrEmpty(CurrentSong.Id) && item != null && !string.IsNullOrEmpty(item.Id) && CurrentSong.Id == item.Id)
                 {
-                    CurrentSong.Favorite = false;
+                    CurrentSong.IsFavorite = false;
                 }
 
             }
@@ -548,19 +577,12 @@ namespace PruebaAPP.Views.Android.ViewModels
                         // Subimos el index
                         CurrentSongIndex++;
 
-                        // aplicamos false a todo los items
-                        foreach (Favorite ob in SelectedPlaylist.Items) { 
-                            if (ob.IsPlay == 1 ) 
-                                ob.IsPlay = 2; // Reproducido
-                        }
-
                         // Seleccionamos el items
                         var prevSong = SelectedPlaylist.Items[CurrentSongIndex];
 
                         // Establecemos cambio
                         if (!string.IsNullOrEmpty(prevSong.Id)) 
                             await PlaySongById(prevSong.Id);
-                            prevSong.IsPlay = 1;
                             
 
                     } else { CurrentSongIndex = 0; }
@@ -589,20 +611,12 @@ namespace PruebaAPP.Views.Android.ViewModels
                         if (CurrentSongIndex>0) 
                             CurrentSongIndex--;
 
-
-                        // aplicamos false a todo los items
-                        foreach (Favorite ob in SelectedPlaylist.Items) { 
-                            if (ob.IsPlay == 1 ) 
-                                ob.IsPlay = 2; // Reproducido
-                        }
-
                         // Seleccionamos el items
                         var prevSong = SelectedPlaylist.Items[CurrentSongIndex];
 
                         // Establecemos cambio
                         if (!string.IsNullOrEmpty(prevSong.Id)) 
                             await PlaySongById(prevSong.Id);
-                            prevSong.IsPlay = 1;
                     }
                     else { CurrentSongIndex = 0; }
 

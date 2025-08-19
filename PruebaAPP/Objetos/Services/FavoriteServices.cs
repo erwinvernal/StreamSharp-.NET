@@ -21,8 +21,14 @@ namespace PruebaAPP.Objetos.Services
             {
                 if (File.Exists(_filePath))
                 {
-                    var json = File.ReadAllText(_filePath);
-                    _favorite = JsonSerializer.Deserialize<List<Favorite>>(json) ?? [];
+                    try
+                    {
+                        var json = File.ReadAllText(_filePath);
+                        _favorite = JsonSerializer.Deserialize<List<Favorite>>(json) ?? [];
+
+                    } catch{
+                        Clear();
+                    }
                 }
                 else
                 {

@@ -1,15 +1,18 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using PruebaAPP.Views.Android.ViewModels;
+using System.ComponentModel;
 
 namespace PruebaAPP.Objetos.Models
 {
     public partial class Favorite : ObservableObject
     {
-        public string? Id         { get; set; }  // Id del recurso
-        public string? Title      { get; set; }  // Nombre 
-        public string? Author     { get; set; }  // Opcional
-        public string? Thumbnails { get; set; }  // Opcional
-        public string? Duracion   { get; set; }  // Opcional
-        [ObservableProperty] public partial int IsPlay { get; set; }   // Estado de reproducción (0: Sin reproducir, 1: Reproduciendo, 2: Reproducido)
+        [ObservableProperty] public partial string? Id         { get; set; }  // Id del recurso
+        [ObservableProperty] public partial string? Title      { get; set; }  // Nombre 
+        [ObservableProperty] public partial string? Author     { get; set; }  // Opcional
+        [ObservableProperty] public partial string? Thumbnails { get; set; }  // Opcional
+        [ObservableProperty] public partial string? Duracion   { get; set; }  // Opcional
+        [ObservableProperty] public partial bool    IsPlay     { get; set; }  // Estado de reproducción (0: Sin reproducir, 1: Reproduciendo, 2: Reproducido)
+
     }
 
 }

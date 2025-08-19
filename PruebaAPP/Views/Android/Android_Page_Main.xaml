@@ -131,11 +131,11 @@
                             <Button.Style>
                                 <Style TargetType="Button">
                                     <Setter Property="Text" Value="&#xe87e;"/>
-                                    <Setter Property="TextColor" Value="{StaticResource foreg_night_2}"/>
+                                    <Setter Property="TextColor" Value="Red"/>
                                     <Style.Triggers>
-                                        <DataTrigger TargetType="Button" Binding="{Binding CurrentSong.Favorite}" Value="True">
+                                        <DataTrigger TargetType="Button" Binding="{Binding CurrentSong.IsFavorite}" Value="True">
                                             <Setter Property="Text" Value="&#xe87d;"/>
-                                            <Setter Property="TextColor" Value="{StaticResource foreg_night_0}"/>
+                                            <Setter Property="TextColor" Value="Red"/>
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
@@ -151,9 +151,9 @@
 
             <!-- Barra de progreso -->
             <Grid Grid.Row="1" ColumnDefinitions="Auto,*,Auto" Margin="20,0,20,10">
-                <Label Grid.Column="0" Text="{Binding CurrentSong.CurrentTimeFormatted}" TextColor="{StaticResource foreg_night_2}"/>
+                <Label Grid.Column="0" Text="{Binding CurrentSong.CurrentTime, Converter={StaticResource TimeSpanFormat}}" TextColor="{StaticResource foreg_night_2}"/>
                 <ProgressBar Grid.Column="1" HeightRequest="6" Margin="10,0" Progress="{Binding CurrentSong.ProgressTime, TargetNullValue='1'}" BackgroundColor="Transparent" ProgressColor="{StaticResource foreg_night_0}"/>
-                <Label Grid.Column="2" Text="{Binding CurrentSong.TotalTimeFormatted}" TextColor="{StaticResource foreg_night_2}"/>
+                <Label Grid.Column="2" Text="{Binding CurrentSong.TotalTime, Converter={StaticResource TimeSpanFormat}}" TextColor="{StaticResource foreg_night_2}"/>
             </Grid>
 
         </Grid>

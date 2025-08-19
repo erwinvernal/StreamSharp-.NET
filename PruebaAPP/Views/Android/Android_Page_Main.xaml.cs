@@ -55,13 +55,13 @@ namespace PruebaAPP.Views.Android
         {
             if (_vm.CurrentSong is not null && !string.IsNullOrEmpty(_vm.CurrentSong.Id))
             {
-                if (_vm.CurrentSong.Favorite == true)
+                if (_vm.CurrentSong.IsFavorite == true)
                 {
                     // Eliminamos
                     await _vm.DeleteFavorite(_vm.CurrentSong.Id!);
 
                     // Cambiamos icono
-                    _vm.CurrentSong.Favorite = false;
+                    _vm.CurrentSong.IsFavorite = false;
                 }
                 else
                 {
@@ -81,7 +81,7 @@ namespace PruebaAPP.Views.Android
                         _vm.AddFavoriteCommand.Execute(favorito);
 
                     // Cambiamos icono
-                    _vm.CurrentSong.Favorite = true;
+                    _vm.CurrentSong.IsFavorite = true;
 
                     // Agregamos a favoritos
                     await _vm.Playlist_ToAdd(favorito);

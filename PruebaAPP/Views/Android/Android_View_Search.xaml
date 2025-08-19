@@ -59,9 +59,9 @@
 
                         <!-- Informacion -->
                         <VerticalStackLayout Grid.Column="1">
-                            <Label Text="{Binding Title}"               TextColor="{StaticResource foreg_night_2}" MaxLines="2" LineBreakMode="TailTruncation" HorizontalTextAlignment="Justify"/>
-                            <Label Text="{Binding Author.ChannelTitle}" TextColor="{StaticResource foreg_night_1}" MaxLines="1" LineBreakMode="TailTruncation"/>
-                            <Label Text="{Binding Duration}"            TextColor="{StaticResource foreg_night_2}"/>
+                            <Label Text="{Binding Title}"                                                           TextColor="{StaticResource foreg_night_2}" MaxLines="2" LineBreakMode="TailTruncation" HorizontalTextAlignment="Justify"/>
+                            <Label Text="{Binding Author.ChannelTitle, Converter={StaticResource TextNormalizer}}"  TextColor="{StaticResource foreg_night_1}" MaxLines="1" LineBreakMode="TailTruncation"/>
+                            <Label Text="{Binding Duration, Converter={StaticResource TimeSpanFormat}}"             TextColor="{StaticResource foreg_night_2}"/>
                         </VerticalStackLayout>
 
                         <!-- Controles -->

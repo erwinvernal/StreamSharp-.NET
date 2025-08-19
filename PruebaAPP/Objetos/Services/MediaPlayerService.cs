@@ -2,14 +2,9 @@
 
 namespace PruebaAPP.Objetos.Services
 {
-    public class MediaPlayerService
+    public class MediaPlayerService(MediaElement player)
     {
-        public MediaElement Player { get; private set; }
-
-        public MediaPlayerService(MediaElement player)
-        {
-            Player = player;
-        }
+        public MediaElement Player { get; private set; } = player;
 
         public void Play(string url)
         {
