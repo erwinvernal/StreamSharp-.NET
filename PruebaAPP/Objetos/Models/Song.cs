@@ -4,7 +4,6 @@ using System.Text.Json.Serialization;
 
 namespace PruebaAPP.Objetos.Models
 {
-    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)]
     public partial class Song : ObservableObject
     {
         public string? Id           { get; set; }
@@ -14,9 +13,9 @@ namespace PruebaAPP.Objetos.Models
         public TimeSpan? Duration   { get; set; }
 
         // Atributos no guardables
-        [JsonIgnore] public TimeSpan? CurrentTime   { get; set; }
-        [JsonIgnore] public TimeSpan? TotalTime     { get; set; }
-        [JsonIgnore] public double? ProgressTime    { get; set; }
+        [JsonIgnore][ObservableProperty] public partial TimeSpan? CurrentTime   { get; set; }
+        [JsonIgnore][ObservableProperty] public partial TimeSpan? TotalTime     { get; set; }
+        [JsonIgnore][ObservableProperty] public partial double? ProgressTime    { get; set; }
         [JsonIgnore] public double? SizeFile        { get; set; }
 
         // Atributos de estado

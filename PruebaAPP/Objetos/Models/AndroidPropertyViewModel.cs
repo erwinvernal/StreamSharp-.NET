@@ -441,8 +441,6 @@ namespace PruebaAPP.Views.Android.ViewModels
                     keyboard: Keyboard.Text     // Tipo de teclado
                 );
 
-                await mainPage.DisplayAlert("preparando!", $"{nombre}", "Listo.");
-
                 // Verificamos y creamos
                 if (string.IsNullOrWhiteSpace(nombre)) return;
                 
@@ -451,8 +449,7 @@ namespace PruebaAPP.Views.Android.ViewModels
                 LPlaylist.Add(playlist);
 
                 // Notificamos cambio
-                //OnPropertyChanged(nameof(LPlaylist));
-                await mainPage.DisplayAlert("Creada!", $"{nombre}", "Listo.");
+                OnPropertyChanged(nameof(LPlaylist));
             }
             [RelayCommand] public async Task Playlist_ToAdd(Song fav)
             {
