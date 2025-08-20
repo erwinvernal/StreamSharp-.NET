@@ -11,7 +11,6 @@ namespace PruebaAPP.Views.Android
     {
         private readonly AndroidPropertyViewModel _vm;
         private readonly System.Timers.Timer _refreshTimer;
-        private bool _isSkipping = false;
 
         public Android_Page_Main()
         {

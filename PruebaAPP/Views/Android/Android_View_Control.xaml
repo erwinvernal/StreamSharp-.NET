@@ -13,7 +13,7 @@
                 <RoundRectangle CornerRadius="10"/>
             </Border.StrokeShape>
             <Grid>
-                <Image Aspect="AspectFill" Source="{Binding CurrentSong.Thumbnails[3].Url}"/>
+                <Image Aspect="AspectFill" Source="{Binding CurrentSong.Thumbnails}"/>
                 <ActivityIndicator WidthRequest="250" HeightRequest="250" IsRunning="{Binding IsLoading2}" Color="{StaticResource foreg_night_0}" HorizontalOptions="Center">
                     <ActivityIndicator.Style>
                         <Style TargetType="ActivityIndicator">
@@ -32,7 +32,7 @@
         <!-- Informacion de la cancion -->
         <StackLayout Grid.Row="1" Margin="10,20,10,0">
             <Label Text="{Binding CurrentSong.Title}"   FontSize="16" TextColor="{StaticResource foreg_night_2}" MaxLines="2" LineBreakMode="TailTruncation" HorizontalTextAlignment="Center"/>
-            <Label Text="{Binding CurrentSong.Channel}" FontSize="16" TextColor="{StaticResource foreg_night_1}" HorizontalTextAlignment="Center"/>
+            <Label Text="{Binding CurrentSong.Author}" FontSize="16" TextColor="{StaticResource foreg_night_1}" HorizontalTextAlignment="Center"/>
         </StackLayout>
         
         <!-- Controles -->

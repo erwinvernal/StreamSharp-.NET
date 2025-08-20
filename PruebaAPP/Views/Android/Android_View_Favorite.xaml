@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:vm="clr-namespace:PruebaAPP.Views.Android.ViewModels"
              xmlns:md="clr-namespace:PruebaAPP.Objetos.Models"
+             xmlns:vm="clr-namespace:PruebaAPP.Views.Android.ViewModels"
              x:DataType="vm:AndroidPropertyViewModel"
              x:Class="PruebaAPP.Views.Android.Android_View_Favorite">
 
@@ -36,11 +36,11 @@
         </Grid>
         
         <!-- Separador -->
-        <Rectangle Grid.Row="1" HeightRequest="2" Fill="{StaticResource backg_night_2}"/>
+        <Rectangle Grid.Row="1" HeightRequest="1" Fill="{StaticResource backg_night_2}"/>
 
         <!-- Reproducir todo -->
         <Border Grid.Row="2" WidthRequest="52" HeightRequest="52" Margin="0,-36,20,0" StrokeThickness="1" Stroke="{StaticResource backg_night_2}" StrokeShape="Ellipse" HorizontalOptions="End" VerticalOptions="Start">
-            <Button Text="&#xe037;" FontSize="24" FontFamily="MaterialIconsRegular" Padding="0" TextColor="{StaticResource foreg_night_2}" BackgroundColor="{StaticResource backg_night_0}" Clicked="Click_PlayAll"/>
+            <Button Text="&#xe037;" FontSize="24" FontFamily="MaterialIconsRegular" Padding="0" TextColor="{StaticResource foreg_night_2}" BackgroundColor="{StaticResource backg_night_4}" Clicked="Click_PlayAll"/>
         </Border>
         
         <!-- Listado -->
@@ -63,88 +63,88 @@
             </VerticalStackLayout>
 
             <!-- Contenido -->
-            <CollectionView Grid.Row="2" Margin="0,20,0,0" ItemsSource="{Binding Favoritos}" ClassId="111" SelectionMode="Single" ItemsUpdatingScrollMode="KeepScrollOffset" ItemSizingStrategy="MeasureFirstItem" SelectionChanged="Click_SelectItemsPlay">
-            <CollectionView.ItemTemplate>
-                <DataTemplate x:DataType="md:Song">
-                    <Grid ColumnDefinitions="Auto,*,Auto" Padding="15,5">
+            <CollectionView Grid.Row="2" Margin="0,20,0,0" ItemsSource="{Binding Favoritos}" SelectionMode="Single" ItemsUpdatingScrollMode="KeepScrollOffset" ItemSizingStrategy="MeasureFirstItem" SelectionChanged="Click_SelectItemsPlay">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="md:Song">
+                        <Grid ColumnDefinitions="Auto,*,Auto" Padding="15,5">
 
-                        <!-- Cover -->
-                        <Border Grid.Column="0" Margin="0,0,10,0" StrokeThickness="0" WidthRequest="50" HeightRequest="50" VerticalOptions="Start">
-                            <Border.StrokeShape>
-                                <RoundRectangle CornerRadius="10"/>
-                            </Border.StrokeShape>
-                            <Grid>
+                            <!-- Cover -->
+                            <Border Grid.Column="0" Margin="0,0,10,0" StrokeThickness="0" WidthRequest="50" HeightRequest="50" VerticalOptions="Start">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="10"/>
+                                </Border.StrokeShape>
+                                <Grid>
 
-                                <!-- Imagen -->
-                                <Image x:Name="MainImage" Aspect="AspectFill">
-                                    <Image.Source>
-                                        <UriImageSource Uri="{Binding Thumbnails[0].Url}" CacheValidity="7.00:00:00" CachingEnabled="True" />
-                                    </Image.Source>
-                                </Image>
+                                    <!-- Imagen -->
+                                    <Image x:Name="MainImage" Aspect="AspectFill">
+                                        <Image.Source>
+                                            <UriImageSource Uri="{Binding Thumbnails}" CacheValidity="7.00:00:00" CachingEnabled="True" />
+                                        </Image.Source>
+                                    </Image>
 
-                                <!-- Loader mientras carga -->
-                                <ActivityIndicator WidthRequest="40" HeightRequest="40" 
-                                                       IsRunning="{Binding Source={x:Reference MainImage}, Path=IsLoading}" 
-                                                       Color="{StaticResource foreg_night_2}" 
-                                                       IsVisible="{Binding Source={x:Reference MainImage}, Path=IsLoading}" />
+                                    <!-- Loader mientras carga -->
+                                    <ActivityIndicator WidthRequest="40" HeightRequest="40" 
+                                                           IsRunning="{Binding Source={x:Reference MainImage}, Path=IsLoading}" 
+                                                           Color="{StaticResource foreg_night_2}" 
+                                                           IsVisible="{Binding Source={x:Reference MainImage}, Path=IsLoading}" />
 
-                                <!-- Covertura -->
-                                <Grid Margin="-1" IsVisible="{Binding IsPlay}">
-                                    <Rectangle Fill="{StaticResource backg_night_2}" Opacity="0.6"/>
-                                    <Label Text="&#xe037;" FontSize="25" FontFamily="MaterialIconsRegular" TextColor="{StaticResource foreg_night_2}" HorizontalOptions="Center" VerticalOptions="Center"/>
+                                    <!-- Covertura -->
+                                    <Grid Margin="-1" IsVisible="{Binding IsPlay}">
+                                        <Rectangle Fill="{StaticResource backg_night_2}" Opacity="0.6"/>
+                                        <Label Text="&#xe037;" FontSize="25" FontFamily="MaterialIconsRegular" TextColor="{StaticResource foreg_night_2}" HorizontalOptions="Center" VerticalOptions="Center"/>
+                                    </Grid>
+                                
                                 </Grid>
-                                
-                            </Grid>
-                        </Border>
+                            </Border>
 
-                        <!-- Informacion -->
-                        <VerticalStackLayout Grid.Column="1" Margin="0,0,10,0" VerticalOptions="Center">
+                            <!-- Informacion -->
+                            <VerticalStackLayout Grid.Column="1" Margin="0,0,10,0" VerticalOptions="Center">
                             
-                            <!-- Titulo de la cancion -->
-                            <Label Text="{Binding Title}"   
-                                   MaxLines="1"
-                                   LineBreakMode="TailTruncation" 
-                                   HorizontalTextAlignment="Start">
-                                <Label.Style>
-                                    <Style TargetType="Label">
-                                        <Setter Property="TextColor" Value="{StaticResource foreg_night_2}"/>
-                                        <Style.Triggers>
-                                            <DataTrigger TargetType="Label" Binding="{Binding IsPlay}" Value="True">
-                                                <Setter Property="TextColor" Value="{StaticResource foreg_night_0}"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Label.Style>
-                            </Label>
+                                <!-- Titulo de la cancion -->
+                                <Label Text="{Binding Title}"   
+                                       MaxLines="1"
+                                       LineBreakMode="TailTruncation" 
+                                       HorizontalTextAlignment="Start">
+                                    <Label.Style>
+                                        <Style TargetType="Label">
+                                            <Setter Property="TextColor" Value="{StaticResource foreg_night_2}"/>
+                                            <Style.Triggers>
+                                                <DataTrigger TargetType="Label" Binding="{Binding IsPlay}" Value="True">
+                                                    <Setter Property="TextColor" Value="{StaticResource foreg_night_0}"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Label.Style>
+                                </Label>
 
-                            <!-- Otros datos -->
-                            <Grid ColumnDefinitions="*,Auto">
+                                <!-- Otros datos -->
+                                <Grid ColumnDefinitions="*,Auto">
                                 
-                                <!-- Author -->
-                                <Label Grid.Column="0" Text="{Binding Author.ChannelTitle}"   TextColor="{StaticResource foreg_night_1}"/>
+                                    <!-- Author -->
+                                    <Label Grid.Column="0" Text="{Binding Author}"   TextColor="{StaticResource foreg_night_1}"/>
 
-                                <!-- Duracion -->
-                                <Label Grid.Column="1" Text="{Binding Duration, Converter={StaticResource TimeSpanFormat}}" TextColor="{StaticResource foreg_night_1}"/>
+                                    <!-- Duracion -->
+                                    <Label Grid.Column="1" Text="{Binding Duration, Converter={StaticResource TimeSpanFormat}}" TextColor="{StaticResource foreg_night_1}"/>
 
-                            </Grid>
+                                </Grid>
                             
-                        </VerticalStackLayout>
+                            </VerticalStackLayout>
 
-                        <!-- Icono de eliminar -->
-                        <Button Grid.Column="2" WidthRequest="40" HeightRequest="40" Padding="0"
-                                    Text="&#xe5d4;" 
-                                    FontSize="20" 
-                                    FontFamily="MaterialIconsRegular" 
-                                    TextColor="{StaticResource foreg_night_2}" 
-                                    BackgroundColor="Transparent"
-                                    VerticalOptions="Start"
-                                    Clicked="Click_SelectedItemsMenu">
-                        </Button>
+                            <!-- Icono de eliminar -->
+                            <Button Grid.Column="2" WidthRequest="40" HeightRequest="40" Padding="0"
+                                        Text="&#xe5d4;" 
+                                        FontSize="20" 
+                                        FontFamily="MaterialIconsRegular" 
+                                        TextColor="{StaticResource foreg_night_2}" 
+                                        BackgroundColor="Transparent"
+                                        VerticalOptions="Start"
+                                        Clicked="Click_SelectedItemsMenu">
+                            </Button>
 
-                    </Grid>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
 
         </Grid>
         

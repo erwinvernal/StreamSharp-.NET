@@ -90,7 +90,6 @@ public partial class Android_View_Favorite : ContentView
             {
                 Id = "temp_favorites",
                 Title = "Mis Favoritos",
-                CurrentDate = DateTime.Now,
                 Items = vm.Favoritos
             };
         

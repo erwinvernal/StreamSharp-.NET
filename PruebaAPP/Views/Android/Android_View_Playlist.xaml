@@ -20,7 +20,7 @@
                 <Label>
                     <Label.FormattedText>
                         <FormattedString>
-                            <Span Text="{Binding Playlists.Count}" TextColor="{StaticResource foreg_night_1}"/>
+                            <Span Text="{Binding LPlaylist.Count}" TextColor="{StaticResource foreg_night_1}"/>
                             <Span Text=" Playlist - " TextColor="{StaticResource foreg_night_1}"/>
                             <Span Text="{Binding Playlist_GetTotalSong}" TextColor="{StaticResource foreg_night_1}"/>
                             <Span Text=" Canciones - " TextColor="{StaticResource foreg_night_1}"/>
@@ -34,7 +34,7 @@
         </Grid>
         
         <!-- Separador -->
-        <Rectangle Grid.Row="1" HeightRequest="2" Fill="{StaticResource backg_night_2}"/>
+        <Rectangle Grid.Row="1" HeightRequest="1" Fill="{StaticResource backg_night_2}"/>
 
         <!-- Reproducir todo -->
         <HorizontalStackLayout Grid.Row="2" Margin="0,-36,20,0" HorizontalOptions="End" VerticalOptions="Start" Spacing="10">
@@ -42,7 +42,7 @@
                 <Button Text="&#xe872;" FontSize="20" FontFamily="MaterialIconsRegular" Padding="0" TextColor="{StaticResource foreg_night_2}" BackgroundColor="DarkRed" Command="{Binding Playlist_ClearAllCommand}"/>
             </Border>
             <Border WidthRequest="52" HeightRequest="52" StrokeThickness="1" Stroke="{StaticResource backg_night_2}" StrokeShape="Ellipse">
-                <Button Text="&#xe145;" FontSize="24" FontFamily="MaterialIconsRegular" Padding="0" TextColor="{StaticResource foreg_night_2}" BackgroundColor="{StaticResource backg_night_0}" Command="{Binding Playlist_CreatedCommand}"/>
+                <Button Text="&#xe145;" FontSize="24" FontFamily="MaterialIconsRegular" Padding="0" TextColor="{StaticResource foreg_night_2}" BackgroundColor="{StaticResource backg_night_4}" Command="{Binding Playlist_CreatedCommand}"/>
             </Border>
         </HorizontalStackLayout>
         
@@ -50,7 +50,7 @@
         <Grid Grid.Row="2" Margin="0,20,0,0">
 
             <!-- Contenido -->
-            <CollectionView ItemsSource="{Binding Playlists}" SelectionMode="Single" SelectionChanged="Click_SelectedPlaylist">
+            <CollectionView ItemsSource="{Binding LPlaylist}" SelectionMode="Single" SelectionChanged="Click_SelectedPlaylist">
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="pl:Playlist">
                         <Grid ColumnDefinitions="Auto,*,Auto" Padding="15,5">
@@ -60,13 +60,15 @@
                                 <Border.StrokeShape>
                                     <RoundRectangle CornerRadius="10"/>
                                 </Border.StrokeShape>
+                                <!--
                                 <Grid RowDefinitions="*,*" ColumnDefinitions="*,*">
                                     <Rectangle Grid.RowSpan="2" Grid.ColumnSpan="2" Margin="-1" Fill="{StaticResource backg_night_2}"/>
-                                    <Image Grid.Row="0" Grid.Column="0" Source="{Binding Items[0].Thumbnails[0].Url}" Aspect="AspectFill"/>
-                                    <Image Grid.Row="0" Grid.Column="1" Source="{Binding Items[1].Thumbnails[0].Url}" Aspect="AspectFill"/>
-                                    <Image Grid.Row="1" Grid.Column="0" Source="{Binding Items[2].Thumbnails[0].Url}" Aspect="AspectFill"/>
-                                    <Image Grid.Row="1" Grid.Column="1" Source="{Binding Items[3].Thumbnails[0].Url}" Aspect="AspectFill"/>
+                                    <Image Grid.Row="0" Grid.Column="0" Source="{Binding Items[0].Thumbnails}" Aspect="AspectFill"/>
+                                    <Image Grid.Row="0" Grid.Column="1" Source="{Binding Items[1].Thumbnails}" Aspect="AspectFill"/>
+                                    <Image Grid.Row="1" Grid.Column="0" Source="{Binding Items[2].Thumbnails}" Aspect="AspectFill"/>
+                                    <Image Grid.Row="1" Grid.Column="1" Source="{Binding Items[3].Thumbnails}" Aspect="AspectFill"/>
                                 </Grid>
+                                -->
                             </Border>
 
                             <!-- Informacion -->
@@ -76,7 +78,7 @@
                                     <Label Text="{Binding Items.Count}" TextColor="{StaticResource foreg_night_1}"/>
                                     <Label Text="Canciones" Margin="5,0,0,0" TextColor="{StaticResource foreg_night_1}"/>
                                     <Label Text="-" Margin="5,0,0,0" TextColor="{StaticResource foreg_night_1}"/>
-                                    <Label Text="{Binding TotalDuration, Converter={StaticResource TimeSpanFormat}}" Margin="5,0,0,0"  TextColor="{StaticResource foreg_night_1}"/>
+                                    <!--<Label Text="{Binding TotalDuration, Converter={StaticResource TimeSpanFormat}}" Margin="5,0,0,0"  TextColor="{StaticResource foreg_night_1}"/>-->
                                     <Label Text="Duración" Margin="5,0,0,0" TextColor="{StaticResource foreg_night_1}"/>
                                 </HorizontalStackLayout>
                             </VerticalStackLayout>
@@ -91,6 +93,7 @@
                                     BackgroundColor="Transparent"
                                     VerticalOptions="Start"
                                     Clicked="Click_DeletePlayList"/>
+
                         </Grid>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
@@ -102,7 +105,7 @@
                     <Style TargetType="VerticalStackLayout">
                         <Setter Property="IsVisible" Value="Collapse"/>
                         <Style.Triggers>
-                            <DataTrigger TargetType="VerticalStackLayout" Binding="{Binding Playlists.Count}" Value="0">
+                            <DataTrigger TargetType="VerticalStackLayout" Binding="{Binding LPlaylist.Count}" Value="0">
                                 <Setter Property="IsVisible" Value="Visible"/>
                             </DataTrigger>
                         </Style.Triggers>
@@ -112,7 +115,7 @@
                 <Label WidthRequest="300" Text="Aún no has creado ninguna playlist. Empieza una nueva para disfrutar tu música como quieras." HorizontalTextAlignment="Center" TextColor="{StaticResource foreg_night_2}"/>
 
                 <!-- Boton de crear -->
-                <Button Text="➕ Crear playlist" Margin="0,40,0,0" TextColor="{StaticResource foreg_night_2}" BackgroundColor="{StaticResource backg_night_2}" Command="{Binding Playlist_CreatedCommand}"/>
+                <Button Text="Crear playlist" Margin="0,40,0,0" TextColor="{StaticResource foreg_night_2}" BackgroundColor="{StaticResource backg_night_4}" Command="{Binding Playlist_CreatedCommand}"/>
                 
             </VerticalStackLayout>
             

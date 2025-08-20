@@ -18,7 +18,7 @@
 
         <!-- Imagen de fondo -->
         <Grid Grid.RowSpan="5"  Opacity="0.12">
-            <Image Source="{Binding CurrentSong.Thumbnails[3].Url}" Aspect="AspectFill"/>
+            <Image Source="{Binding CurrentSong.Thumbnails}" Aspect="AspectFill"/>
         </Grid>
 
         <!-- Contenido -->
@@ -78,7 +78,7 @@
                         <RoundRectangle CornerRadius="10"/>
                     </Border.StrokeShape>
                     <Grid>
-                        <Image Aspect="AspectFill" Source="{Binding CurrentSong.Thumbnails[0].Url}"/>
+                        <Image Aspect="AspectFill" Source="{Binding CurrentSong.Thumbnails}"/>
                         <ActivityIndicator WidthRequest="50" HeightRequest="50" IsRunning="{Binding IsLoading2}" Color="{StaticResource foreg_night_0}">
                             <ActivityIndicator.Style>
                                 <Style TargetType="ActivityIndicator">
@@ -111,7 +111,7 @@
                     <Label TextColor="{StaticResource foreg_night_1}">
                         <Label.Style>
                             <Style TargetType="Label">
-                                <Setter Property="Text" Value="{Binding CurrentSong.Author.ChannelTitle}"/>
+                                <Setter Property="Text" Value="{Binding CurrentSong.Author}"/>
                                 <Style.Triggers>
                                     <DataTrigger TargetType="Label" Binding="{Binding IsLoading2}" Value="True">
                                         <Setter Property="Text" Value="Espere por favor..."/>

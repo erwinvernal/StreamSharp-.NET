@@ -1,5 +1,6 @@
 ﻿using PruebaAPP.Objetos.Models;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Text.Json;
 
 namespace PruebaAPP.Objetos.Services
@@ -27,7 +28,12 @@ namespace PruebaAPP.Objetos.Services
             {
                 var json = File.ReadAllText(_filePath);
                 _playlists = JsonSerializer.Deserialize<List<Playlist>>(json) ?? [];
-            } catch { 
+            } catch {
+
+                // Si hay un error
+                Debug.WriteLine("Error al cargar el archivo JSON de playlists. Reiniciando listas.");
+
+                // Si hay un error, limpiar las listas
                 ClearAll();
             }
 
@@ -46,7 +52,7 @@ namespace PruebaAPP.Objetos.Services
         // Crear nueva playlist
         public Playlist Create(string title)
         {
-            var playlist = new Playlist { Id = _playlists.Count.ToString(), Title = title, CurrentDate = DateTime.Now };
+            var playlist = new Objetos.Models.Playlist { Id = _playlists.Count.ToString(), Title = title };
             _playlists.Add(playlist);
             Save();
             return playlist;

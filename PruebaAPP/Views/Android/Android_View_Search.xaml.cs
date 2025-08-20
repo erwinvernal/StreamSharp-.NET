@@ -193,8 +193,8 @@ namespace PruebaAPP.Views.Android
                             {
                                 Id          = psr.Id,
                                 Title       = psr.Title,
-                                Author      = psr.Author,
-                                Thumbnails  = psr.Thumbnails,
+                                Author      = psr.Author.ChannelTitle,
+                                Thumbnails  = psr.Thumbnails[0].Url,
                                 Duration    = psr.Duration,
                                 IsFavorite  = true
 
@@ -213,8 +213,8 @@ namespace PruebaAPP.Views.Android
                             {
                                 Id          = psr.Id,
                                 Title       = psr.Title,
-                                Author      = psr.Author,
-                                Thumbnails  = psr.Thumbnails,
+                                Author      = psr.Author.ChannelTitle,
+                                Thumbnails  = psr.Thumbnails[0].Url,
                                 Duration    = psr.Duration
 
                             };

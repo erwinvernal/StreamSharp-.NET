@@ -5,6 +5,7 @@ using PruebaAPP.Objetos.Models;
 using PruebaAPP.Objetos.Services;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using YoutubeExplode.Common;
 using YoutubeExplode.Search;
 using YoutubeExplode.Videos.Streams;
 
@@ -29,7 +30,7 @@ namespace PruebaAPP.Views.Android.ViewModels
 
                     // Cargamos lista de favoritos
                     Favoritos = new ObservableCollection<Song>(_favoritosService.GetAll());
-                    Playlists = new ObservableCollection<Playlist>(_playlistService.GetAll());
+                    LPlaylist = new ObservableCollection<Playlist>(_playlistService.GetAll());
 
                     // Precarga por defecto
                     SearchText = "Música";
@@ -48,6 +49,13 @@ namespace PruebaAPP.Views.Android.ViewModels
             private readonly IDispatcher        _dispatcher;
 
         // =============================================================================================
+        // == Lista de favoritos y playlists
+        // =============================================================================================
+            public ObservableCollection<Song> Favoritos { get; }
+            public ObservableCollection<Playlist> LPlaylist { get; }
+            public ObservableCollection<VideoSearchResult> ListItems { get; set; } = [];
+
+        // =============================================================================================
         // == Otras propiedades
         // =============================================================================================
             [ObservableProperty] public partial View? CurrentView { get; set; }
@@ -59,7 +67,6 @@ namespace PruebaAPP.Views.Android.ViewModels
         // == Buscar
         // =============================================================================================
             // Declaracion de la lista de resultados
-            public ObservableCollection<VideoSearchResult> ListItems { get; set; } = [];
             private bool _isPlayingSong = false;
             private readonly List<VideoSearchResult> _cache = [];
             private string _currentSearch = string.Empty;
@@ -227,13 +234,15 @@ namespace PruebaAPP.Views.Android.ViewModels
                     // Verificamos si hay datos
                     if (streamInfo is null) return;
 
+
+
                     // Asignar CurrentSong
                     CurrentSong = new Song()
                     {
                         Id           = item.Id,
                         Title        = item.Title,
-                        Author       = item.Author,
-                        Thumbnails   = item.Thumbnails,
+                        Author       = item.Author.ChannelTitle,
+                        Thumbnails   = item.Thumbnails[0].Url,
                         Duration     = item.Duration,
                         CurrentTime  = TimeSpan.Zero,
                         TotalTime    = TimeSpan.Zero,
@@ -309,7 +318,7 @@ namespace PruebaAPP.Views.Android.ViewModels
                     }
                 }
 
-                foreach (Playlist playlist in Playlists)
+                foreach (Playlist playlist in LPlaylist)
                 {
                     foreach (Song favorite in playlist.Items) 
                     { 
@@ -328,7 +337,7 @@ namespace PruebaAPP.Views.Android.ViewModels
         // == Favoritos
         // =============================================================================================
             // Declaración de la colección de favoritos
-            public ObservableCollection<Song> Favoritos { get; } = [];
+            
 
             // Funciones para manejar favoritos
             /// <summary>Agrega una <see cref="Song"/> a Favoritos.</summary>
@@ -347,7 +356,7 @@ namespace PruebaAPP.Views.Android.ViewModels
                 UpdateSong();
 
                 // Notificamos cambios
-                //MainThread.BeginInvokeOnMainThread(() => OnPropertyChanged(nameof(Favorite_GetTotalD)));
+                OnPropertyChanged(nameof(Favorite_GetTotalD));
                 
             }
 
@@ -376,7 +385,7 @@ namespace PruebaAPP.Views.Android.ViewModels
                 }
 
                 // Notificamos cambios
-                //MainThread.BeginInvokeOnMainThread(() => OnPropertyChanged(nameof(Favorite_GetTotalD)));
+                OnPropertyChanged(nameof(Favorite_GetTotalD));
 
             }
 
@@ -407,34 +416,13 @@ namespace PruebaAPP.Views.Android.ViewModels
         // =============================================================================================
         // == PlayList
         // =============================================================================================
-            // Declaración de la colección de playlists
-            public ObservableCollection<Playlist> Playlists { get; } = [];
+
             public record PlaylistRemoveParam(string PlaylistId, string FavoriteId);
 
             // Propiedades de control de playlist
             [ObservableProperty] public partial Playlist? SelectedPlaylist { get; set; } = new Playlist();
             
             // Comandos de control de playlist
-            [RelayCommand] public async Task Playlist_MenuGeneral()
-            {
-                // Obtener la página actual de forma segura usando la ventana asociada
-                var page = Application.Current?.Windows.FirstOrDefault()?.Page;
-                if (page == null) return;
-
-                // Abrir el menú contextual
-                string   title  = "Selecciona acción";
-                string   cancel = "Cancelar";
-                string[] param  = { "Nueva playlist", "Eliminar todos" };
-                string   action = await page.DisplayActionSheet(title, cancel, null, param);
-
-                // Ejecutar la acción seleccionada
-                switch (action)
-                {
-                    case "Nueva playlist": await Playlist_Created(); break;
-                    case "Eliminar todos": await Playlist_ClearAll(); break;
-
-                }
-            }
             [RelayCommand] public async Task Playlist_Created()
             {
                 // Obtener la página principal de forma segura y sin usar la propiedad obsoleta MainPage
@@ -453,16 +441,18 @@ namespace PruebaAPP.Views.Android.ViewModels
                     keyboard: Keyboard.Text     // Tipo de teclado
                 );
 
+                await mainPage.DisplayAlert("preparando!", $"{nombre}", "Listo.");
+
                 // Verificamos y creamos
-                if (!string.IsNullOrWhiteSpace(nombre))
-                {
-                    // Llamas al servicio que crea la playlist
-                    var playlist = _playlistService.Create(nombre);
-                    Playlists.Add(playlist);
-                }
+                if (string.IsNullOrWhiteSpace(nombre)) return;
+                
+                // Llamas al servicio que crea la playlist
+                Playlist playlist = _playlistService.Create(nombre);
+                LPlaylist.Add(playlist);
 
                 // Notificamos cambio
-                //MainThread.BeginInvokeOnMainThread(() => OnPropertyChanged(nameof(Playlists)));
+                //OnPropertyChanged(nameof(LPlaylist));
+                await mainPage.DisplayAlert("Creada!", $"{nombre}", "Listo.");
             }
             [RelayCommand] public async Task Playlist_ToAdd(Song fav)
             {
@@ -484,8 +474,8 @@ namespace PruebaAPP.Views.Android.ViewModels
                 }
 
                 // Notificamos cambios
-                //MainThread.BeginInvokeOnMainThread(() => OnPropertyChanged(nameof(Playlist_GetTotalSong)));
-                //MainThread.BeginInvokeOnMainThread(() => OnPropertyChanged(nameof(Playlists_GetTotalDuration)));
+                OnPropertyChanged(nameof(Playlist_GetTotalSong));
+                OnPropertyChanged(nameof(Playlists_GetTotalDuration));
 
             }
             [RelayCommand] public async Task Playlist_Delete(string playlistId)
@@ -502,13 +492,13 @@ namespace PruebaAPP.Views.Android.ViewModels
                 _playlistService.Delete(playlistId);
 
                 // Eliminar de la lista observable del ViewModel
-                var item = Playlists.FirstOrDefault(p => p.Id == playlistId);
+                var item = LPlaylist.FirstOrDefault(p => p.Id == playlistId);
                 if (item != null)
-                Playlists.Remove(item);
+                LPlaylist.Remove(item);
 
                 // Notificamos cambios
-                //MainThread.BeginInvokeOnMainThread(() => OnPropertyChanged(nameof(Playlist_GetTotalSong)));
-                //MainThread.BeginInvokeOnMainThread(() => OnPropertyChanged(nameof(Playlists_GetTotalDuration)));
+                OnPropertyChanged(nameof(Playlist_GetTotalSong));
+                OnPropertyChanged(nameof(Playlists_GetTotalDuration));
             }
             [RelayCommand] public async Task Playlist_ToDelete(PlaylistRemoveParam param)
             {
@@ -528,7 +518,7 @@ namespace PruebaAPP.Views.Android.ViewModels
                 if (!result) return;
 
                 // Procesamos eliminacion
-                var pl = Playlists.FirstOrDefault(p => p.Id == param.PlaylistId);
+                var pl = LPlaylist.FirstOrDefault(p => p.Id == param.PlaylistId);
                 if (pl == null) return;
 
                 var song = pl.Items.FirstOrDefault(s => s.Id == param.FavoriteId);
@@ -538,13 +528,13 @@ namespace PruebaAPP.Views.Android.ViewModels
                 pl.Items.Remove(song);
 
                 // Notificamos cambios
-                //MainThread.BeginInvokeOnMainThread(() => OnPropertyChanged(nameof(Playlist_GetTotalSong)));
-                //MainThread.BeginInvokeOnMainThread(() => OnPropertyChanged(nameof(Playlists_GetTotalDuration)));
+                OnPropertyChanged(nameof(Playlist_GetTotalSong));
+                OnPropertyChanged(nameof(Playlists_GetTotalDuration));
             }
             [RelayCommand] public async Task Playlist_ClearAll()
             {
                 // Verificamos si hay playlists
-                if (Playlists.Count == 0) return;
+                if (LPlaylist.Count == 0) return;
 
                 // Obtener la página principal de forma segura y sin usar la propiedad obsoleta MainPage
                 var mainPage = Application.Current?.Windows.FirstOrDefault()?.Page;
@@ -556,23 +546,23 @@ namespace PruebaAPP.Views.Android.ViewModels
 
                 // Eliminamos
                 _playlistService.ClearAll();
-                Playlists.Clear();
+                LPlaylist.Clear();
 
                 //Notificamos cambio
-                //MainThread.BeginInvokeOnMainThread(() => OnPropertyChanged(nameof(Playlists)));
-                //MainThread.BeginInvokeOnMainThread(() => OnPropertyChanged(nameof(Playlist_GetTotalSong)));
-                //MainThread.BeginInvokeOnMainThread(() => OnPropertyChanged(nameof(Playlists_GetTotalDuration)));
+                OnPropertyChanged(nameof(LPlaylist));
+                OnPropertyChanged(nameof(Playlist_GetTotalSong));
+                OnPropertyChanged(nameof(Playlists_GetTotalDuration));
             }
 
             // Funciones auxiliares
-            public int Playlist_GetTotalSong => Playlists.Sum(p => p.Items?.Count ?? 0);
-            public TimeSpan Playlists_GetTotalDuration => Playlists.Aggregate(TimeSpan.Zero, (total, playlist) => total + playlist.Items.Aggregate(TimeSpan.Zero, (subtotal, song) => subtotal + song.Duration.GetValueOrDefault()));
+            public int Playlist_GetTotalSong => LPlaylist.Sum(p => p.Items?.Count ?? 0);
+            public TimeSpan Playlists_GetTotalDuration => LPlaylist.Aggregate(TimeSpan.Zero, (total, playlist) => total + playlist.Items.Aggregate(TimeSpan.Zero, (subtotal, song) => subtotal + song.Duration.GetValueOrDefault()));
 
         // =============================================================================================
         // == Controles de mediap
         // =============================================================================================
         // Declaracion de variables
-        public bool HasCurrentSong => CurrentSong != null;
+            public bool HasCurrentSong => CurrentSong != null;
             public int CurrentSongIndex;
             public bool IsBlockClick;
 
