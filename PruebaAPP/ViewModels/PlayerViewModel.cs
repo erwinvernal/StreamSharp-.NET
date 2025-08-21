@@ -69,8 +69,10 @@ namespace PruebaAPP.ViewModels
         }
         private void Player_MediaEnded(object? sender, EventArgs e)
         {
-            CurrentMediaState = MediaElementState.Stopped;
-
+            if ((Position > 0) && (Duration > 0))
+            {
+                vm!.Media_SkipNext();
+            }
         }
 
     }

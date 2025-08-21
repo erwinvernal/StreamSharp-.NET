@@ -69,6 +69,9 @@
                                     <DataTrigger TargetType="Label" Binding="{Binding IsLoading2}" Value="True">
                                         <Setter Property="Text" Value="Espere por favor..."/>
                                     </DataTrigger>
+                                    <DataTrigger TargetType="Label" Binding="{Binding Player.CurrentMediaState}" Value="2">
+                                        <Setter Property="Text" Value="Buffering..."/>
+                                    </DataTrigger>
                                 </Style.Triggers>
                             </Style>
                         </Label.Style>

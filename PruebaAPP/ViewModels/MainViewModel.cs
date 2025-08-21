@@ -593,7 +593,6 @@ namespace PruebaAPP.Views.Android.ViewModels
             Player.ViewPlaylist = new Playlist();
             Player.CurrentSongIndex = 0;
 
-
             // Cambiamos de vista
             CurrentView = new Android_View_SelectedPlaylist();
 
@@ -621,9 +620,9 @@ namespace PruebaAPP.Views.Android.ViewModels
                 return;
 
             // Si ya hay una canción
+            Player.CurrentMediaState = MediaElementState.Playing;
             Player.Controller.Source = url;
             Player.Controller.Play();
-            Player.CurrentMediaState = MediaElementState.Playing;
         }
         [RelayCommand] public void Media_Play()
         {
