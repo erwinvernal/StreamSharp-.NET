@@ -52,7 +52,7 @@ namespace PruebaAPP.Objetos.Services
         // Crear nueva playlist
         public Playlist Create(string title)
         {
-            var playlist = new Objetos.Models.Playlist { Id = _playlists.Count.ToString(), Title = title };
+            var playlist = new Playlist { Id = Guid.NewGuid().ToString(), Title = title };
             _playlists.Add(playlist);
             Save();
             return playlist;

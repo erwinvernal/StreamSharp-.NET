@@ -22,10 +22,10 @@
 		<Nullable>enable</Nullable>
 
 		<!-- Display name -->
-		<ApplicationTitle>PruebaAPP</ApplicationTitle>
+		<ApplicationTitle>StreamSharp .NET</ApplicationTitle>
 
 		<!-- App Identifier -->
-		<ApplicationId>com.companyname.pruebaapp</ApplicationId>
+		<ApplicationId>com.erw.streamsharp</ApplicationId>
 
 		<!-- Versions -->
 		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
@@ -97,13 +97,25 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Compile Update="Views\Android\Android_View_ViewPlaylist.xaml.cs">
+	    <DependentUpon>Android_View_ViewPlaylist.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="Views\Android\Android_View_SelectedPlaylist.xaml.cs">
+	    <DependentUpon>Android_View_SelectedPlaylist.xaml</DependentUpon>
+	  </Compile>
+	</ItemGroup>
+
+	<ItemGroup>
 	  <MauiXaml Update="Views\Android\Android_Page_Main.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\Android\Android_View_Control.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\Android\Android_View_CurrentPlaylist.xaml">
+	  <MauiXaml Update="Views\Android\Android_View_ViewPlaylist.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\Android\Android_View_SelectedPlaylist.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\Android\Android_View_Favorite.xaml">

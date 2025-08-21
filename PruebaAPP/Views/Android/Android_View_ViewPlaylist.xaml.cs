@@ -3,30 +3,61 @@ using System.Diagnostics;
 
 namespace PruebaAPP.Views.Android;
 
-public partial class Android_View_CurrentPlaylist : ContentView
+public partial class Android_View_ViewPlaylist : ContentView
 {
-	public Android_View_CurrentPlaylist()
+	public Android_View_ViewPlaylist()
 	{
 		InitializeComponent();
-	}
+    }
 
-    private async void Click_SelectItemsPlay(object sender, SelectionChangedEventArgs e)
+    private async void Click_PlayAll(object sender, EventArgs e)
+    {
+        if (BindingContext is MainViewModel vm)
+        {
+            await vm.Playlist_Play(vm.Player.ViewPlaylist);
+        }
+    }
+
+    private async void Click_SelectView(object sender, SelectionChangedEventArgs e)
     {
         try
         {
             if (BindingContext is MainViewModel vm)
             {
                 if (e.CurrentSelection?.FirstOrDefault() is not Objetos.Models.Song selected)
-                    return;
+                    return; // Salimos si no hay selección
 
                 // Limpiar selección visual
                 if (sender is CollectionView cv)
                     cv.SelectedItem = null;
 
-                if (!string.IsNullOrWhiteSpace(selected.Id))
+                // Obtener el índice del item seleccionado
+                int selectedIndex = vm.Player.ViewPlaylist.Items.IndexOf(selected);
+
+                // Guardamos índice y playlist
+                vm.Player.CurrentSongIndex = selectedIndex;
+                vm.Player.SelectedPlaylist = vm.Player.ViewPlaylist;
+
+                // Asignamos a la playlist que se está visualizando
+                foreach (var item in vm.Playlists)
                 {
-                    await vm.PlaySongById(selected.Id);
+                    if (item.Id != vm.Player.SelectedPlaylist.Id)
+                    {
+                        item.IsPlaying = false;
+                    }
                 }
+                vm.Player.SelectedPlaylist.IsPlaying = true;
+
+
+                // Limpeamos viewplaylist
+                vm.Player.ViewPlaylist = new Objetos.Models.Playlist();
+
+                // Abrimos vista
+                vm.CurrentView = new Android_View_SelectedPlaylist();
+
+                // Reproducimos
+                await vm.PlaySongById(selected.Id!);
+
             }
 
         }
@@ -34,9 +65,10 @@ public partial class Android_View_CurrentPlaylist : ContentView
         {
             Debug.WriteLine($"Error al reproducir favorito: {ex.Message}");
         }
+
     }
 
-    private async void Click_SelectedItemsMenu(object sender, EventArgs e)
+    private async void Click_DeleteItems(object sender, EventArgs e)
     {
         if (sender is Button btn && btn.BindingContext is Objetos.Models.Song fav)
         {
@@ -67,9 +99,9 @@ public partial class Android_View_CurrentPlaylist : ContentView
                         break;
 
                     case "Quitar de la playlist":
-                        if (vm.Player.CurrentPlaylist?.Id is null) return;
+                        if (vm.Player.SelectedPlaylist?.Id is null) return;
 
-                        await vm.Playlist_ToDelete(new MainViewModel.PlaylistRemoveParam(vm.Player.CurrentPlaylist.Id, fav.Id));
+                        await vm.Playlist_ToDelete(new MainViewModel.PlaylistRemoveParam(vm.Player.SelectedPlaylist.Id, fav.Id));
                         break;
 
                     case "Almacenar en memoria":
@@ -78,4 +110,5 @@ public partial class Android_View_CurrentPlaylist : ContentView
             }
         }
     }
+
 }

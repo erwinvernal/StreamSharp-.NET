@@ -11,56 +11,45 @@ public partial class Android_View_Playlist : ContentView
 		InitializeComponent();
 	}
 
-    private async void Click_DeletePlayList(object sender, EventArgs e)
-    {
-        try
-        {
-            // Obtenemos la playlist asociada al botón
-            if (sender is Button btn && btn.BindingContext is Playlist playlist)
-            {
-                if (BindingContext is MainViewModel vm)
-                {
-
-                    // Limpiar selección visual
-                    if (sender is CollectionView cv)
-                        cv.SelectedItem = null;
-
-                    // Borramos playlist
-                    if(playlist.Id is not null)
-                        await vm.Playlist_Delete(playlist.Id);
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"Error al eliminar playlist: {ex.Message}");
-        }
-    }
-
-    private void Click_SelectedPlaylist(object sender, SelectionChangedEventArgs e)
+    private void Click_SelectItemsPlay(object sender, SelectionChangedEventArgs e)
     {
         try
         {
             if (BindingContext is MainViewModel vm)
             {
-                if (e.CurrentSelection?.FirstOrDefault() is not Playlist selected)
+                if (e.CurrentSelection?.FirstOrDefault() is not Objetos.Models.Playlist selected)
                     return;
 
                 // Limpiar selección visual
                 if (sender is CollectionView cv)
                     cv.SelectedItem = null;
 
-                // Reproducir la playlist seleccionada
-                vm.Playlist_Play(selected);
-
-                // Abrimos 
-                vm.CurrentView = new Android_View_CurrentPlaylist();
-
+                // Abrimos la playlist seleccionada
+                vm.Playlist_View(selected);
             }
+
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"Error al abrir la playlist: {ex.Message}");
+            Debug.WriteLine($"Error al reproducir favorito: {ex.Message}");
         }
     }
+
+    private async void Click_SelectedItemsMenu(object sender, EventArgs e)
+    {
+        if (BindingContext is MainViewModel vm)
+        {
+            if (sender is Button btn && btn.BindingContext is Playlist fav)
+            {
+
+                // Verificar si el favorito es nulo o no tiene un ID válido
+                if (fav is null || string.IsNullOrWhiteSpace(fav.Id)) return;
+
+                // Ejecutamos accion
+                await vm.Playlist_Delete(fav.Id);
+
+            }
+        }
+    }
+
 }

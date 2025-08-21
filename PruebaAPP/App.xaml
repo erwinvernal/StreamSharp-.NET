@@ -18,6 +18,8 @@
             <cv:TextNormalizerConverter x:Key="TextNormalizer"/>
             <cv:GreaterThanConverter    x:Key="GreaterThan"/>
             <cv:TimeSpanToSecondsConverter    x:Key="TimeSpanToSeconds"/>
+            <cv:IntToBoolConverter    x:Key="IntToBool"/>
+            <cv:IdEqualsConverter    x:Key="IdEquals"/>
 
         </ResourceDictionary>
     </Application.Resources>

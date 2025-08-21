@@ -13,7 +13,7 @@
     BackgroundColor="{StaticResource backg_night_0}"
     Title="Android_Page_Main">
 
-    <Grid x:Name="Container" RowDefinitions="*,1,Auto,50" RowSpacing="0">
+    <Grid x:Name="Container" RowDefinitions="*,Auto,50" RowSpacing="0">
 
         <!-- Imagen de fondo -->
         <Image Grid.RowSpan="5" Opacity="0.12" Aspect="AspectFill" Source="{Binding Player.CurrentSong.ThumbnailHighRes}"/>
@@ -24,27 +24,11 @@
         <!-- Indicador (overlay loading) -->
         <Grid Grid.Row="0" Grid.RowSpan="2" Margin="0,0,0,-2" IsVisible="{Binding IsLoading}">
             <Rectangle Fill="Black" Opacity="0.5"/>
-            <ActivityIndicator WidthRequest="100" HeightRequest="100" IsRunning="{Binding IsLoading}" Color="{StaticResource foreg_night_0}">
-                <ActivityIndicator.Style>
-                    <Style TargetType="ActivityIndicator">
-                        <Setter Property="IsVisible" Value="Collapse"/>
-                        <Style.Triggers>
-                                <DataTrigger TargetType="ActivityIndicator" Binding="{Binding IsLoading}" Value="True">
-                                    <Setter Property="IsVisible" Value="True"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                    </Style>
-                </ActivityIndicator.Style>
-            </ActivityIndicator>
-        
-
+            <ActivityIndicator WidthRequest="100" HeightRequest="100" IsRunning="{Binding IsLoading}" Color="{StaticResource foreg_night_0}" IsVisible="{Binding IsLoading}"/>
         </Grid>
 
-        <!-- Separador -->
-        <Rectangle Grid.Row="1" Fill="Black"/>
-
         <!-- Controles -->
-        <Grid Grid.Row="2" HeightRequest="110" RowDefinitions="*,Auto">
+        <Grid Grid.Row="1" HeightRequest="110" RowDefinitions="*,Auto">
 
             <!-- Color de fondo -->
             <Rectangle Grid.RowSpan="2" Fill="{StaticResource backg_night_2}" Opacity="0.7" Margin="0,0,0,-1"/>
@@ -59,18 +43,7 @@
                     </Border.StrokeShape>
                     <Grid>
                         <Image Aspect="AspectFill" Source="{Binding Player.CurrentSong.ThumbnailLowRes}"/>
-                        <ActivityIndicator WidthRequest="50" HeightRequest="50" IsRunning="{Binding IsLoading2}" Color="{StaticResource foreg_night_0}">
-                            <ActivityIndicator.Style>
-                                <Style TargetType="ActivityIndicator">
-                                    <Setter Property="IsVisible" Value="Collapse"/>
-                                    <Style.Triggers>
-                                        <DataTrigger TargetType="ActivityIndicator" Binding="{Binding IsLoading2}" Value="True">
-                                            <Setter Property="IsVisible" Value="True"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </ActivityIndicator.Style>
-                        </ActivityIndicator>
+                        <ActivityIndicator WidthRequest="50" HeightRequest="50" IsRunning="{Binding IsLoading2}" Color="{StaticResource foreg_night_0}" IsVisible="{Binding IsLoading2}"/>
                     </Grid>
                 </Border>
 
@@ -91,7 +64,7 @@
                     <Label TextColor="{StaticResource foreg_night_1}">
                         <Label.Style>
                             <Style TargetType="Label">
-                                <Setter Property="Text" Value="{Binding Player.CurrentSong.Author}"/>
+                                <Setter Property="Text" Value="{Binding Player.CurrentSong.Author.ChannelTitle}"/>
                                 <Style.Triggers>
                                     <DataTrigger TargetType="Label" Binding="{Binding IsLoading2}" Value="True">
                                         <Setter Property="Text" Value="Espere por favor..."/>
@@ -103,60 +76,54 @@
                 </StackLayout>
                 
                 <!-- Button de expancion -->
-                <HorizontalStackLayout Grid.Column="2">
-                    
-                    <!-- Favoritos -->
-                    <Border HeightRequest="52" StrokeThickness="0" StrokeShape="Ellipse" VerticalOptions="Center">
-                        <Button FontSize="24" FontFamily="MaterialIconsOutlinedRegular" BackgroundColor="Transparent" Clicked="Click_AddFavoriteSong">
-                            <Button.Style>
-                                <Style TargetType="Button">
-                                    <Setter Property="Text" Value="&#xe87e;"/>
-                                    <Setter Property="TextColor" Value="Red"/>
-                                    <Style.Triggers>
-                                        <DataTrigger TargetType="Button" Binding="{Binding Player.CurrentSong.IsFavorite}" Value="True">
-                                            <Setter Property="Text" Value="&#xe87d;"/>
-                                            <Setter Property="TextColor" Value="Red"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Button.Style>
-                        </Button>
-                    </Border>
-                    
-                    <!-- Agregar a la playlist -->
-                    
-                </HorizontalStackLayout>
-                
+                <Border Grid.Column="2" HeightRequest="52" StrokeThickness="0" StrokeShape="Ellipse" VerticalOptions="Center">
+                    <Button FontSize="24" FontFamily="MaterialIconsOutlinedRegular" BackgroundColor="Transparent" Clicked="Click_AddFavoriteSong">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Text" Value="&#xe87e;"/>
+                                <Setter Property="TextColor" Value="Red"/>
+                                <Style.Triggers>
+                                    <DataTrigger TargetType="Button" Binding="{Binding Player.CurrentSong.IsFavorite}" Value="True">
+                                        <Setter Property="Text" Value="&#xe87d;"/>
+                                        <Setter Property="TextColor" Value="Red"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                </Border>
+
             </Grid>
 
             <!-- Barra de progreso -->
             <Grid Grid.Row="1" ColumnDefinitions="Auto,*,Auto" Margin="20,0,20,10">
+                
+                <!-- Tiempo transcurrido -->
                 <Label Grid.Column="0" Text="{Binding Player.Controller.Position, Converter={StaticResource TimeSpanFormat}}" TextColor="{StaticResource foreg_night_2}"/>
-                <ProgressBar Grid.Column="1" IsVisible="Collapse" HeightRequest="6" Margin="10,0" Progress="0" BackgroundColor="Transparent" ProgressColor="{StaticResource foreg_night_0}"/>
+
+                <!-- Barra de progreso -->
+                <Slider Grid.Column="1" HeightRequest="10" Margin="10,0" Minimum="0" Maximum="{Binding Player.Duration}"  Value="{Binding Player.Position}" ThumbColor="{StaticResource foreg_night_0}" MinimumTrackColor="{StaticResource foreg_night_0}" BackgroundColor="Transparent" DragStarted="Slider_DragStarted" DragCompleted="Slider_DragCompleted"/>
+
+                <!-- Tiempo total-->
                 <Label Grid.Column="2" Text="{Binding Player.Controller.Duration, Converter={StaticResource TimeSpanFormat}}" TextColor="{StaticResource foreg_night_2}"/>
-                <Slider Grid.Column="1"
-                        Minimum="0"
-                        Maximum="{Binding Player.Duration}" 
-                        Value="{Binding Player.Position}"
-                        HeightRequest="10"
-                        Margin="10,0"
-                        ThumbColor="{StaticResource foreg_night_0}"
-                        MinimumTrackColor="{StaticResource foreg_night_0}"
-                        BackgroundColor="Transparent"
-                        DragStarted="Slider_DragStarted"
-                        DragCompleted="Slider_DragCompleted"/>
+
             </Grid>
 
         </Grid>
 
-        <!-- Botones  -->
-        <Grid Grid.Row="3" x:Name="BarButttonContainer" ColumnDefinitions="*,*,*,*">
+        <!-- Botones -->
+        <Grid Grid.Row="2" x:Name="BarButttonContainer" ColumnDefinitions="*,*,*,*">
+            
+            <!-- Color de fondo -->
             <Rectangle Grid.ColumnSpan="4" Fill="{StaticResource backg_night_2}" Opacity="0.7" Margin="0,0,0,-1" />
 
+            <!-- Controles del ContentView -->
             <Button Grid.Column="0" ClassId="0" Text="&#xe3a1;" FontSize="24" FontFamily="MaterialIconsOutlinedRegular" TextColor="{StaticResource foreg_night_2}" BackgroundColor="Transparent" Clicked="Click_OpenView"/>
             <Button Grid.Column="1" ClassId="1" Text="&#xe8b6;" FontSize="24" FontFamily="MaterialIconsOutlinedRegular" TextColor="{StaticResource foreg_night_0}" BackgroundColor="Transparent" Clicked="Click_OpenView"/>
             <Button Grid.Column="2" ClassId="2" Text="&#xe03d;" FontSize="24" FontFamily="MaterialIconsOutlinedRegular" TextColor="{StaticResource foreg_night_2}" BackgroundColor="Transparent" Clicked="Click_OpenView"/>
             <Button Grid.Column="3" ClassId="3" Text="&#xe87d;" FontSize="24" FontFamily="MaterialIconsOutlinedRegular" TextColor="{StaticResource foreg_night_2}" BackgroundColor="Transparent" Clicked="Click_OpenView"/>
+
         </Grid>
+        
     </Grid>
 </ContentPage>

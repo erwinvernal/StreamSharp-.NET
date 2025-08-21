@@ -7,56 +7,45 @@
 
     <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center">
 
-        <!-- Imagen del titulo -->
-        <Border Grid.Row="0" WidthRequest="300" HeightRequest="250" StrokeThickness="0">
-            <Border.StrokeShape>
-                <RoundRectangle CornerRadius="10"/>
-            </Border.StrokeShape>
-            <Grid>
-                <Image Aspect="AspectFill" Source="{Binding Player.CurrentSong.ThumbnailHighRes}"/>
-                <ActivityIndicator WidthRequest="250" HeightRequest="250" IsRunning="{Binding IsLoading2}" Color="{StaticResource foreg_night_0}" HorizontalOptions="Center">
-                    <ActivityIndicator.Style>
-                        <Style TargetType="ActivityIndicator">
-                            <Setter Property="IsVisible" Value="Collapse"/>
+            <!-- Imagen del titulo -->
+            <Border Grid.Row="0" WidthRequest="300" HeightRequest="250" StrokeThickness="0">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="10"/>
+                </Border.StrokeShape>
+                <Grid>
+                    <Image Aspect="AspectFill" Source="{Binding Player.CurrentSong.ThumbnailHighRes}"/>
+                    <ActivityIndicator WidthRequest="250" HeightRequest="250" IsRunning="{Binding IsLoading2}" Color="{StaticResource foreg_night_0}" IsVisible="{Binding IsLoading2}" HorizontalOptions="Center"/>
+                </Grid>
+            </Border>
+            
+            <!-- Informacion de la cancion -->
+            <StackLayout Grid.Row="1" Margin="10,20,10,0">
+                <Label Text="{Binding Player.CurrentSong.Title}"   FontSize="16" TextColor="{StaticResource foreg_night_2}" MaxLines="2" LineBreakMode="TailTruncation" HorizontalTextAlignment="Center"/>
+                <Label Text="{Binding Player.CurrentSong.Author.ChannelTitle}" FontSize="16" TextColor="{StaticResource foreg_night_1}" HorizontalTextAlignment="Center"/>
+            </StackLayout>
+        
+            <!-- Controles del reproductor -->
+            <HorizontalStackLayout Grid.Row="2" HorizontalOptions="Center" VerticalOptions="Center" Margin="10" Spacing="0">
+                <Button ClassId="0" Text="&#xe045;" FontSize="30" FontFamily="MaterialIconsRegular" BackgroundColor="Transparent" TextColor="{StaticResource foreg_night_2}" Command="{Binding Media_SkipPreviousCommand}"/>
+                <Button ClassId="1" Text="&#xe059;" FontSize="30" FontFamily="MaterialIconsRegular" BackgroundColor="Transparent" TextColor="{StaticResource foreg_night_2}" Command="{Binding Media_ReplayCommand}"/>
+                <Button ClassId="2" FontSize="30" FontFamily="MaterialIconsRegular" BackgroundColor="Transparent" TextColor="{StaticResource foreg_night_2}" Command="{Binding Media_PlayCommand}">
+                    <Button.Style>
+                        <Style TargetType="Button">
+                            <Setter Property="Text" Value="&#xe037;"/>
                             <Style.Triggers>
-                                <DataTrigger TargetType="ActivityIndicator" Binding="{Binding IsLoading2}" Value="True">
-                                    <Setter Property="IsVisible" Value="True"/>
+                                <DataTrigger TargetType="Button" Binding="{Binding Player.CurrentMediaState}" Value="3">
+                                    <Setter Property="Text" Value="&#xe034;"/>
+                                </DataTrigger>
+                                <DataTrigger TargetType="Button" Binding="{Binding Player.CurrentMediaState}" Value="4">
+                                    <Setter Property="Text" Value="&#xe037;"/>
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
-                    </ActivityIndicator.Style>
-                </ActivityIndicator>
-            </Grid>
-        </Border>
-        
-        <!-- Informacion de la cancion -->
-        <StackLayout Grid.Row="1" Margin="10,20,10,0">
-            <Label Text="{Binding Player.CurrentSong.Title}"   FontSize="16" TextColor="{StaticResource foreg_night_2}" MaxLines="2" LineBreakMode="TailTruncation" HorizontalTextAlignment="Center"/>
-            <Label Text="{Binding Player.CurrentSong.Author}" FontSize="16" TextColor="{StaticResource foreg_night_1}" HorizontalTextAlignment="Center"/>
-        </StackLayout>
-        
-        <!-- Controles -->
-        <HorizontalStackLayout Grid.Row="2" HorizontalOptions="Center" VerticalOptions="Center" Margin="10" Spacing="10">
-            <Button ClassId="0" Text="&#xe045;" FontSize="30" FontFamily="MaterialIconsRegular" BackgroundColor="Transparent" TextColor="{StaticResource foreg_night_2}" Command="{Binding Media_SkipPreviousCommand}"/>
-            <Button ClassId="1" Text="&#xe059;" FontSize="30" FontFamily="MaterialIconsRegular" BackgroundColor="Transparent" TextColor="{StaticResource foreg_night_2}" Command="{Binding Media_ReplayCommand}"/>
-            <Button ClassId="2" FontSize="30" FontFamily="MaterialIconsRegular" BackgroundColor="Transparent" TextColor="{StaticResource foreg_night_2}" Command="{Binding Media_PlayCommand}">
-                <Button.Style>
-                    <Style TargetType="Button">
-                        <Setter Property="Text" Value="&#xe037;"/>
-                        <Style.Triggers>
-                            <DataTrigger TargetType="Button" Binding="{Binding Player.CurrentMediaState}" Value="3">
-                                <Setter Property="Text" Value="&#xe034;"/>
-                            </DataTrigger>
-                            <DataTrigger TargetType="Button" Binding="{Binding Player.CurrentMediaState}" Value="4">
-                                <Setter Property="Text" Value="&#xe037;"/>
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </Button.Style>
-            </Button>
-            <Button ClassId="3" Text="&#xe056;" FontSize="30" FontFamily="MaterialIconsRegular" BackgroundColor="Transparent" TextColor="{StaticResource foreg_night_2}" Command="{Binding Media_ForwardCommand}"/>
-            <Button ClassId="4" Text="&#xe044;" FontSize="30" FontFamily="MaterialIconsRegular" BackgroundColor="Transparent" TextColor="{StaticResource foreg_night_2}" Command="{Binding Media_SkipNextCommand}"/>
-        </HorizontalStackLayout>
-        
+                    </Button.Style>
+                </Button>
+                <Button ClassId="3" Text="&#xe056;" FontSize="30" FontFamily="MaterialIconsRegular" BackgroundColor="Transparent" TextColor="{StaticResource foreg_night_2}" Command="{Binding Media_ForwardCommand}"/>
+                <Button ClassId="4" Text="&#xe044;" FontSize="30" FontFamily="MaterialIconsRegular" BackgroundColor="Transparent" TextColor="{StaticResource foreg_night_2}" Command="{Binding Media_SkipNextCommand}"/>
+            </HorizontalStackLayout>
+                    
     </VerticalStackLayout>
 </ContentView>

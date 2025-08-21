@@ -54,7 +54,7 @@ public partial class Android_View_Favorite : ContentView
             // Abrir el menú contextual
             string   title  = "Selecciona acción";
             string   cancel = "Cancelar";
-            string[] param  = { "Reproducir", "Quitar de favoritos", "Agregar a una playlist", "Almacenar en memoria" };
+            string[] param  = { "Reproducir", "Quitar de favoritos", "Agregar a una playlist"};
             string   action = await page.DisplayActionSheet(title, cancel, null, param);
 
             // Ejecutar la acción seleccionada
@@ -94,7 +94,7 @@ public partial class Android_View_Favorite : ContentView
             };
         
             // Asignamos la playlist temporal a la propiedad SelectedPlaylist
-            vm.Player.CurrentPlaylist = tempPlaylist;
+            vm.Player.SelectedPlaylist = tempPlaylist;
         
             // Limpiamos el índice actual de la canción
             vm.Player.CurrentSongIndex = 0;
