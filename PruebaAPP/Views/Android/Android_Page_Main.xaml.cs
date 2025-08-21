@@ -1,42 +1,30 @@
 using CommunityToolkit.Maui.Core;
 using PruebaAPP.Objetos.Models;
-using PruebaAPP.Objetos.Services;
+using PruebaAPP.ViewModels;
 using PruebaAPP.Views.Android.ViewModels;
-using YoutubeExplode.Common;
 using YoutubeExplode.Search;
 
 namespace PruebaAPP.Views.Android
 {
     public partial class Android_Page_Main : ContentPage
     {
-        private readonly AndroidPropertyViewModel _vm;
-        private readonly System.Timers.Timer _refreshTimer;
+        private readonly MainViewModel _vm;
 
         public Android_Page_Main()
         {
             InitializeComponent();
 
-            // Inicializacion del servicio de media
-                var mediaService = new MediaPlayerService(PlayerM);
-
             // ViewModel
-                _vm = new AndroidPropertyViewModel(mediaService, Dispatcher);
-                BindingContext = _vm;
+            _vm = new MainViewModel(new PlayerViewModel(PlayerM), Dispatcher);
+            BindingContext = _vm;
 
             // Asignar el ContentView del Search
-                _vm.CurrentView = new Android_View_Search
-                {
-                    BindingContext = _vm
-                };
-
-            // Timer para actualizar progreso
-                _refreshTimer = new System.Timers.Timer(500);
-                _refreshTimer.Elapsed += (s, e) =>
-                {
-                    MainThread.BeginInvokeOnMainThread(() => _vm.UpdateProgress());
-                };
-                _refreshTimer.Start();
+            _vm.CurrentView = new Android_View_Search
+            {
+                BindingContext = _vm
+            };
         }
+
 
         // Cuando el usuario selecciona un item en el CollectionView
         private async void ResultsCollection_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -52,26 +40,26 @@ namespace PruebaAPP.Views.Android
 
         private async void Click_AddFavoriteSong(object sender, EventArgs e)
         {
-            if (_vm.CurrentSong is not null && !string.IsNullOrEmpty(_vm.CurrentSong.Id))
+            if (_vm.Player.CurrentSong is not null && !string.IsNullOrEmpty(_vm.Player.CurrentSong.Id))
             {
-                if (_vm.CurrentSong.IsFavorite == true)
+                if (_vm.Player.CurrentSong.IsFavorite == true)
                 {
                     // Eliminamos
-                    await _vm.Favorite_Delete(_vm.CurrentSong.Id!);
+                    await _vm.Favorite_Delete(_vm.Player.CurrentSong.Id!);
 
                     // Cambiamos icono
-                    _vm.CurrentSong.IsFavorite = false;
+                    _vm.Player.CurrentSong.IsFavorite = false;
                 }
                 else
                 {
                     // Agregamos
                     var favorito = new Song
                     {
-                        Id         = _vm.CurrentSong.Id,
-                        Title      = _vm.CurrentSong.Title,
-                        Author     = _vm.CurrentSong.Author,
-                        Thumbnails = _vm.CurrentSong.Thumbnails,
-                        Duration   = _vm.CurrentSong.Duration,
+                        Id         = _vm.Player.CurrentSong.Id,
+                        Title      = _vm.Player.CurrentSong.Title,
+                        Author     = _vm.Player.CurrentSong.Author,
+                        Thumbnails = _vm.Player.CurrentSong.Thumbnails,
+                        Duration   = _vm.Player.CurrentSong.Duration,
                         IsFavorite = true
 
                     };
@@ -81,7 +69,7 @@ namespace PruebaAPP.Views.Android
                         _vm.Favorite_AddCommand.Execute(favorito);
 
                     // Cambiamos icono
-                    _vm.CurrentSong.IsFavorite = true;
+                    _vm.Player.CurrentSong.IsFavorite = true;
 
                     // Agregamos a favoritos
                     await _vm.Playlist_ToAdd(favorito);
@@ -90,15 +78,9 @@ namespace PruebaAPP.Views.Android
             }
         }
 
-        protected override void OnDisappearing()
-        {
-            base.OnDisappearing();
-            _refreshTimer?.Stop();
-            _refreshTimer?.Dispose();
-        }
 
         // Seleccionamos view 
-            private void Click_OpenView(object sender, EventArgs e)
+        private void Click_OpenView(object sender, EventArgs e)
             {
 
                 // Cambiamos el color de todos los controles a blanco
@@ -134,23 +116,18 @@ namespace PruebaAPP.Views.Android
                 }
         }
 
-        // Eventos del reproductor
-            private void MediaOpen_PlayerM(object sender, EventArgs e)
-            {
-                //PlayerM.IsVisible = true;
-                //_refreshTimer.Start();
-            }
 
-            private void StateChanged_PlayerM(object sender, MediaStateChangedEventArgs e)
-            {
-                _vm.CurrentMediaState = PlayerM.CurrentState;
-            }
-
-        private void MediaEnded_PlayerM(object sender, EventArgs e)
+        // Controlador del Slider
+        private void Slider_DragStarted(object sender, EventArgs e)
         {
-            // Detener y limpiar antes de reproducir siguiente
-            _vm.MediaP_Stop();
-            _ = _vm.MediaP_SkipNext();
+            PlayerM.Pause();
         }
+        private void Slider_DragCompleted(object sender, EventArgs e)
+        {
+            Slider ctrl = (Slider)sender;
+            PlayerM.SeekTo(TimeSpan.FromSeconds(ctrl.Value));
+            PlayerM.Play();
+        }
+
     }
 }

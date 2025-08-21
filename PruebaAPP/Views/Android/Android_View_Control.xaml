@@ -2,7 +2,7 @@
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:PruebaAPP.Views.Android.ViewModels"
-             x:DataType="vm:AndroidPropertyViewModel"
+             x:DataType="vm:MainViewModel"
              x:Class="PruebaAPP.Views.Android.Android_View_Control">
 
     <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center">
@@ -13,7 +13,7 @@
                 <RoundRectangle CornerRadius="10"/>
             </Border.StrokeShape>
             <Grid>
-                <Image Aspect="AspectFill" Source="{Binding CurrentSong.Thumbnails}"/>
+                <Image Aspect="AspectFill" Source="{Binding Player.CurrentSong.Thumbnails[1]}"/>
                 <ActivityIndicator WidthRequest="250" HeightRequest="250" IsRunning="{Binding IsLoading2}" Color="{StaticResource foreg_night_0}" HorizontalOptions="Center">
                     <ActivityIndicator.Style>
                         <Style TargetType="ActivityIndicator">
@@ -31,31 +31,31 @@
         
         <!-- Informacion de la cancion -->
         <StackLayout Grid.Row="1" Margin="10,20,10,0">
-            <Label Text="{Binding CurrentSong.Title}"   FontSize="16" TextColor="{StaticResource foreg_night_2}" MaxLines="2" LineBreakMode="TailTruncation" HorizontalTextAlignment="Center"/>
-            <Label Text="{Binding CurrentSong.Author}" FontSize="16" TextColor="{StaticResource foreg_night_1}" HorizontalTextAlignment="Center"/>
+            <Label Text="{Binding Player.CurrentSong.Title}"   FontSize="16" TextColor="{StaticResource foreg_night_2}" MaxLines="2" LineBreakMode="TailTruncation" HorizontalTextAlignment="Center"/>
+            <Label Text="{Binding Player.CurrentSong.Author}" FontSize="16" TextColor="{StaticResource foreg_night_1}" HorizontalTextAlignment="Center"/>
         </StackLayout>
         
         <!-- Controles -->
         <HorizontalStackLayout Grid.Row="2" HorizontalOptions="Center" VerticalOptions="Center" Margin="10">
-            <Button ClassId="0" Text="&#xe045;" FontSize="30" FontFamily="MaterialIconsRegular" BackgroundColor="Transparent" TextColor="{StaticResource foreg_night_2}" Command="{Binding MediaP_SkipPreviousCommand}"/>
-            <Button ClassId="1" Text="&#xe059;" FontSize="30" FontFamily="MaterialIconsRegular" BackgroundColor="Transparent" TextColor="{StaticResource foreg_night_2}" Command="{Binding MediaP_ForwardCommand}"/>
-            <Button ClassId="2" FontSize="30" FontFamily="MaterialIconsRegular" BackgroundColor="Transparent" TextColor="{StaticResource foreg_night_2}" Command="{Binding MediaP_PlayCommand}">
+            <Button ClassId="0" Text="&#xe045;" FontSize="30" FontFamily="MaterialIconsRegular" BackgroundColor="Transparent" TextColor="{StaticResource foreg_night_2}" Command="{Binding Player.ForwardCommand}"/>
+            <Button ClassId="1" Text="&#xe059;" FontSize="30" FontFamily="MaterialIconsRegular" BackgroundColor="Transparent" TextColor="{StaticResource foreg_night_2}" Command="{Binding Player.ReplayCommand}"/>
+            <Button ClassId="2" FontSize="30" FontFamily="MaterialIconsRegular" BackgroundColor="Transparent" TextColor="{StaticResource foreg_night_2}" Command="{Binding Player.PlayPauseCommand}">
                 <Button.Style>
                     <Style TargetType="Button">
                         <Setter Property="Text" Value="&#xe037;"/>
                         <Style.Triggers>
-                            <DataTrigger TargetType="Button" Binding="{Binding CurrentMediaState}" Value="3">
+                            <DataTrigger TargetType="Button" Binding="{Binding Player.CurrentMediaState}" Value="3">
                                 <Setter Property="Text" Value="&#xe034;"/>
                             </DataTrigger>
-                            <DataTrigger TargetType="Button" Binding="{Binding CurrentMediaState}" Value="4">
+                            <DataTrigger TargetType="Button" Binding="{Binding Player.CurrentMediaState}" Value="4">
                                 <Setter Property="Text" Value="&#xe037;"/>
                             </DataTrigger>
                         </Style.Triggers>
                     </Style>
                 </Button.Style>
             </Button>
-            <Button ClassId="3" Text="&#xe056;" FontSize="30" FontFamily="MaterialIconsRegular" BackgroundColor="Transparent" TextColor="{StaticResource foreg_night_2}" Command="{Binding MediaP_ReplayCommand}"/>
-            <Button ClassId="4" Text="&#xe044;" FontSize="30" FontFamily="MaterialIconsRegular" BackgroundColor="Transparent" TextColor="{StaticResource foreg_night_2}" Command="{Binding MediaP_SkipNextCommand}"/>
+            <Button ClassId="3" Text="&#xe056;" FontSize="30" FontFamily="MaterialIconsRegular" BackgroundColor="Transparent" TextColor="{StaticResource foreg_night_2}" Command="{Binding Player.SkipPreviousCommand}"/>
+            <Button ClassId="4" Text="&#xe044;" FontSize="30" FontFamily="MaterialIconsRegular" BackgroundColor="Transparent" TextColor="{StaticResource foreg_night_2}" Command="{Binding Player.SkipNextCommand}"/>
         </HorizontalStackLayout>
         
     </VerticalStackLayout>

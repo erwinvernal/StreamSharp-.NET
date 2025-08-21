@@ -18,7 +18,7 @@ public partial class Android_View_Playlist : ContentView
             // Obtenemos la playlist asociada al botón
             if (sender is Button btn && btn.BindingContext is Playlist playlist)
             {
-                if (BindingContext is AndroidPropertyViewModel vm)
+                if (BindingContext is MainViewModel vm)
                 {
 
                     // Limpiar selección visual
@@ -41,7 +41,7 @@ public partial class Android_View_Playlist : ContentView
     {
         try
         {
-            if (BindingContext is AndroidPropertyViewModel vm)
+            if (BindingContext is MainViewModel vm)
             {
                 if (e.CurrentSelection?.FirstOrDefault() is not Playlist selected)
                     return;

@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:pl="clr-namespace:PruebaAPP.Objetos.Models"
              xmlns:vm="clr-namespace:PruebaAPP.Views.Android.ViewModels"
-             x:DataType="vm:AndroidPropertyViewModel"
+             x:DataType="vm:MainViewModel"
              x:Class="PruebaAPP.Views.Android.Android_View_Playlist">
 
     <Grid RowDefinitions="Auto,1,*" Margin="0,10,0,0" RowSpacing="10">
@@ -16,7 +16,7 @@
 
             <!-- Titulo -->
             <VerticalStackLayout Grid.Column="1">
-                <Label Text="{Binding SelectedPlaylist.Title, TargetNullValue='Mis Playlist'}" TextColor="{StaticResource foreg_night_2}"/>
+                <Label Text="Mis Playlist" TextColor="{StaticResource foreg_night_2}"/>
                 <Label>
                     <Label.FormattedText>
                         <FormattedString>
@@ -67,7 +67,7 @@
                                             <Style TargetType="Image">
                                                 <Style.Triggers>
                                                     <DataTrigger TargetType="Image" Binding="{Binding Items.Count, Converter={StaticResource GreaterThan}, ConverterParameter=1}" Value="True">
-                                                        <Setter Property="Source" Value="{Binding Items[0].Thumbnails}"/>
+                                                        <Setter Property="Source" Value="{Binding Items[0].Thumbnails[0]}"/>
                                                     </DataTrigger>
                                                 </Style.Triggers>
                                             </Style>
@@ -78,7 +78,7 @@
                                             <Style TargetType="Image">
                                                 <Style.Triggers>
                                                     <DataTrigger TargetType="Image" Binding="{Binding Items.Count, Converter={StaticResource GreaterThan}, ConverterParameter=2}" Value="True">
-                                                        <Setter Property="Source" Value="{Binding Items[1].Thumbnails}"/>
+                                                        <Setter Property="Source" Value="{Binding Items[1].Thumbnails[0]}"/>
                                                     </DataTrigger>
                                                 </Style.Triggers>
                                             </Style>
@@ -89,7 +89,7 @@
                                             <Style TargetType="Image">
                                                 <Style.Triggers>
                                                     <DataTrigger TargetType="Image" Binding="{Binding Items.Count, Converter={StaticResource GreaterThan}, ConverterParameter=3}" Value="True">
-                                                        <Setter Property="Source" Value="{Binding Items[2].Thumbnails}"/>
+                                                        <Setter Property="Source" Value="{Binding Items[2].Thumbnails[0]}"/>
                                                     </DataTrigger>
                                                 </Style.Triggers>
                                             </Style>
@@ -100,7 +100,7 @@
                                             <Style TargetType="Image">
                                                 <Style.Triggers>
                                                     <DataTrigger TargetType="Image" Binding="{Binding Items.Count, Converter={StaticResource GreaterThan}, ConverterParameter=4}" Value="True">
-                                                        <Setter Property="Source" Value="{Binding Items[3].Thumbnails}"/>
+                                                        <Setter Property="Source" Value="{Binding Items[3].Thumbnails[0]}"/>
                                                     </DataTrigger>
                                                 </Style.Triggers>
                                             </Style>

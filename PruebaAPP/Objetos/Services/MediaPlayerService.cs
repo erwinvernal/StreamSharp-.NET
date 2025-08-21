@@ -12,10 +12,11 @@ namespace PruebaAPP.Objetos.Services
             Player.Play();
         }
 
-        public void Pause()
-        {
-            Player.Pause();
-        }
+        public void Pause() => Player.Pause();
+
+        public void Stop() => Player.Stop();
+
+        public void Seek(TimeSpan position) => Player.SeekTo(position);
 
         public TimeSpan CurrentTime => Player.Position;
         public TimeSpan TotalTime => Player.Duration;

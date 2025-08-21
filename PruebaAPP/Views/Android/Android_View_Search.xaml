@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:yt="clr-namespace:YoutubeExplode.Search;assembly=YoutubeExplode"
              xmlns:vm="clr-namespace:PruebaAPP.Views.Android.ViewModels"
-             x:DataType="vm:AndroidPropertyViewModel"
+             x:DataType="vm:MainViewModel"
              x:Class="PruebaAPP.Views.Android.Android_View_Search">
 
     <Grid Margin="0" RowDefinitions="Auto,*">
@@ -49,7 +49,7 @@
                                 </Image>
 
                                 <!-- Loader mientras carga -->
-                                <ActivityIndicator WidthRequest="50" HeightRequest="50"
+                                <ActivityIndicator x:DataType="{x:Null}" WidthRequest="50" HeightRequest="50"
                                                    IsRunning="{Binding Source={x:Reference MainImage}, Path=IsLoading}" 
                                                    Color="{StaticResource foreg_night_2}" 
                                                    IsVisible="{Binding Source={x:Reference MainImage}, Path=IsLoading}" />

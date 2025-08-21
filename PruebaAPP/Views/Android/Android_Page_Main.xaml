@@ -10,16 +10,17 @@
     xmlns:md="clr-namespace:PruebaAPP.Objetos.Models"
     xmlns:tk="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     x:Class="PruebaAPP.Views.Android.Android_Page_Main"
-    x:DataType="vm:AndroidPropertyViewModel"
+    x:DataType="vm:MainViewModel"
     BackgroundColor="{StaticResource backg_night_0}"
     Title="Android_Page_Main">
 
     <Grid RowDefinitions="*,1,Auto,50" RowSpacing="0">
 
-        <!-- Imagen de fondo -->
+        <!-- Imagen de fondo 
         <Grid Grid.RowSpan="5"  Opacity="0.12">
-            <Image Source="{Binding CurrentSong.Thumbnails}" Aspect="AspectFill"/>
+            <Image Source="{Binding Player.CurrentSong.Thumbnails[1]}" Aspect="AspectFill"/>
         </Grid>
+        -->
 
         <!-- Contenido -->
         <Grid Grid.Row="0" Grid.RowSpan="0" Margin="0" RowSpacing="0">
@@ -28,12 +29,12 @@
             <ContentView Content="{Binding CurrentView}"/>
 
             <!-- Reproductor (oculto, lo maneja MediaPlayerService) -->
-            <toolkit:MediaElement x:Name="PlayerM" IsVisible="False" MediaOpened="MediaOpen_PlayerM" MediaEnded="MediaEnded_PlayerM" StateChanged="StateChanged_PlayerM" />
+            <toolkit:MediaElement x:Name="PlayerM" IsVisible="False" />
 
         </Grid>
         
         <!-- Indicador (overlay loading) -->
-        <Grid Grid.Row="0" Grid.RowSpan="2" Margin="0,0,0,-2">
+        <Grid Grid.Row="0" Grid.RowSpan="2" Margin="0,0,0,-2" IsVisible="{Binding IsLoading}">
             <Rectangle Fill="Black" Opacity="0.5"/>
             <ActivityIndicator WidthRequest="100" HeightRequest="100" IsRunning="{Binding IsLoading}" Color="{StaticResource foreg_night_0}">
                 <ActivityIndicator.Style>
@@ -48,23 +49,14 @@
                 </ActivityIndicator.Style>
             </ActivityIndicator>
         
-            <Grid.Style>
-                <Style TargetType="Grid">
-                    <Setter Property="IsVisible" Value="Collapse"/>
-                    <Style.Triggers>
-                        <DataTrigger TargetType="Grid" Binding="{Binding IsLoading}" Value="True">
-                            <Setter Property="IsVisible" Value="Visible"/>
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </Grid.Style>
+
         </Grid>
 
         <!-- Separador -->
         <Rectangle Grid.Row="1" Fill="Black"/>
 
         <!-- Controles -->
-        <Grid Grid.Row="2" HeightRequest="110" RowDefinitions="*,Auto" IsVisible="{Binding HasCurrentSong}">
+        <Grid Grid.Row="2" HeightRequest="110" RowDefinitions="*,Auto">
 
             <!-- Color de fondo -->
             <Rectangle Grid.RowSpan="2" Fill="{StaticResource backg_night_2}" Opacity="0.7" Margin="0,0,0,-1"/>
@@ -78,7 +70,9 @@
                         <RoundRectangle CornerRadius="10"/>
                     </Border.StrokeShape>
                     <Grid>
-                        <Image Aspect="AspectFill" Source="{Binding CurrentSong.Thumbnails}"/>
+                        <!--
+                        <Image Aspect="AspectFill" Source="{Binding Player.CurrentSong.Thumbnails[0]}"/>
+                        -->
                         <ActivityIndicator WidthRequest="50" HeightRequest="50" IsRunning="{Binding IsLoading2}" Color="{StaticResource foreg_night_0}">
                             <ActivityIndicator.Style>
                                 <Style TargetType="ActivityIndicator">
@@ -99,7 +93,7 @@
                     <Label HorizontalTextAlignment="Start" TextColor="{StaticResource foreg_night_2}" LineBreakMode="TailTruncation" MaxLines="2">
                         <Label.Style>
                             <Style TargetType="Label">
-                                <Setter Property="Text" Value="{Binding CurrentSong.Title}"/>
+                                <Setter Property="Text" Value="{Binding Player.CurrentSong.Title}"/>
                                 <Style.Triggers>
                                     <DataTrigger TargetType="Label" Binding="{Binding IsLoading2}" Value="True">
                                         <Setter Property="Text" Value="Cargando..."/>
@@ -111,7 +105,7 @@
                     <Label TextColor="{StaticResource foreg_night_1}">
                         <Label.Style>
                             <Style TargetType="Label">
-                                <Setter Property="Text" Value="{Binding CurrentSong.Author}"/>
+                                <Setter Property="Text" Value="{Binding Player.CurrentSong.Author}"/>
                                 <Style.Triggers>
                                     <DataTrigger TargetType="Label" Binding="{Binding IsLoading2}" Value="True">
                                         <Setter Property="Text" Value="Espere por favor..."/>
@@ -133,7 +127,7 @@
                                     <Setter Property="Text" Value="&#xe87e;"/>
                                     <Setter Property="TextColor" Value="Red"/>
                                     <Style.Triggers>
-                                        <DataTrigger TargetType="Button" Binding="{Binding CurrentSong.IsFavorite}" Value="True">
+                                        <DataTrigger TargetType="Button" Binding="{Binding Player.CurrentSong.IsFavorite}" Value="True">
                                             <Setter Property="Text" Value="&#xe87d;"/>
                                             <Setter Property="TextColor" Value="Red"/>
                                         </DataTrigger>
@@ -151,9 +145,20 @@
 
             <!-- Barra de progreso -->
             <Grid Grid.Row="1" ColumnDefinitions="Auto,*,Auto" Margin="20,0,20,10">
-                <Label Grid.Column="0" Text="{Binding CurrentSong.CurrentTime, Converter={StaticResource TimeSpanFormat}}" TextColor="{StaticResource foreg_night_2}"/>
-                <ProgressBar Grid.Column="1" HeightRequest="6" Margin="10,0" Progress="{Binding CurrentSong.ProgressTime, TargetNullValue='1'}" BackgroundColor="Transparent" ProgressColor="{StaticResource foreg_night_0}"/>
-                <Label Grid.Column="2" Text="{Binding CurrentSong.TotalTime, Converter={StaticResource TimeSpanFormat}}" TextColor="{StaticResource foreg_night_2}"/>
+                <Label Grid.Column="0" Text="{Binding Player.Controller.Position, Converter={StaticResource TimeSpanFormat}}" TextColor="{StaticResource foreg_night_2}"/>
+                <ProgressBar Grid.Column="1" IsVisible="Collapse" HeightRequest="6" Margin="10,0" Progress="0" BackgroundColor="Transparent" ProgressColor="{StaticResource foreg_night_0}"/>
+                <Label Grid.Column="2" Text="{Binding Player.Controller.Duration, Converter={StaticResource TimeSpanFormat}}" TextColor="{StaticResource foreg_night_2}"/>
+                <Slider Grid.Column="1"
+                        Minimum="0"
+                        Maximum="{Binding Player.Duration}" 
+                        Value="{Binding Player.Position}"
+                        HeightRequest="10"
+                        Margin="10,0"
+                        ThumbColor="{StaticResource foreg_night_0}"
+                        MinimumTrackColor="{StaticResource foreg_night_0}"
+                        BackgroundColor="Transparent"
+                        DragStarted="Slider_DragStarted"
+                        DragCompleted="Slider_DragCompleted"/>
             </Grid>
 
         </Grid>

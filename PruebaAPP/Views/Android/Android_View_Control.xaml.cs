@@ -11,7 +11,7 @@ public partial class Android_View_Control : ContentView
 
     private void Click_ControlPlayer(object sender, EventArgs e)
     {
-        if (BindingContext is AndroidPropertyViewModel vm)
+        if (BindingContext is MainViewModel vm)
         {
             if (sender is Button rb && int.TryParse(rb.ClassId, out int tipo))
             {

@@ -13,7 +13,7 @@ public partial class Android_View_Favorite : ContentView
     {
         try
         {
-            if (BindingContext is AndroidPropertyViewModel vm)
+            if (BindingContext is MainViewModel vm)
             {
                 if (e.CurrentSelection?.FirstOrDefault() is not Objetos.Models.Song selected)
                     return;
@@ -58,7 +58,7 @@ public partial class Android_View_Favorite : ContentView
             string   action = await page.DisplayActionSheet(title, cancel, null, param);
 
             // Ejecutar la acción seleccionada
-            if (BindingContext is AndroidPropertyViewModel vm)
+            if (BindingContext is MainViewModel vm)
             {
                 switch (action)
                 {
@@ -82,7 +82,7 @@ public partial class Android_View_Favorite : ContentView
     }
     private async void Click_PlayAll(object sender, EventArgs e)
     {
-        if (BindingContext is AndroidPropertyViewModel vm)
+        if (BindingContext is MainViewModel vm)
         {
         
             // Creamos una playlist temporal con los favoritos
@@ -97,7 +97,7 @@ public partial class Android_View_Favorite : ContentView
             vm.SelectedPlaylist = tempPlaylist;
         
             // Limpiamos el índice actual de la canción
-            vm.CurrentSongIndex = 0;
+            vm.Player.CurrentSongIndex = 0;
         
             // Reproducimos la playlist temporal
             if (tempPlaylist.Items.Count > 0)

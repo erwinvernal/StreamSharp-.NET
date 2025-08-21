@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:md="clr-namespace:PruebaAPP.Objetos.Models"
              xmlns:vm="clr-namespace:PruebaAPP.Views.Android.ViewModels"
-             x:DataType="vm:AndroidPropertyViewModel"
+             x:DataType="vm:MainViewModel"
              x:Class="PruebaAPP.Views.Android.Android_View_Favorite">
 
     <Grid RowDefinitions="Auto,1,*" Margin="0,10,0,0" RowSpacing="10">
@@ -78,12 +78,12 @@
                                     <!-- Imagen -->
                                     <Image x:Name="MainImage" Aspect="AspectFill">
                                         <Image.Source>
-                                            <UriImageSource Uri="{Binding Thumbnails}" CacheValidity="7.00:00:00" CachingEnabled="True" />
+                                            <UriImageSource Uri="{Binding Thumbnails[0]}" CacheValidity="7.00:00:00" CachingEnabled="True" />
                                         </Image.Source>
                                     </Image>
 
                                     <!-- Loader mientras carga -->
-                                    <ActivityIndicator WidthRequest="40" HeightRequest="40" 
+                                    <ActivityIndicator x:DataType="{x:Null}" WidthRequest="40" HeightRequest="40" 
                                                            IsRunning="{Binding Source={x:Reference MainImage}, Path=IsLoading}" 
                                                            Color="{StaticResource foreg_night_2}" 
                                                            IsVisible="{Binding Source={x:Reference MainImage}, Path=IsLoading}" />
@@ -121,7 +121,7 @@
                                 <Grid ColumnDefinitions="*,Auto">
                                 
                                     <!-- Author -->
-                                    <Label Grid.Column="0" Text="{Binding Author}"   TextColor="{StaticResource foreg_night_1}"/>
+                                    <Label Grid.Column="0" Text="{Binding Author.ChannelTitle}"   TextColor="{StaticResource foreg_night_1}"/>
 
                                     <!-- Duracion -->
                                     <Label Grid.Column="1" Text="{Binding Duration, Converter={StaticResource TimeSpanFormat}}" TextColor="{StaticResource foreg_night_1}"/>

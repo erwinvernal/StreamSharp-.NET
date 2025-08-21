@@ -17,6 +17,7 @@
             <cv:TimeSpanFormatConverter x:Key="TimeSpanFormat"/>
             <cv:TextNormalizerConverter x:Key="TextNormalizer"/>
             <cv:GreaterThanConverter    x:Key="GreaterThan"/>
+            <cv:TimeSpanToSecondsConverter    x:Key="TimeSpanToSeconds"/>
 
         </ResourceDictionary>
     </Application.Resources>

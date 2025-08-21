@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.Input;
+using PruebaAPP.Objetos.Functions;
 using PruebaAPP.Objetos.Models;
 using PruebaAPP.Views.Android.ViewModels;
 using System.Diagnostics;
@@ -25,7 +26,7 @@ namespace PruebaAPP.Views.Android
             private void ResultsCollection_RemainingItemsThresholdReached(object sender, EventArgs e)
             {
                 // Intentamos invocar el comando del VM
-                if (BindingContext is AndroidPropertyViewModel vm)
+                if (BindingContext is MainViewModel vm)
                 {
                     try
                     {
@@ -51,7 +52,7 @@ namespace PruebaAPP.Views.Android
                 if (sender is CollectionView cv) cv.SelectedItem = null;
 
                 // Ejecuta el handler / comando del VM
-                if (BindingContext is AndroidPropertyViewModel vm)
+                if (BindingContext is MainViewModel vm)
                 {
                     // Si el comando es IAsyncRelayCommand (caso normal con [RelayCommand] async Task ...)
                     if (vm.PlaySongCommand is IAsyncRelayCommand asyncCmd)
@@ -96,7 +97,7 @@ namespace PruebaAPP.Views.Android
             {
                 if (e.CurrentSelection.FirstOrDefault() is string seleccion)
                 {
-                    if (BindingContext is AndroidPropertyViewModel vm)
+                    if (BindingContext is MainViewModel vm)
                     {
                         txt_search.Unfocus();
                         vm.SearchText = seleccion;
@@ -178,7 +179,7 @@ namespace PruebaAPP.Views.Android
                 string   action = await page.DisplayActionSheet(title, cancel, null, param);
 
                 // Ejecutar la acción seleccionada
-                if (BindingContext is AndroidPropertyViewModel vm)
+                if (BindingContext is MainViewModel vm)
                 {
                     switch (action)
                     {
@@ -193,8 +194,8 @@ namespace PruebaAPP.Views.Android
                             {
                                 Id          = psr.Id,
                                 Title       = psr.Title,
-                                Author      = psr.Author.ChannelTitle,
-                                Thumbnails  = psr.Thumbnails[0].Url,
+                                Author      = new AuthorSong { ChannelId = psr.Author.ChannelId, ChannelTitle = psr.Author.ChannelTitle, ChannelUrl = psr.Author.ChannelUrl },
+                                Thumbnails  = ThumbnailHelper.GetLowestAndHighestThumbnails(psr.Thumbnails),
                                 Duration    = psr.Duration,
                                 IsFavorite  = true
 
@@ -213,8 +214,8 @@ namespace PruebaAPP.Views.Android
                             {
                                 Id          = psr.Id,
                                 Title       = psr.Title,
-                                Author      = psr.Author.ChannelTitle,
-                                Thumbnails  = psr.Thumbnails[0].Url,
+                                Author      = new AuthorSong {ChannelId = psr.Author.ChannelId, ChannelTitle = psr.Author.ChannelTitle, ChannelUrl = psr.Author.ChannelUrl },
+                                Thumbnails  = ThumbnailHelper.GetLowestAndHighestThumbnails(psr.Thumbnails),
                                 Duration    = psr.Duration
 
                             };
