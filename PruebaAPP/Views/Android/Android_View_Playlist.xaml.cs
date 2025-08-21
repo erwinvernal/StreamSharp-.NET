@@ -50,18 +50,17 @@ public partial class Android_View_Playlist : ContentView
                 if (sender is CollectionView cv)
                     cv.SelectedItem = null;
 
-                if (!string.IsNullOrWhiteSpace(selected.Id))
-                {
-                    //await vm.Playlist(selected.Id);
-                }
+                // Reproducir la playlist seleccionada
+                vm.Playlist_Play(selected);
 
-                OnPropertyChanged(nameof(selected.Id));
+                // Abrimos 
+                vm.CurrentView = new Android_View_CurrentPlaylist();
+
             }
-
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"Error al reproducir favorito: {ex.Message}");
+            Debug.WriteLine($"Error al abrir la playlist: {ex.Message}");
         }
     }
 }

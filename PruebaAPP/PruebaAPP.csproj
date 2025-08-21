@@ -103,6 +103,9 @@
 	  <MauiXaml Update="Views\Android\Android_View_Control.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="Views\Android\Android_View_CurrentPlaylist.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Views\Android\Android_View_Favorite.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>

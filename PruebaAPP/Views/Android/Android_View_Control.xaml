@@ -36,10 +36,10 @@
         </StackLayout>
         
         <!-- Controles -->
-        <HorizontalStackLayout Grid.Row="2" HorizontalOptions="Center" VerticalOptions="Center" Margin="10">
-            <Button ClassId="0" Text="&#xe045;" FontSize="30" FontFamily="MaterialIconsRegular" BackgroundColor="Transparent" TextColor="{StaticResource foreg_night_2}" Command="{Binding Player.ForwardCommand}"/>
-            <Button ClassId="1" Text="&#xe059;" FontSize="30" FontFamily="MaterialIconsRegular" BackgroundColor="Transparent" TextColor="{StaticResource foreg_night_2}" Command="{Binding Player.ReplayCommand}"/>
-            <Button ClassId="2" FontSize="30" FontFamily="MaterialIconsRegular" BackgroundColor="Transparent" TextColor="{StaticResource foreg_night_2}" Command="{Binding Player.PlayPauseCommand}">
+        <HorizontalStackLayout Grid.Row="2" HorizontalOptions="Center" VerticalOptions="Center" Margin="10" Spacing="10">
+            <Button ClassId="0" Text="&#xe045;" FontSize="30" FontFamily="MaterialIconsRegular" BackgroundColor="Transparent" TextColor="{StaticResource foreg_night_2}" Command="{Binding Media_SkipPreviousCommand}"/>
+            <Button ClassId="1" Text="&#xe059;" FontSize="30" FontFamily="MaterialIconsRegular" BackgroundColor="Transparent" TextColor="{StaticResource foreg_night_2}" Command="{Binding Media_ReplayCommand}"/>
+            <Button ClassId="2" FontSize="30" FontFamily="MaterialIconsRegular" BackgroundColor="Transparent" TextColor="{StaticResource foreg_night_2}" Command="{Binding Media_PlayCommand}">
                 <Button.Style>
                     <Style TargetType="Button">
                         <Setter Property="Text" Value="&#xe037;"/>
@@ -54,8 +54,8 @@
                     </Style>
                 </Button.Style>
             </Button>
-            <Button ClassId="3" Text="&#xe056;" FontSize="30" FontFamily="MaterialIconsRegular" BackgroundColor="Transparent" TextColor="{StaticResource foreg_night_2}" Command="{Binding Player.SkipPreviousCommand}"/>
-            <Button ClassId="4" Text="&#xe044;" FontSize="30" FontFamily="MaterialIconsRegular" BackgroundColor="Transparent" TextColor="{StaticResource foreg_night_2}" Command="{Binding Player.SkipNextCommand}"/>
+            <Button ClassId="3" Text="&#xe056;" FontSize="30" FontFamily="MaterialIconsRegular" BackgroundColor="Transparent" TextColor="{StaticResource foreg_night_2}" Command="{Binding Media_ForwardCommand}"/>
+            <Button ClassId="4" Text="&#xe044;" FontSize="30" FontFamily="MaterialIconsRegular" BackgroundColor="Transparent" TextColor="{StaticResource foreg_night_2}" Command="{Binding Media_SkipNextCommand}"/>
         </HorizontalStackLayout>
         
     </VerticalStackLayout>

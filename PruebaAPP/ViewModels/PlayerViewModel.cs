@@ -30,60 +30,18 @@ namespace PruebaAPP.ViewModels
         public MediaElement Controller { get; private set; }
 
         // =============================================================================================
+        // == Variables publicas
+        // =============================================================================================
+        public bool IsBlockClick { get; set; } = false;
+
+
+        // =============================================================================================
         // == Propiedades
         // =============================================================================================
         [ObservableProperty] public partial Song CurrentSong { get; set; } = new Song();
+        [ObservableProperty] public partial Playlist? CurrentPlaylist { get; set; } = new Playlist();
         [ObservableProperty] public partial MediaElementState CurrentMediaState { get; set; } = MediaElementState.Stopped;
         [ObservableProperty] public partial int CurrentSongIndex { get; set; } = 0;
-
-        // =============================================================================================
-        // == Comandos
-        // =============================================================================================
-        [RelayCommand] public void Load(string url)
-        {
-            // Si la URL es nula o vacía, no hacemos nada
-            if (string.IsNullOrEmpty(url))
-                return;
-
-            // Si ya hay una canción
-            Controller.Source = url;
-            Controller.Play();
-            CurrentMediaState = MediaElementState.Playing;
-        }
-        [RelayCommand] public void PlayPause()
-        {
-            if (Controller.CurrentState == MediaElementState.Playing)
-            {
-                Controller.Pause();
-                CurrentMediaState = MediaElementState.Paused;
-            }
-            else if (Controller.CurrentState == MediaElementState.Paused || Controller.CurrentState == MediaElementState.Stopped)
-            {
-                Controller.Play();
-                CurrentMediaState = MediaElementState.Playing;
-            }
-        }
-        [RelayCommand] public void Stop()
-        {
-            if (Controller.CurrentState == MediaElementState.Playing)
-                Controller.Stop();
-        }
-        [RelayCommand] public void Forward(double seconds = 10)
-        {
-            
-        }
-        [RelayCommand] public void Replay(double seconds = 10)
-        {
-
-        }
-        [RelayCommand] public void SkipNext()
-        {
-
-        }
-        [RelayCommand] public void SkipPrevious()
-        {
-
-        }
 
         // =============================================================================================
         // == Funciones auxiliares

@@ -227,7 +227,7 @@ namespace PruebaAPP.Views.Android.ViewModels
                 try
                 {
                     // Detener la canción actual si hay una
-                    if (Player.CurrentMediaState == MediaElementState.Playing) Player.Stop();
+                    if (Player.CurrentMediaState == MediaElementState.Playing) Player.Controller.Stop();
 
                     // Obtener stream
                     IStreamInfo? streamInfo = null;
@@ -242,6 +242,11 @@ namespace PruebaAPP.Views.Android.ViewModels
 
                     // Verificamos si hay datos
                     if (streamInfo is null) return;
+
+                    // Configuramos el reproductor
+                    Player.Controller.MetadataTitle = item.Title;
+                    Player.Controller.MetadataArtist = item.Author.ChannelTitle;
+                    Player.Controller.MetadataArtworkUrl = ThumbnailHelper.GetHighestThumbnail(item.Thumbnails);
 
                     // Asignar CurrentSong
                     Player.CurrentSong = new Song()
@@ -259,7 +264,7 @@ namespace PruebaAPP.Views.Android.ViewModels
                     UpdateSong();
 
                     // Reproducir
-                    Player.Load(streamInfo.Url);
+                    Media_Load(streamInfo.Url);
 
                 } finally {
                     IsLoading2 = false;
@@ -272,7 +277,7 @@ namespace PruebaAPP.Views.Android.ViewModels
                 if (string.IsNullOrWhiteSpace(id)) return;
 
                 // Detener la canción actual si hay una
-                if (Player.CurrentMediaState == MediaElementState.Playing) Player.Stop();
+                if (Player.CurrentMediaState == MediaElementState.Playing) Player.Controller.Stop();
 
                 // Cambiamos estado
                 IsLoading2  = true;
@@ -296,20 +301,6 @@ namespace PruebaAPP.Views.Android.ViewModels
                 }
 
             }
-            //public void UpdateProgress()
-            //{
-            //    CurrentSong?.CurrentTime = _mediaService.Player.Position.Microseconds;
-            //    CurrentSong?.TotalTime = _mediaService.TotalTime;
-            //
-            //    if (CurrentSong?.CurrentTime > TimeSpan.Zero && CurrentSong?.TotalTime > TimeSpan.Zero)
-            //    {
-            //        CurrentSong?.ProgressTime = CurrentSong.CurrentTime.Value.TotalSeconds / CurrentSong.TotalTime.Value.TotalSeconds;
-            //    }
-            //    else
-            //    {
-            //        CurrentSong?.ProgressTime = 0.0;
-            //    }
-            //}
             public void UpdateSong()
             {
                 foreach (Song favorite in Favoritos)
@@ -341,11 +332,7 @@ namespace PruebaAPP.Views.Android.ViewModels
         // =============================================================================================
         // == Favoritos
         // =============================================================================================
-            // Declaración de la colección de favoritos
-            
-
             // Funciones para manejar favoritos
-            /// <summary>Agrega una <see cref="Song"/> a Favoritos.</summary>
             [RelayCommand] public void Favorite_Add(Song favorito)
             {
                 // Agregamos y comprobamos resultado
@@ -364,8 +351,6 @@ namespace PruebaAPP.Views.Android.ViewModels
                 OnPropertyChanged(nameof(Favorite_GetTotalD));
                 
             }
-
-            /// <summary>Elimina una <see cref="Song"/> de favoritos.</summary>
             [RelayCommand] public async Task Favorite_Delete(string id)
             {
                 // Obtener la página principal de forma segura y sin usar la propiedad obsoleta MainPage
@@ -393,8 +378,6 @@ namespace PruebaAPP.Views.Android.ViewModels
                 OnPropertyChanged(nameof(Favorite_GetTotalD));
 
             }
-
-            /// <summary>Crea una playlist en memoria para reproducir todo el contenido.</summary>
             [RelayCommand] public void Favorite_PlayAll()
             {
 
@@ -407,28 +390,22 @@ namespace PruebaAPP.Views.Android.ViewModels
                 };
 
                 // Establecemos playlist
-                SelectedPlaylist = playlist;
+                Player.CurrentPlaylist = playlist;
 
                 // Abrimos ventana
                 CurrentView = new Android_View_Playlist();
 
             }
             
-            // Funciones auxiliares
-            /// <summary> Recupera el tiempo total de la lista de favoritos.</summary>
             public TimeSpan Favorite_GetTotalD => Favoritos.Aggregate(TimeSpan.Zero, (total, song) => total + song.Duration.GetValueOrDefault());
 
         // =============================================================================================
         // == PlayList
         // =============================================================================================
-
-            public record PlaylistRemoveParam(string PlaylistId, string FavoriteId);
-
-            // Propiedades de control de playlist
-            [ObservableProperty] public partial Playlist? SelectedPlaylist { get; set; } = new Playlist();
-            
-            // Comandos de control de playlist
-            [RelayCommand] public async Task Playlist_Created()
+        public record PlaylistRemoveParam(string PlaylistId, string FavoriteId);
+        
+        // Comandos de control de playlist
+        [RelayCommand] public async Task Playlist_Created()
             {
                 // Obtener la página principal de forma segura y sin usar la propiedad obsoleta MainPage
                 var mainPage = Application.Current?.Windows.FirstOrDefault()?.Page;
@@ -456,7 +433,7 @@ namespace PruebaAPP.Views.Android.ViewModels
                 // Notificamos cambio
                 OnPropertyChanged(nameof(LPlaylist));
             }
-            [RelayCommand] public async Task Playlist_ToAdd(Song fav)
+        [RelayCommand] public async Task Playlist_ToAdd(Song fav)
             {
                 // Preparamos array de titulos
                 var playlistTitlesArray = _playlistService.GetAll().Select(p => p.Title).ToArray();
@@ -480,7 +457,7 @@ namespace PruebaAPP.Views.Android.ViewModels
                 OnPropertyChanged(nameof(Playlists_GetTotalDuration));
 
             }
-            [RelayCommand] public async Task Playlist_Delete(string playlistId)
+        [RelayCommand] public async Task Playlist_Delete(string playlistId)
             {
                 // Obtener la página principal de forma segura y sin usar la propiedad obsoleta MainPage
                 var mainPage = Application.Current?.Windows.FirstOrDefault()?.Page;
@@ -502,7 +479,7 @@ namespace PruebaAPP.Views.Android.ViewModels
                 OnPropertyChanged(nameof(Playlist_GetTotalSong));
                 OnPropertyChanged(nameof(Playlists_GetTotalDuration));
             }
-            [RelayCommand] public async Task Playlist_ToDelete(PlaylistRemoveParam param)
+        [RelayCommand] public async Task Playlist_ToDelete(PlaylistRemoveParam param)
             {
                 // Verificamos si hay parametro
                 if (param == null) return;
@@ -533,7 +510,7 @@ namespace PruebaAPP.Views.Android.ViewModels
                 OnPropertyChanged(nameof(Playlist_GetTotalSong));
                 OnPropertyChanged(nameof(Playlists_GetTotalDuration));
             }
-            [RelayCommand] public async Task Playlist_ClearAll()
+        [RelayCommand] public async Task Playlist_ClearAll()
             {
                 // Verificamos si hay playlists
                 if (LPlaylist.Count == 0) return;
@@ -555,12 +532,153 @@ namespace PruebaAPP.Views.Android.ViewModels
                 OnPropertyChanged(nameof(Playlist_GetTotalSong));
                 OnPropertyChanged(nameof(Playlists_GetTotalDuration));
             }
+        [RelayCommand] public void Playlist_Play(Playlist playlist)
+        {
+            // Verificamos si hay playlist
+            if (playlist is null) return;
 
-            // Funciones auxiliares
-            public int Playlist_GetTotalSong => LPlaylist.Sum(p => p.Items?.Count ?? 0);
+            // Establecemos la playlist actual
+            Player.CurrentPlaylist = playlist;
+
+            // Abrimos ventana
+            CurrentView = new Android_View_Playlist();
+
+            // Notificamos cambios
+            OnPropertyChanged(nameof(LPlaylist));
+
+        }
+
+        // Funciones auxiliares
+        public int Playlist_GetTotalSong => LPlaylist.Sum(p => p.Items?.Count ?? 0);
             public TimeSpan Playlists_GetTotalDuration => LPlaylist.Aggregate(TimeSpan.Zero, (total, playlist) => total + playlist.Items.Aggregate(TimeSpan.Zero, (subtotal, song) => subtotal + song.Duration.GetValueOrDefault()));
 
 
+        // =============================================================================================
+        // == Commandos del reproductor de musica
+        // =============================================================================================
+        [RelayCommand] public void Media_Load(string url)
+        {
+            // Si la URL es nula o vacía, no hacemos nada
+            if (string.IsNullOrEmpty(url))
+                return;
+
+            // Si ya hay una canción
+            Player.Controller.Source = url;
+            Player.Controller.Play();
+            Player.CurrentMediaState = MediaElementState.Playing;
+        }
+        [RelayCommand] public void Media_Play()
+        {
+            if (Player.Controller.CurrentState == MediaElementState.Playing)
+            {
+                Player.Controller.Pause();
+                Player.CurrentMediaState = MediaElementState.Paused;
+            }
+            else if (Player.Controller.CurrentState == MediaElementState.Paused || Player.Controller.CurrentState == MediaElementState.Stopped)
+            {
+                Player.Controller.Play();
+                Player.CurrentMediaState = MediaElementState.Playing;
+            }
+        }
+        [RelayCommand] public void Media_Stop()
+        {
+            if (Player.Controller.CurrentState == MediaElementState.Playing)
+                Player.Controller.Stop();
+        }
+        [RelayCommand] public void Media_Forward()
+        {
+            if (Player.Controller.CurrentState == MediaElementState.Playing || Player.Controller.CurrentState == MediaElementState.Paused)
+            {
+                var newPosition = Player.Controller.Position.TotalSeconds + 10;
+                if (newPosition < Player.Duration) // Asegurarse de no sobrepasar la duración
+                {
+                    Player.Controller.SeekTo(TimeSpan.FromSeconds(newPosition));
+                }
+            }
+        }
+        [RelayCommand] public void Media_Replay()
+        {
+            if (Player.Controller.CurrentState == MediaElementState.Playing || Player.Controller.CurrentState == MediaElementState.Paused)
+            {
+                var newPosition = Player.Controller.Position.TotalSeconds - 10;
+                if (newPosition > 0) // Asegurarse de no ir por debajo de 0
+                {
+                    Player.Controller.SeekTo(TimeSpan.FromSeconds(newPosition));
+                }
+            }
+        }
+        [RelayCommand] public void Media_SkipNext()
+        {
+            // Verificamos que nada este null
+            if (Player is null || Player.CurrentPlaylist is null) return;
+
+            // Evitar clics múltiples
+            if (Player.IsBlockClick) return;
+            Player.IsBlockClick = true;
+
+            // 
+            try
+            {
+                if (Player.CurrentSongIndex < (Player.CurrentPlaylist.Items.Count - 1))
+                {
+                    // Incremento el index
+                    Player.CurrentSongIndex++;
+
+                    // Selecciono la nueva song
+                    var nextSong = Player.CurrentPlaylist.Items[Player.CurrentSongIndex];
+
+                    // Verificamos si tiene id
+                    if (!string.IsNullOrEmpty(nextSong.Id))
+                    {
+                        _ = PlaySongById(nextSong.Id);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error SkipNext: {ex.Message}");
+            }
+            finally
+            {
+                Player.IsBlockClick = false;
+            }
+        }
+        [RelayCommand] public void Media_SkipPrevious()
+        {
+            // Verificamos que nada este null
+            if (Player is null || Player.CurrentPlaylist is null) return;
+
+            // Evitar clics múltiples
+            if (Player.IsBlockClick) return;
+            Player.IsBlockClick = true;
+
+            // 
+            try
+            {
+                if (Player.CurrentSongIndex > 0)
+                {
+                    // Incremento el index
+                    Player.CurrentSongIndex--;
+
+                    // Selecciono la nueva song
+                    var prevSong = Player.CurrentPlaylist.Items[Player.CurrentSongIndex];
+
+                    // Verificamos si tiene id
+                    if (!string.IsNullOrEmpty(prevSong.Id))
+                    {
+                        _ = PlaySongById(prevSong.Id);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error SkipPrevious: {ex.Message}");
+            }
+            finally
+            {
+                Player.IsBlockClick = false;
+            }
+        }
 
 
     }

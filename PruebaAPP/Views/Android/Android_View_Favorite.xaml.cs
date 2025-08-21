@@ -94,7 +94,7 @@ public partial class Android_View_Favorite : ContentView
             };
         
             // Asignamos la playlist temporal a la propiedad SelectedPlaylist
-            vm.SelectedPlaylist = tempPlaylist;
+            vm.Player.CurrentPlaylist = tempPlaylist;
         
             // Limpiamos el índice actual de la canción
             vm.Player.CurrentSongIndex = 0;
@@ -108,6 +108,9 @@ public partial class Android_View_Favorite : ContentView
                 {
                     await vm.PlaySongById(firstSong.Id);
                 }
+
+                // Cambiamos de ventana
+                //vm.CurrentView = new Android_View_CurrentPlaylist();
             }
             else
             {
