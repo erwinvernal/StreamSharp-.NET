@@ -246,12 +246,13 @@ namespace PruebaAPP.Views.Android.ViewModels
                     // Asignar CurrentSong
                     Player.CurrentSong = new Song()
                     {
-                        Id           = item.Id,
-                        Title        = item.Title,
-                        Author       = new AuthorSong { ChannelId = item.Author.ChannelId, ChannelTitle = item.Author.ChannelTitle, ChannelUrl = item.Author.ChannelUrl},
-                        Thumbnails   = ThumbnailHelper.GetLowestAndHighestThumbnails(item.Thumbnails),
-                        Duration     = item.Duration,
-                        IsFavorite   = _favoritosService.Exists(item.Id)
+                        Id               = item.Id,
+                        Title            = item.Title,
+                        Author           = new AuthorSong { ChannelId = item.Author.ChannelId, ChannelTitle = item.Author.ChannelTitle, ChannelUrl = item.Author.ChannelUrl},
+                        ThumbnailHighRes = ThumbnailHelper.GetHighestThumbnail(item.Thumbnails),
+                        ThumbnailLowRes  = ThumbnailHelper.GetLowestThumbnail(item.Thumbnails),
+                        Duration         = item.Duration,
+                        IsFavorite       = _favoritosService.Exists(item.Id)
                     };
 
                     // Actualizamos

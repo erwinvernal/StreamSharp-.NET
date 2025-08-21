@@ -13,7 +13,7 @@
                 <RoundRectangle CornerRadius="10"/>
             </Border.StrokeShape>
             <Grid>
-                <Image Aspect="AspectFill" Source="{Binding Player.CurrentSong.Thumbnails[1]}"/>
+                <Image Aspect="AspectFill" Source="{Binding Player.CurrentSong.ThumbnailHighRes}"/>
                 <ActivityIndicator WidthRequest="250" HeightRequest="250" IsRunning="{Binding IsLoading2}" Color="{StaticResource foreg_night_0}" HorizontalOptions="Center">
                     <ActivityIndicator.Style>
                         <Style TargetType="ActivityIndicator">

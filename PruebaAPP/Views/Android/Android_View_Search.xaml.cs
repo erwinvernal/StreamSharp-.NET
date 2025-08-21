@@ -190,14 +190,14 @@ namespace PruebaAPP.Views.Android
                         case "Agregar a favoritos":
 
                             // Agregamos
-                            var favorito = new Song
+                            Song favorito = new()
                             {
-                                Id          = psr.Id,
-                                Title       = psr.Title,
-                                Author      = new AuthorSong { ChannelId = psr.Author.ChannelId, ChannelTitle = psr.Author.ChannelTitle, ChannelUrl = psr.Author.ChannelUrl },
-                                Thumbnails  = ThumbnailHelper.GetLowestAndHighestThumbnails(psr.Thumbnails),
-                                Duration    = psr.Duration,
-                                IsFavorite  = true
+                                Id               = psr.Id,
+                                Title            = psr.Title,
+                                Author           = new AuthorSong { ChannelId = psr.Author.ChannelId, ChannelTitle = psr.Author.ChannelTitle, ChannelUrl = psr.Author.ChannelUrl },
+                                ThumbnailHighRes = ThumbnailHelper.GetHighestThumbnail(psr.Thumbnails),
+                                ThumbnailLowRes  = ThumbnailHelper.GetLowestThumbnail(psr.Thumbnails),
+                                Duration         = psr.Duration
 
                             };
 
@@ -210,13 +210,14 @@ namespace PruebaAPP.Views.Android
                         case "Agregar a una playlist":
 
                             // Agregamos
-                            var fav = new Song
+                            Song fav = new()
                             {
                                 Id          = psr.Id,
                                 Title       = psr.Title,
                                 Author      = new AuthorSong {ChannelId = psr.Author.ChannelId, ChannelTitle = psr.Author.ChannelTitle, ChannelUrl = psr.Author.ChannelUrl },
-                                Thumbnails  = ThumbnailHelper.GetLowestAndHighestThumbnails(psr.Thumbnails),
-                                Duration    = psr.Duration
+                                ThumbnailHighRes = ThumbnailHelper.GetHighestThumbnail(psr.Thumbnails),
+                                ThumbnailLowRes = ThumbnailHelper.GetLowestThumbnail(psr.Thumbnails),
+                                Duration = psr.Duration
 
                             };
 

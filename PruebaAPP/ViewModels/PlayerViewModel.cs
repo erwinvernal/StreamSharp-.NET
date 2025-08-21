@@ -32,7 +32,7 @@ namespace PruebaAPP.ViewModels
         // =============================================================================================
         // == Propiedades
         // =============================================================================================
-        [ObservableProperty] public partial Song? CurrentSong { get; set; } = new Song();
+        [ObservableProperty] public partial Song CurrentSong { get; set; } = new Song();
         [ObservableProperty] public partial MediaElementState CurrentMediaState { get; set; } = MediaElementState.Stopped;
         [ObservableProperty] public partial int CurrentSongIndex { get; set; } = 0;
 

@@ -67,7 +67,7 @@
                                             <Style TargetType="Image">
                                                 <Style.Triggers>
                                                     <DataTrigger TargetType="Image" Binding="{Binding Items.Count, Converter={StaticResource GreaterThan}, ConverterParameter=1}" Value="True">
-                                                        <Setter Property="Source" Value="{Binding Items[0].Thumbnails[0]}"/>
+                                                        <Setter Property="Source" Value="{Binding Items[0].ThumbnailLowRes}"/>
                                                     </DataTrigger>
                                                 </Style.Triggers>
                                             </Style>
@@ -78,7 +78,7 @@
                                             <Style TargetType="Image">
                                                 <Style.Triggers>
                                                     <DataTrigger TargetType="Image" Binding="{Binding Items.Count, Converter={StaticResource GreaterThan}, ConverterParameter=2}" Value="True">
-                                                        <Setter Property="Source" Value="{Binding Items[1].Thumbnails[0]}"/>
+                                                        <Setter Property="Source" Value="{Binding Items[1].ThumbnailLowRes}"/>
                                                     </DataTrigger>
                                                 </Style.Triggers>
                                             </Style>
@@ -89,7 +89,7 @@
                                             <Style TargetType="Image">
                                                 <Style.Triggers>
                                                     <DataTrigger TargetType="Image" Binding="{Binding Items.Count, Converter={StaticResource GreaterThan}, ConverterParameter=3}" Value="True">
-                                                        <Setter Property="Source" Value="{Binding Items[2].Thumbnails[0]}"/>
+                                                        <Setter Property="Source" Value="{Binding Items[2].ThumbnailLowRes}"/>
                                                     </DataTrigger>
                                                 </Style.Triggers>
                                             </Style>
@@ -100,7 +100,7 @@
                                             <Style TargetType="Image">
                                                 <Style.Triggers>
                                                     <DataTrigger TargetType="Image" Binding="{Binding Items.Count, Converter={StaticResource GreaterThan}, ConverterParameter=4}" Value="True">
-                                                        <Setter Property="Source" Value="{Binding Items[3].Thumbnails[0]}"/>
+                                                        <Setter Property="Source" Value="{Binding Items[3].ThumbnailLowRes}"/>
                                                     </DataTrigger>
                                                 </Style.Triggers>
                                             </Style>

@@ -1,4 +1,5 @@
 using CommunityToolkit.Maui.Core;
+using CommunityToolkit.Maui.Views;
 using PruebaAPP.Objetos.Models;
 using PruebaAPP.ViewModels;
 using PruebaAPP.Views.Android.ViewModels;
@@ -9,13 +10,19 @@ namespace PruebaAPP.Views.Android
     public partial class Android_Page_Main : ContentPage
     {
         private readonly MainViewModel _vm;
+        private readonly MediaElement Player;
 
         public Android_Page_Main()
         {
-            InitializeComponent();
+            // Creamos el reproductor
+            this.Player = new MediaElement
+            {
+                IsVisible = false
+            };
 
             // ViewModel
-            _vm = new MainViewModel(new PlayerViewModel(PlayerM), Dispatcher);
+            var media = new PlayerViewModel(Player);
+            _vm = new MainViewModel(media, Dispatcher);
             BindingContext = _vm;
 
             // Asignar el ContentView del Search
@@ -23,6 +30,17 @@ namespace PruebaAPP.Views.Android
             {
                 BindingContext = _vm
             };
+
+            // Inicializamos al final
+            InitializeComponent();
+
+            // Agregamos al proyecto
+            this.Container.Add(Player);
+
+
+
+
+
         }
 
 
@@ -53,19 +71,10 @@ namespace PruebaAPP.Views.Android
                 else
                 {
                     // Agregamos
-                    var favorito = new Song
-                    {
-                        Id         = _vm.Player.CurrentSong.Id,
-                        Title      = _vm.Player.CurrentSong.Title,
-                        Author     = _vm.Player.CurrentSong.Author,
-                        Thumbnails = _vm.Player.CurrentSong.Thumbnails,
-                        Duration   = _vm.Player.CurrentSong.Duration,
-                        IsFavorite = true
-
-                    };
+                    var favorito = _vm.Player.CurrentSong;
 
                     // Ejecutar el comando
-                    if (_vm.Favorite_AddCommand.CanExecute(favorito))
+                    if (_vm.Favorite_AddCommand.CanExecute(_vm.Player.CurrentSong))
                         _vm.Favorite_AddCommand.Execute(favorito);
 
                     // Cambiamos icono
@@ -120,13 +129,13 @@ namespace PruebaAPP.Views.Android
         // Controlador del Slider
         private void Slider_DragStarted(object sender, EventArgs e)
         {
-            PlayerM.Pause();
+            Player.Pause();
         }
         private void Slider_DragCompleted(object sender, EventArgs e)
         {
             Slider ctrl = (Slider)sender;
-            PlayerM.SeekTo(TimeSpan.FromSeconds(ctrl.Value));
-            PlayerM.Play();
+            Player.SeekTo(TimeSpan.FromSeconds(ctrl.Value));
+            Player.Play();
         }
 
     }

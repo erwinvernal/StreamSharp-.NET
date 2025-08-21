@@ -78,7 +78,7 @@
                                     <!-- Imagen -->
                                     <Image x:Name="MainImage" Aspect="AspectFill">
                                         <Image.Source>
-                                            <UriImageSource Uri="{Binding Thumbnails[0]}" CacheValidity="7.00:00:00" CachingEnabled="True" />
+                                            <UriImageSource Uri="{Binding ThumbnailLowRes}" CacheValidity="7.00:00:00" CachingEnabled="True" />
                                         </Image.Source>
                                     </Image>
 

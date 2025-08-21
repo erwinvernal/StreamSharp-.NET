@@ -9,32 +9,36 @@ namespace PruebaAPP.Objetos.Functions
 {
     public static class ThumbnailHelper
     {
-        public static string[] GetLowestAndHighestThumbnails(IEnumerable<Thumbnail> thumbnails)
+        public static string GetLowestThumbnail(IEnumerable<Thumbnail>? thumbnails)
         {
             if (thumbnails == null || !thumbnails.Any())
-                return Array.Empty<string>();
+                return string.Empty;
 
-            // Ignoramos thumbnails nulos
             var validThumbs = thumbnails.Where(t => t != null).ToList();
-
             if (!validThumbs.Any())
-                return Array.Empty<string>();
+                return string.Empty;
 
-            // Ordenamos por ancho para encontrar la menor y mayor resolución
             var lowest = validThumbs
                 .OrderBy(t => t.Resolution.Width * t.Resolution.Height)
                 .FirstOrDefault()?.Url;
+
+            return lowest ?? string.Empty;
+        }
+
+        public static string GetHighestThumbnail(IEnumerable<Thumbnail>? thumbnails)
+        {
+            if (thumbnails == null || !thumbnails.Any())
+                return string.Empty;
+
+            var validThumbs = thumbnails.Where(t => t != null).ToList();
+            if (!validThumbs.Any())
+                return string.Empty;
 
             var highest = validThumbs
                 .OrderByDescending(t => t.Resolution.Width * t.Resolution.Height)
                 .FirstOrDefault()?.Url;
 
-            // Aseguramos que nunca haya null en el array, reemplazando por string vacío si es necesario
-            return new string[]
-            {
-                lowest ?? string.Empty,
-                highest ?? string.Empty
-            };
+            return highest ?? string.Empty;
         }
     }
 }

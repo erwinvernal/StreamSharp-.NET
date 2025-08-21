@@ -7,11 +7,12 @@ namespace PruebaAPP.Objetos.Models
 {
     public partial class Song : ObservableObject
     {
-        public string? Id           { get; set; } = null;
-        public string? Title        { get; set; } = null;
-        public AuthorSong? Author   { get; set; } = null;
-        public string[]? Thumbnails { get; set; } = [string.Empty, string.Empty];
-        public TimeSpan? Duration   { get; set; } = null;
+        public string? Id               { get; set; } = null;
+        public string? Title            { get; set; } = null;
+        public AuthorSong? Author       { get; set; } = null;
+        public string? ThumbnailHighRes { get; set; } = null;
+        public string? ThumbnailLowRes  { get; set; } = null;
+        public TimeSpan? Duration       { get; set; } = null;
 
         // Atributos no guardables
         [JsonIgnore][ObservableProperty] public partial double? SizeFile       { get; set; } = null;
