@@ -14,7 +14,7 @@ Más que un producto final, este proyecto es un espacio de aprendizaje y una for
 - 📱 Optimizado para Android, pero también funciona en Windows.
 
 🛠️ **Instalación**
-1. Descarga el archivo .exe o .apk desde la sección Assets 👇.
+1. Descarga el archivo .exe o .apk desde la sección [Release](https://github.com/erwinvernal/StreamSharp-.NET/releases) 👇.
 2. En Windows: ejecuta directamente el .exe.
 3. En Android: instala el .apk en tu dispositivo.
 
