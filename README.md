@@ -1,8 +1,10 @@
 🎶 Mi primera app en C# con .NET MAUI
+
 Este proyecto es un reproductor de música desarrollado como mi primer acercamiento a C# y .NET MAUI.
 El objetivo principal fue aprender la sintaxis del lenguaje y explorar las capacidades de esta tecnología para crear aplicaciones multiplataforma.
 
 🎯 Objetivo
+
 Más que un producto final, este proyecto es un espacio de aprendizaje y una forma de compartir mi experiencia como desarrollador principiante en C#.
 
 ✨ **Características principales**
@@ -17,6 +19,7 @@ Más que un producto final, este proyecto es un espacio de aprendizaje y una for
 3. En Android: instala el .apk en tu dispositivo.
 
 🤝 Contribuciones
+
 Si querés mejorar la app, aprender conmigo o simplemente probarla, ¡eres bienvenido a colaborar!
 Puedes abrir un issue con sugerencias o enviar un pull request.
 
@@ -25,6 +28,7 @@ Puedes abrir un issue con sugerencias o enviar un pull request.
 - ❤️ Gracias por probar esta primera versión.
 
 📸 **Capturas de pantalla**
+
 Aquí se puede ver cómo luce StreamSharp .NET en Android
 
 <img src="https://github.com/user-attachments/assets/48ed485f-6147-42f9-a509-04c4194a3669" width="150" />
