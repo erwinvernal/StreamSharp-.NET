@@ -4,6 +4,8 @@ using YoutubeExplode.Search;
 using YoutubeExplode.Videos;
 using YoutubeExplode.Videos.Streams;
 
+namespace PruebaAPP.Objetos.Services;
+
 public class YouTubeService
 {
     private readonly YoutubeClient _youtube = new();

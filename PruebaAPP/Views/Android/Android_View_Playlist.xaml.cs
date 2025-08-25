@@ -13,43 +13,64 @@ public partial class Android_View_Playlist : ContentView
 
     private void Click_SelectItemsPlay(object sender, SelectionChangedEventArgs e)
     {
+        // Aseguramos que el sender es un CollectionView
+        if (sender is not CollectionView cv)
+            return;
+
+        // Deshabilitamos la selección y limpiamos la selección actual
+        cv.IsEnabled = false;
+        cv.SelectedItem = null;
+
+        // Aseguramos reactivar la selección al final
         try
         {
-            if (BindingContext is MainViewModel vm)
-            {
-                if (e.CurrentSelection?.FirstOrDefault() is not Objetos.Models.Playlist selected)
-                    return;
+            // Obtenemos el viewmodel
+            if (BindingContext is not MainViewModel vm)
+                return;
 
-                // Limpiar selección visual
-                if (sender is CollectionView cv)
-                    cv.SelectedItem = null;
+            // Obtenemos el item seleccionado
+            if (e.CurrentSelection.Count == 0 || e.CurrentSelection[0] is not Playlist selected)
+                return;
 
-                // Abrimos la playlist seleccionada
-                vm.Playlist_View(selected);
-            }
-
+            // Abrimos la playlist seleccionada
+            vm.Playlist_View(selected);
         }
-        catch (Exception ex)
+        finally
         {
-            Debug.WriteLine($"Error al reproducir favorito: {ex.Message}");
+            cv.IsEnabled = true;
         }
     }
-
     private async void Click_SelectedItemsMenu(object sender, EventArgs e)
     {
-        if (BindingContext is MainViewModel vm)
+        // Aseguramos que el sender es un boton
+        if (sender is not Button btn)
+            return;
+
+        // Bloqueamos interface
+        btn.IsEnabled = false;
+
+        // Aseguramos reactivar la selección al final
+        try
         {
-            if (sender is Button btn && btn.BindingContext is Playlist fav)
-            {
+            // Obtenemos el viewmodel
+            if (BindingContext is not MainViewModel vm)
+                return;
 
-                // Verificar si el favorito es nulo o no tiene un ID válido
-                if (fav is null || string.IsNullOrWhiteSpace(fav.Id)) return;
+            // Obtenemos el playlist
+            if (btn.BindingContext is not Playlist pl)
+            return;
 
-                // Ejecutamos accion
-                await vm.Playlist_Delete(fav.Id);
+            // Verificar si el favorito es nulo o no tiene un ID válido
+            if (pl is null || string.IsNullOrWhiteSpace(pl.Id)) return;
 
-            }
+            // Ejecutamos accion
+            await vm.Playlist_Delete(pl.Id);
         }
+        finally
+        {
+            btn.IsEnabled = true;
+        }
+       
     }
 
 }

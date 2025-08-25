@@ -12,223 +12,231 @@ namespace PruebaAPP.Views.Android
     public partial class Android_View_Search : ContentView
     {
         // Declaracion de variables
-            private static readonly HttpClient _http = new();
-            private CancellationTokenSource? _cts;
+        private static readonly HttpClient _http = new();
+        private CancellationTokenSource? _cts;
 
         // Inicializacion del contructor
-            public Android_View_Search()
-            {
-                InitializeComponent();
-                // No reasignar BindingContext aquí se hereda del padre.
-            }
-
-        // Event handler cuando el CollectionView detecta que quedan pocos items
-            private void ResultsCollection_RemainingItemsThresholdReached(object sender, EventArgs e)
-            {
-                // Intentamos invocar el comando del VM
-                if (BindingContext is MainViewModel vm)
-                {
-                    try
-                    {
-                        _ = vm.LoadMore();
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.WriteLine($"Error executing LoadMoreCommand: {ex.Message}");
-                    }
-                }
-                else
-                {
-                    Debug.WriteLine("BindingContext no es AndroidPropertyViewModel (o no está heredado).");
-                }
-            }
-
-        // Seleccionar items
-            private async void Click_SelectedItems(object sender, SelectionChangedEventArgs e)
-            {
-                if (e.CurrentSelection?.FirstOrDefault() is not VideoSearchResult selected) return;
-
-                // Limpiar selección visual
-                if (sender is CollectionView cv) cv.SelectedItem = null;
-
-                // Ejecuta el handler / comando del VM
-                if (BindingContext is MainViewModel vm)
-                {
-                    // Si el comando es IAsyncRelayCommand (caso normal con [RelayCommand] async Task ...)
-                    if (vm.PlaySongCommand is IAsyncRelayCommand asyncCmd)
-                    {
-                        await asyncCmd.ExecuteAsync(selected);
-                        return;
-                    }
-
-                    // Si es ICommand normal (fallback)
-                    var cmd = vm.PlaySongCommand;
-                    if (cmd != null && cmd.CanExecute(selected))
-                    {
-                        cmd.Execute(selected);
-                    }
-                }
-            }
-
-        // Busqueda de sugerencias
-            private async void SearchBar_TextChanged(object sender, TextChangedEventArgs e)
-            {
-                string texto = e.NewTextValue;
-
-                if (string.IsNullOrWhiteSpace(texto))
-                {
-                    // No hay texto → mostrar resultados, ocultar sugerencias
-                    ResultsCollection.IsVisible = true;
-                    SuggestionsList.IsVisible = false;
-                }
-                else
-                {
-                    // Hay texto → mostrar sugerencias, ocultar resultados
-                    ResultsCollection.IsVisible = false;
-                    SuggestionsList.IsVisible = true;
-
-                    // Aquí podrías actualizar las sugerencias
-                    await ActualizarSugerencias(texto);
-                }
-            }
-
-        // Seleccionar una sugerencia
-            private void SuggestionsList_SelectionChanged(object sender, SelectionChangedEventArgs e)
-            {
-                if (e.CurrentSelection.FirstOrDefault() is string seleccion)
-                {
-                    if (BindingContext is MainViewModel vm)
-                    {
-                        txt_search.Unfocus();
-                        vm.SearchText = seleccion;
-                        SuggestionsList.IsVisible = false;
-                        SuggestionsList.SelectedItem = null;
-                        _ = vm.Search();
-                    }
-                }
-            }
-
-        // Funciones de privadas
-            private async Task ActualizarSugerencias(string texto)
-            {
-                _cts?.Cancel();             // cancelar la anterior
-                _cts = new CancellationTokenSource();
-
-                try
-                {
-                    var sugerencias = await ObtenerSugerenciasAsync(texto, _cts.Token);
-                    SuggestionsList.ItemsSource = sugerencias;
-                }
-                catch (OperationCanceledException)
-                {
-                    // Ignorar si fue cancelado
-                }
-            }
-            private static async Task<List<string>> ObtenerSugerenciasAsync(string query, CancellationToken token)
-            {
-                try
-                {
-
-                    // Validamos entrada
-                    if (string.IsNullOrWhiteSpace(query))
-                        return [];
-
-                    // Hacemos peticion
-                    var url = $"https://suggestqueries.google.com/complete/search?client=firefox&ds=yt&q={Uri.EscapeDataString(query)}";
-                    var result = await _http.GetFromJsonAsync<object[]>(url, token);
-
-                    // Procesamos resulados
-                    if (result?.Length > 1 && result[1] is JsonElement suggestionsElement && suggestionsElement.ValueKind == JsonValueKind.Array)
-                    {
-                        return suggestionsElement
-                            .EnumerateArray()
-                            .Select(x => x.GetString())
-                            .OfType<string>()
-                            .ToList();
-                    }
+        public Android_View_Search()
+        {
+            InitializeComponent();
+        }
 
 
-                } catch (Exception ex) {
-                    Debug.WriteLine($"Ocurrio un error en: {ex.Message}");
-                }
+        // Funciones de items
+        private async void Click_SelectedItems(object sender, SelectionChangedEventArgs e)
+        {
+            // Verificar si hay una selección actual y obtener el primer elemento
+            if (e.CurrentSelection.Count == 0 || e.CurrentSelection[0] is not VideoSearchResult selected) return;
 
-                // En caso de fallar, lista en blanco.
-                return new List<string>();
+            // Limpiar selección visual
+            if (sender is CollectionView cv)
+                cv.SelectedItem = null;
 
-            }
+            // Ejecuta el handler / comando del VM
+            if (BindingContext is not MainViewModel vm)
+                return;
 
+            // Reproducimos
+            await vm.Play(selected.Id);
+        }
         private async void Click_SelectedItemMenu(object sender, EventArgs e)
         {
-            if (sender is Button btn && btn.BindingContext is VideoSearchResult psr)
+            // Verificamos parametros
+            if (sender is not Button btn)
+                return;
+
+            // Verificamos contexto del boton
+            if (btn.BindingContext is not VideoSearchResult psr)
+                return;
+
+            // Verificamos contexto del ViewModel
+            if (BindingContext is not MainViewModel vm)
+                return;
+
+            // Verificar si el favorito es nulo o no tiene un ID válido
+            if (psr is null || string.IsNullOrWhiteSpace(psr.Id)) return;
+
+            // Abrir el menú contextual
+            var title  = "Selecciona acción";
+            var cancel = "Cancelar";
+            var param  = new[] { "Reproducir", "Agregar a favoritos", "Agregar a una playlist" };
+            var action = await DialogHelpers.DisplayAction(title, cancel, null, param);
+
+            // Ejecutamos la acción seleccionada
+            switch (action)
             {
-                // Obtener la página actual de forma segura usando la ventana asociada
-                var page = this.Window?.Page;
-                if (page == null)
-                {
-                    Debug.WriteLine("No se pudo obtener la página actual para mostrar el menú contextual.");
-                    return;
-                }
+                case "Reproducir":
 
-                // Verificar si el favorito es nulo o no tiene un ID válido
-                if (psr is null || string.IsNullOrWhiteSpace(psr.Id)) return;
+                    // Reproducimos
+                    await vm.Play(psr.Id);
+                    break;
+                case "Agregar a favoritos":
 
-                // Abrir el menú contextual
-                string   title = "Selecciona acción";
-                string   cancel = "Cancelar";
-                string[] param = { "Reproducir", "Agregar a favoritos", "Agregar a una playlist" };
-                string   action = await page.DisplayActionSheet(title, cancel, null, param);
-
-                // Ejecutar la acción seleccionada
-                if (BindingContext is MainViewModel vm)
-                {
-                    switch (action)
+                    // Agregamos
+                    Song favorito = new()
                     {
-                        case "Reproducir":
-                            await vm.PlaySong(psr);
-                            break;
+                        Id               = psr.Id,
+                        Title            = psr.Title,
+                        Author           = new AuthorSong { ChannelId = psr.Author.ChannelId, ChannelTitle = psr.Author.ChannelTitle, ChannelUrl = psr.Author.ChannelUrl },
+                        ThumbnailHighRes = ThumbnailHelper.GetHighestThumbnail(psr.Thumbnails),
+                        ThumbnailLowRes  = ThumbnailHelper.GetLowestThumbnail(psr.Thumbnails),
+                        Duration         = psr.Duration
+                    
+                    };
 
-                        case "Agregar a favoritos":
+                    // Ejecutamos
+                    if (vm.Favorite_AddCommand.CanExecute(favorito))
+                        vm.Favorite_AddCommand.Execute(favorito);
+                        break;          
+                case "Agregar a una playlist":
 
-                            // Agregamos
-                            Song favorito = new()
-                            {
-                                Id               = psr.Id,
-                                Title            = psr.Title,
-                                Author           = new AuthorSong { ChannelId = psr.Author.ChannelId, ChannelTitle = psr.Author.ChannelTitle, ChannelUrl = psr.Author.ChannelUrl },
-                                ThumbnailHighRes = ThumbnailHelper.GetHighestThumbnail(psr.Thumbnails),
-                                ThumbnailLowRes  = ThumbnailHelper.GetLowestThumbnail(psr.Thumbnails),
-                                Duration         = psr.Duration
+                    // Agregamos
+                    Song fav = new()
+                    {
+                        Id          = psr.Id,
+                        Title       = psr.Title,
+                        Author      = new AuthorSong {ChannelId = psr.Author.ChannelId, ChannelTitle = psr.Author.ChannelTitle, ChannelUrl = psr.Author.ChannelUrl },
+                        ThumbnailHighRes = ThumbnailHelper.GetHighestThumbnail(psr.Thumbnails),
+                        ThumbnailLowRes = ThumbnailHelper.GetLowestThumbnail(psr.Thumbnails),
+                        Duration = psr.Duration
+                    
+                    };
 
-                            };
+                    // Ejecutamos
+                    if (vm.Playlist_ToAddCommand.CanExecute(fav))
+                        vm.Playlist_ToAddCommand.Execute(fav);
+                        break;
+            }
 
-                            // Ejecutamos
-                            if (vm.Favorite_AddCommand.CanExecute(favorito))
-                                vm.Favorite_AddCommand.Execute(favorito);
+        }
 
-                            break;
 
-                        case "Agregar a una playlist":
+        // Funcion de buscar
+        private async void Search(string input)
+        {
+            // Verificamos contexto del ViewModel
+            if (BindingContext is not MainViewModel vm)
+                return;
 
-                            // Agregamos
-                            Song fav = new()
-                            {
-                                Id          = psr.Id,
-                                Title       = psr.Title,
-                                Author      = new AuthorSong {ChannelId = psr.Author.ChannelId, ChannelTitle = psr.Author.ChannelTitle, ChannelUrl = psr.Author.ChannelUrl },
-                                ThumbnailHighRes = ThumbnailHelper.GetHighestThumbnail(psr.Thumbnails),
-                                ThumbnailLowRes = ThumbnailHelper.GetLowestThumbnail(psr.Thumbnails),
-                                Duration = psr.Duration
+            // Configuramos controles
+            txt_search.Unfocus();
+            SuggestionsList.ItemsSource = null;
+            SuggestionsList.IsVisible = false;
+            SuggestionsList.SelectedItem = null;
+            ResultsCollection.IsVisible = true;
 
-                            };
+            // Buscamos
+            await vm.Search(input);
 
-                            // Ejecutamos
-                            if (vm.Playlist_ToAddCommand.CanExecute(fav))
-                                vm.Playlist_ToAddCommand.Execute(fav);
-
-                            break;
-                    }
+        }
+        private void SearchButtonPressed(object sender, EventArgs e)
+        {
+            var input = txt_search.Text ?? string.Empty;
+            Search(input);
+        }
+        private async void ResultsCollection_RemainingItemsThresholdReached(object sender, EventArgs e)
+        {
+            // Intentamos invocar el comando del VM
+            if (BindingContext is MainViewModel vm)
+            {
+                try
+                {
+                    await vm.LoadMore();
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error executing LoadMoreCommand: {ex.Message}");
                 }
             }
+            else
+            {
+                Debug.WriteLine("BindingContext no es AndroidPropertyViewModel (o no está heredado).");
+            }
         }
+
+
+        // Funcion de sugerencias
+        private async void txt_search_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            string texto = e.NewTextValue;
+
+            if (string.IsNullOrWhiteSpace(texto))
+            {
+                // No hay texto → mostrar resultados, ocultar sugerencias
+                ResultsCollection.IsVisible = true;
+                SuggestionsList.IsVisible = false;
+            }
+            else
+            {
+                // Hay texto → mostrar sugerencias, ocultar resultados
+                ResultsCollection.IsVisible = false;
+                SuggestionsList.IsVisible = true;
+
+                // Aquí podrías actualizar las sugerencias
+                await ActualizarSugerencias(texto);
+            }
+        }
+        private void SuggestionsList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
+            // Verificar si hay una selección actual y obtener el primer elemento
+            if (e.CurrentSelection.Count == 0 || e.CurrentSelection[0] is not string input)
+                return;
+
+            // Ejecuta el handler / comando del VM
+            txt_search.Text = input;
+            Search(input);
+
+        }
+        private async Task ActualizarSugerencias(string texto)
+        {
+            _cts?.Cancel();             // cancelar la anterior
+            _cts = new CancellationTokenSource();
+
+            try
+            {
+                var sugerencias = await ObtenerSugerenciasAsync(texto, _cts.Token);
+                SuggestionsList.ItemsSource = sugerencias;
+            }
+            catch (OperationCanceledException)
+            {
+                // Ignorar si fue cancelado
+            }
+        }
+        private static async Task<List<string>> ObtenerSugerenciasAsync(string query, CancellationToken token)
+        {
+            try
+            {
+
+                // Validamos entrada
+                if (string.IsNullOrWhiteSpace(query))
+                    return [];
+
+                // Hacemos peticion
+                var url = $"https://suggestqueries.google.com/complete/search?client=firefox&ds=yt&q={Uri.EscapeDataString(query)}";
+                var result = await _http.GetFromJsonAsync<object[]>(url, token);
+
+                // Procesamos resulados
+                if (result?.Length > 1 && result[1] is JsonElement suggestionsElement && suggestionsElement.ValueKind == JsonValueKind.Array)
+                {
+                    return suggestionsElement.EnumerateArray()
+                                             .Select(x => x.GetString())
+                                             .Where(x => x != null)
+                                             .ToList()!;
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Ocurrio un error en: {ex.Message}");
+            }
+
+            // En caso de fallar, lista en blanco.
+            return [];
+
+        }
+
+
     }
 }

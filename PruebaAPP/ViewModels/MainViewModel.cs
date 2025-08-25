@@ -7,10 +7,10 @@ using PruebaAPP.Objetos.Services;
 using PruebaAPP.ViewModels;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Threading.Tasks;
 using YoutubeExplode.Common;
 using YoutubeExplode.Search;
 using YoutubeExplode.Videos.Streams;
+using PruebaAPP.Objetos.Enum;
 
 namespace PruebaAPP.Views.Android.ViewModels
 {
@@ -21,359 +21,327 @@ namespace PruebaAPP.Views.Android.ViewModels
         // =============================================================================================
         public MainViewModel(PlayerViewModel mediaService, IDispatcher dispatcher)
         {
-
             // Inicializacion de los servicios
-            _youtubeService = new YouTubeService();                                 // Servicio de YouTube
-            _favoritosService = new FavoriteServices();                               // Servicio de favoritos
-            _playlistService = new PlaylistService();                                // Servicio de playlists
-            _dispatcher = dispatcher;                                           // Dispatcher para operaciones asincrónicas
+            _youtubeService  = new YouTubeService();
+            _favoriteService = new JsonStorageService<Song>(StorageType.Favorites);
+            _playlistService = new JsonStorageService<Playlist>(StorageType.Playlists);
+            _playbackService = new JsonStorageService<PlaybackHistory>(StorageType.PlaybackHistory);
+            _dispatcher = dispatcher;
 
             // Asignamos el reproductor de música
-            Player = mediaService;                                                      // Asignar el reproductor de música
-            Player.vm = this;                                                           // Asignar el ViewModel al reproductor
+            Player = mediaService;
+            Player.ViewM = this;
 
-            // Cargamos lista de favoritos
-            Favoritos = new ObservableCollection<Song>(_favoritosService.GetAll());     // Cargar favoritos desde el servicio
-            Playlists = new ObservableCollection<Playlist>(_playlistService.GetAll());  // Cargar playlists desde el servicio
+            // Cargamos datos iniciales
+            Favoritos       = new ObservableCollection<Song>(_favoriteService.GetAll());
+            Playlists       = new ObservableCollection<Playlist>(_playlistService.GetAll());
+            PlayBackHistory = new ObservableCollection<PlaybackHistory>(_playbackService.GetAll());
 
             // Precarga por defecto
-            SearchText = "Música";                                                      // Texto de búsqueda por defecto
-            _ = Search();                                                               // Iniciar búsqueda por defecto
-            SearchText = string.Empty;                                                  // Limpiar el texto de búsqueda
-
+            var textrandom = GetRandomMusicText();
+            _ = Search(textrandom);
         }
 
         // =============================================================================================
         // == Declaracion de servicios
         // =============================================================================================
-        private readonly YouTubeService _youtubeService;                        // Servicio de YouTube
-        private readonly FavoriteServices _favoritosService;                      // Servicio de favoritos
-        private readonly PlaylistService _playlistService;                       // Servicio de playlists
-        private readonly IDispatcher _dispatcher;                            // Dispatcher para operaciones asincrónicas
+        private readonly YouTubeService _youtubeService;                                // Servicio de YouTube
+        private readonly JsonStorageService<Song> _favoriteService;                     // Servicio de favoritos
+        private readonly JsonStorageService<Playlist> _playlistService;                 // Servicio de playlists
+        private readonly JsonStorageService<PlaybackHistory> _playbackService;          // Servicio de historial de reproducción
+        private readonly IDispatcher _dispatcher;                                       // Dispatcher para operaciones asincrónicas
 
         // =============================================================================================
         // == Propiedades de la vista
         // =============================================================================================
-        public PlayerViewModel Player { get; }                                      // Reproductor de música
+        public PlayerViewModel Player { get; }                                          // Reproductor de música
 
         // =============================================================================================
         // == Listas de datos
         // =============================================================================================
-        public ObservableCollection<Song> Favoritos { get; }           // Lista de favoritos
-        public ObservableCollection<Playlist> Playlists { get; }           // Lista de playlists
-        public ObservableCollection<VideoSearchResult> ListItems { get; set; } = [];// Lista de resultados de búsqueda
+        public ObservableCollection<Song> Favoritos { get; }                            // Lista de favoritos
+        public ObservableCollection<Playlist> Playlists { get; }                        // Lista de playlists
+        public ObservableCollection<PlaybackHistory> PlayBackHistory { get; }           // Lista de historial de reproducción
+        public ObservableCollection<VideoSearchResult> ListItems { get; set; } = [];    // Lista de resultados de búsqueda
 
         // =============================================================================================
         // == Otras propiedades
         // =============================================================================================
-        [ObservableProperty] public partial View? CurrentView { get; set; }         // Vista actual
-        [ObservableProperty] public partial string? SearchText { get; set; }        // Texto de búsqueda
-        [ObservableProperty] public partial bool IsLoading { get; set; }            // Indicador de carga
-        [ObservableProperty] public partial bool IsLoading2 { get; set; }           // Indicador de carga para operaciones secundarias
+        [ObservableProperty] public partial View? CurrentView { get; set; }             // Vista actual
+        [ObservableProperty] public partial bool IsLoading { get; set; }                // Indicador de carga
+        [ObservableProperty] public partial bool IsLoading2 { get; set; }               // Indicador de carga para operaciones secundarias
 
         // =============================================================================================
         // == Variables de control publicas
         // =============================================================================================
-        public bool IsBlockClick { get; set; } = false;                             // Bloqueo de clics múltiples
-        public record PlaylistRemoveParam(string PlaylistId, string FavoriteId);    // Parámetros para eliminar canción de playlist
+        public bool IsBlockClick { get; set; } = false;                                 // Bloqueo de clics múltiples
+        public record PlaylistRemoveParam(string PlaylistId, string FavoriteId);        // Parámetros para eliminar canción de playlist
 
         // =============================================================================================
         // == Variables de control privadas
         // =============================================================================================
-        private bool _isPlayingSong = false;                                        // Indicador de reproducción en curso
-        private readonly List<VideoSearchResult> _cache = [];                       // Caché de resultados de búsqueda
-        private string _currentSearch = string.Empty;                               // Texto de búsqueda actual
-        private IAsyncEnumerator<VideoSearchResult>? _searchEnumerator;             // Enumerador de resultados de búsqueda
-        private bool _isLoadingMore;                                                // Indicador de carga adicional
-        private bool _isSearching;                                                  // Indicador de búsqueda en curso
-        private int _loadedCount = 0;                                               // Contador de elementos cargados desde la caché
+        private bool _isPlayingSong = false;                                            // Indicador de reproducción en curso
+        private readonly List<VideoSearchResult> _cache = [];                           // Caché de resultados de búsqueda
+        private string _currentSearch = string.Empty;                                   // Texto de búsqueda actual
+        private IAsyncEnumerator<VideoSearchResult>? _searchEnumerator;                 // Enumerador de resultados de búsqueda
+        private bool _isLoadingMore;                                                    // Indicador de carga adicional
+        private bool _isSearching;                                                      // Indicador de búsqueda en curso
+        private int _loadedCount = 0;                                                   // Contador de elementos cargados desde la caché
 
         // =============================================================================================
-        // == Funciones del viewmodel
+        // == Busqueda y carga de resultados
         // =============================================================================================
-        public async Task<bool> DisplayMessage(string title, string message, string ok, string? cancel = null)
+        public async Task Search(string query)
         {
-            // Obtener la página principal de forma segura
-            var mainPage = Application.Current?.Windows.FirstOrDefault()?.Page;
-            if (mainPage == null) return false;
+            if (_isSearching || string.IsNullOrWhiteSpace(query))
+                return;
 
-            if (string.IsNullOrEmpty(cancel))
-            {
-                // Solo un botón
-                await mainPage.DisplayAlert(title, message, ok);
-                return true;
-            }
-            else
-            {
-                // Dos botones
-                bool result = await mainPage.DisplayAlert(title, message, ok, cancel);
-                return result;
-            }
-        }
-
-        // =============================================================================================
-        // == Comandos de búsqueda
-        // =============================================================================================
-        [RelayCommand] public async Task Search()
-        {
-
-            // Criterio de cancelación   
-            if (_isSearching || string.IsNullOrWhiteSpace(SearchText)) return;
-
-            // Activamos variables
             _isSearching = true;
             IsLoading = true;
 
-            // Comenzamos el campo
             try
             {
-                // Declaramos variables de reintentos
-                int maxretis = 3;
-                int retris = 0;
-                bool retry = false;
-
-                // Iniciamos ciclo
-                do
+                await RetryAsync(async () =>
                 {
-                    try
-                    {
+                    _currentSearch = query.Trim();
+                    _loadedCount = 0;
+                    _cache.Clear();
+                    ListItems.Clear();
 
-                        // Preconfiguramos
-                        _currentSearch = SearchText.Trim();
-                        _loadedCount = 0;
-                        _cache.Clear();
-                        ListItems.Clear();
+                    _searchEnumerator = _youtubeService.GetSearchEnumerator(_currentSearch);
 
-                        // Obtenemos listado
-                        _searchEnumerator = _youtubeService.GetSearchEnumerator(_currentSearch);
-
-                        // Descargamos lista
-                        await LoadMore(10);
-
-                        // Si todo salio bien limpeamos 
-                        SearchText = string.Empty;
-
-                    }
-                    catch
-                    {
-                        retris++;
-                        if (retris > maxretis) return;
-                        await Task.Delay(1000);
-                        retry = true;
-                    }
-
-                } while (retry);
+                    await LoadMore(10);
+                });
             }
             finally
             {
                 _isSearching = false;
                 IsLoading = false;
             }
-
         }
-        [RelayCommand] public async Task LoadMore(int count = 10)
+        public async Task LoadMore(int count = 10)
         {
-            if (_isLoadingMore || _searchEnumerator == null) return;
+            if (_isLoadingMore || _searchEnumerator == null)
+                return;
+
             _isLoadingMore = true;
 
             try
             {
                 int loaded = 0;
 
-                // 1️⃣ Consumir cache
+                // Consumir cache primero
                 var newItems = new List<VideoSearchResult>();
                 while (loaded < count && _loadedCount < _cache.Count)
                 {
                     var item = _cache[_loadedCount];
-                    if (!ListItems.Contains(item)) newItems.Add(item);
+                    if (!ListItems.Contains(item))
+                        newItems.Add(item);
+
                     loaded++;
                     _loadedCount++;
                 }
 
-                if (newItems.Count > 0) await _dispatcher.DispatchAsync(() =>
+                if (newItems.Count > 0)
                 {
-                    foreach (var i in newItems) ListItems.Add(i);
-                    return;
-                });
+                    await _dispatcher.DispatchAsync(() =>
+                    {
+                        foreach (var i in newItems)
+                            ListItems.Add(i);
+                    });
+                }
 
-                // 2️⃣ Consumir enumerador
-                var enumeratorItems = new List<VideoSearchResult>();
+                // Consumir enumerador (con RetryAsync)
                 while (loaded < count)
                 {
-                    int maxretis = 3;
-                    int retris = 0;
-                    bool retry = false;
-                    do
+                    var hasNext = await RetryAsync(async () =>
                     {
-                        try
-                        {
-                            if (!await _searchEnumerator.MoveNextAsync()) break;
-                            retry = false;
-                        }
-                        catch
-                        {
-                            retris++;
-                            if (retris > maxretis) return;
-                            _searchEnumerator = _youtubeService.GetSearchEnumerator(_currentSearch);
-                            await Task.Delay(1000);
-                            retry = true;
-                        }
+                        return await _searchEnumerator.MoveNextAsync();
+                    });
 
-                    } while (retry);
-
+                    if (!hasNext) break;
 
                     var item = _searchEnumerator.Current;
-                    if (item.Duration != null && item.Duration.Value.TotalMinutes > 1 && !_cache.Contains(item))
+
+                    // Filtro: duración mínima 1 minuto
+                    if (item.Duration != null &&
+                        item.Duration.Value.TotalMinutes > 1 &&
+                        !_cache.Contains(item))
                     {
                         _cache.Add(item);
-                        enumeratorItems.Add(item);
+                        await _dispatcher.DispatchAsync(() =>
+                        {
+                            ListItems.Add(item);
+                        });
                         loaded++;
                     }
                 }
-
-                if (enumeratorItems.Count > 0)
-                    //await _dispatcher.DispatchAsync(() => {
-                    foreach (var i in enumeratorItems) ListItems.Add(i);
-                //});
             }
             finally
             {
                 _isLoadingMore = false;
             }
         }
-        [RelayCommand] public async Task PlaySong(VideoSearchResult item)
+        private static async Task<T> RetryAsync<T>(Func<Task<T>> action, int maxRetries = 3, int delayMs = 1000)
+        {
+            int retries = 0;
+            while (true)
+            {
+                try
+                {
+                    return await action();
+                }
+                catch
+                {
+                    retries++;
+                    if (retries >= maxRetries)
+                        throw;
+
+                    await Task.Delay(delayMs);
+                }
+            }
+        }
+        private static async Task RetryAsync(Func<Task> action, int maxRetries = 3, int delayMs = 1000)
+        {
+            await RetryAsync(async () =>
+            {
+                await action();
+                return true; // devuelve algo simple para satisfacer <T>
+            }, maxRetries, delayMs);
+        }
+
+        // =============================================================================================
+        // == Reproducción de canciones
+        // =============================================================================================
+        public async Task Play(string id)
         {
             // Validamos
-            if (_isPlayingSong || item == null)
+            if (string.IsNullOrWhiteSpace(id))
                 return;
 
-            // Cambiamos estado
+            // Validamos estado
             _isPlayingSong = true;
-            Player.CurrentSong = new Song();
             IsLoading2 = true;
+            Player.CurrentSong = null;
+
+            // 
+            UpdateSong(id);
 
             // Empezamos proceso
             try
             {
-                // Detener la canción actual si hay una
-                if (Player.CurrentMediaState == MediaElementState.Playing) Player.Controller.Stop();
+                // Detener la canción actual
+                Player.Controller.Stop();
 
-                // Obtener stream
-                IStreamInfo? streamInfo = null;
-                try {
-
-                    streamInfo = await Task.Run(() => _youtubeService.GetBestAudioStreamAsync(item.Url));
-
-                } catch (Exception ex) {
-                    Debug.WriteLine($"Error al obtener stream: {ex.Message}");
+                // Obtener detalles del video
+                var item = await SafeGetVideoDetailsAsync(id);
+                if (item == null)
                     return;
-                }
 
-                // Verificamos si hay datos
-                if (streamInfo is null) return;
+                // Obtener stream de audio
+                var streamInfo = await SafeGetAudioStreamAsync(item.Url);
+                if (streamInfo == null)
+                    return;
 
-                // Configuramos el reproductor
+                // Configurar metadata
                 Player.Controller.MetadataTitle = item.Title;
                 Player.Controller.MetadataArtist = item.Author.ChannelTitle;
                 Player.Controller.MetadataArtworkUrl = ThumbnailHelper.GetHighestThumbnail(item.Thumbnails);
 
-                // Asignar CurrentSong
-                Player.CurrentSong = new Song()
-                {
-                    Id = item.Id,
-                    Title = item.Title,
-                    Author = new AuthorSong { ChannelId = item.Author.ChannelId, ChannelTitle = item.Author.ChannelTitle, ChannelUrl = item.Author.ChannelUrl },
-                    ThumbnailHighRes = ThumbnailHelper.GetHighestThumbnail(item.Thumbnails),
-                    ThumbnailLowRes = ThumbnailHelper.GetLowestThumbnail(item.Thumbnails),
-                    Duration = item.Duration,
-                    IsFavorite = _favoritosService.Exists(item.Id)
-                };
-
-                // Actualizamos
-                UpdateSong();
+                // Crear y asignar canción
+                Player.CurrentSong = CreateSong(item);
 
                 // Reproducir
                 Media_Load(streamInfo.Url);
-
-            } finally {
+            }
+            finally
+            {
                 IsLoading2 = false;
                 _isPlayingSong = false;
             }
         }
-        [RelayCommand] public async Task PlaySongById(string id)
+        private async Task<VideoSearchResult?> SafeGetVideoDetailsAsync(string id)
         {
-            // Validamos
-            if (string.IsNullOrWhiteSpace(id)) return;
-
-            // Detener la canción actual si hay una
-            if (Player.CurrentMediaState == MediaElementState.Playing) Player.Controller.Stop();
-
-            // Cambiamos estado
-            IsLoading2 = true;
-            Player.CurrentSong = new Song();
-
-            // Obtener detalles del video
-            VideoSearchResult item;
-            try {
-
-                // Descargamos manifiesto
-                item = await _youtubeService.GetVideoDetailsAsync(id);
-
-                // Lanzamos comando para reproducir
-                await PlaySong(item);
-
-            } catch (Exception ex) {
+            try
+            {
+                return await _youtubeService.GetVideoDetailsAsync(id);
+            }
+            catch (Exception ex)
+            {
                 Debug.WriteLine($"Error al obtener detalles: {ex.Message}");
-                return;
-            } finally {
-                IsLoading2 = false;
+                await ShowError("No se pudo obtener la canción.");
+                return null;
             }
-
         }
-        public void UpdateSong()
+        private async Task<IStreamInfo?> SafeGetAudioStreamAsync(string url)
         {
-            foreach (Song favorite in Favoritos)
+            try
             {
-                if (favorite.Id == Player.CurrentSong?.Id)
-                {
-                    favorite.IsPlay = true;
-
-                } else {
-                    favorite.IsPlay = false;
-                }
+                var stream = await Task.Run(() => _youtubeService.GetBestAudioStreamAsync(url));
+                if (stream == null)
+                    await ShowError("No se pudo obtener el audio.");
+                return stream;
             }
-
-            foreach (Playlist playlist in Playlists)
+            catch (Exception ex)
             {
-                foreach (Song favorite in playlist.Items)
-                {
-                    if (favorite.Id == Player.CurrentSong?.Id)
-                    {
-                        favorite.IsPlay = true;
-
-                    } else {
-                        favorite.IsPlay = false;
-                    }
-                }
+                Debug.WriteLine($"Error al obtener stream: {ex.Message}");
+                await ShowError("No se pudo obtener el audio.");
+                return null;
             }
         }
+        private static async Task ShowError(string message)
+        {
+            await DialogHelpers.DisplayMessage("Error", message, "Aceptar");
+        }
+        private Song CreateSong(VideoSearchResult item)
+        {
+            return new()
+            {
+                Id = item.Id,
+                Title = item.Title,
+                Author = new AuthorSong
+                {
+                    ChannelId = item.Author.ChannelId,
+                    ChannelTitle = item.Author.ChannelTitle,
+                    ChannelUrl = item.Author.ChannelUrl
+                },
+                ThumbnailHighRes = ThumbnailHelper.GetHighestThumbnail(item.Thumbnails),
+                ThumbnailLowRes = ThumbnailHelper.GetLowestThumbnail(item.Thumbnails),
+                Duration = item.Duration,
+                IsFavorite = _favoriteService.Exists(s => s.Id! == item.Id)
+            };
+        }
+        public void UpdateSong(string id)
+        {
+            // Actualizar canciones en favoritos
+            foreach (var favorite in Favoritos)
+                favorite.IsPlay = favorite.Id == id;
+
+            // Actualizar canciones en playlists
+            foreach (var playlist in Playlists)
+            {
+                foreach (var song in playlist.Items)
+                    song.IsPlay = song.Id == id;
+            }
+
+        }
+
 
         // =============================================================================================
         // == Comandos de favoritos
         // =============================================================================================
         [RelayCommand] public void Favorite_Add(Song favorito)
         {
-            // Agregamos y comprobamos resultado
-            bool result = _favoritosService.Add(favorito);
-            if (result)
-                Favoritos.Add(favorito);
+            // Agregamos a la lista observable del ViewModel
+            _favoriteService.Add(favorito);
+            Favoritos.Add(favorito);
 
             // Comprobamos si esta sonando
             if (favorito.Id == Player.CurrentSong?.Id)
-            { Player.CurrentSong?.IsFavorite = true; }
+                Player.CurrentSong?.IsFavorite = true;
 
             // Mostramos si esta sonando
-            UpdateSong();
+            UpdateSong(favorito.Id!);
 
             // Notificamos cambios
             OnPropertyChanged(nameof(Favorite_GetTotalD));
@@ -386,11 +354,11 @@ namespace PruebaAPP.Views.Android.ViewModels
             var message = "Esta acción no se puede deshacer. ¿Estás seguro de continuar?";
             var ok      = "Eliminar";
             var cancel  = "Atrás";
-            var result  = await DisplayMessage(title, message, ok, cancel);
+            var result  = await DialogHelpers.DisplayMessage(title, message, ok, cancel);
             if (!result) return;
 
             // Eliminar del servicio
-            _favoritosService.Delete(id);
+            _favoriteService.Delete(s => s.Id == id);
 
             // Eliminar de la lista observable del ViewModel
             var item = Favoritos.FirstOrDefault(f => f.Id == id);
@@ -432,101 +400,127 @@ namespace PruebaAPP.Views.Android.ViewModels
         // =============================================================================================
         [RelayCommand] public async Task Playlist_Created()
         {
-            // Obtener la página principal de forma segura y sin usar la propiedad obsoleta MainPage
-            var mainPage = Application.Current?.Windows.FirstOrDefault()?.Page;
-            if (mainPage == null)
-                return;
-
-            // Creamos entrad de inputbox
-            string nombre = await mainPage.DisplayPromptAsync(
+            // Creamos entrada de inputbox
+            string nombre = await DialogHelpers.DisplayPrompt(
                 "Nueva Playlist",           // Título
                 "Ingresa el nombre:",       // Mensaje
                 "Crear",                    // Texto del botón aceptar
                 "Cancelar",                 // Texto del botón cancelar
                 "Nombre de la playlist",    // Placeholder
-                maxLength: 50,              // Límite de caracteres
+                50,                         // Límite de caracteres
                 keyboard: Keyboard.Text     // Tipo de teclado
             );
 
-            // Verificamos y creamos
+            // Verificamos que el usuario haya ingresado algo
             if (string.IsNullOrWhiteSpace(nombre)) return;
 
-            // Llamas al servicio que crea la playlist
-            Playlist playlist = _playlistService.Create(nombre);
-            Playlists.Add(playlist);
+            // Creamos la nueva playlist
+            var playlist = new Playlist
+            {
+                Id = Guid.NewGuid().ToString(),  // Id único
+                Title = nombre,
+                Items = [],
+                IsPlaying = false
+            };
 
-            // Notificamos cambio
-            OnPropertyChanged(nameof(Playlists));
+            // Guardamos en el servicio JSON
+            _playlistService.Add(playlist);
+
+            // Si tenés una colección en la UI para mostrar
+            Playlists.Add(playlist);
         }
         [RelayCommand] public async Task Playlist_ToAdd(Song fav)
         {
-            // Preparamos array de titulos
-            var playlistTitlesArray = _playlistService.GetAll().Select(p => p.Title).ToArray();
+            if (Playlists == null || Playlists.Count == 0) return;
 
-            // Obtener la página principal de forma segura y sin usar la propiedad obsoleta MainPage
-            var mainPage = Application.Current?.Windows.FirstOrDefault()?.Page;
-            if (mainPage == null) return;
+            // Preparamos array de títulos desde la colección vinculada a la UI
+            var playlistTitlesArray = Playlists.Select(p => p.Title!).ToArray();
 
-            // Verficamos si hay lista
-            if (playlistTitlesArray.Length == 0) return;
+            // Abrimos cuadro de diálogo
+            var result = await DialogHelpers.DisplayAction("Selecciona playlist", "Cancelar", null, playlistTitlesArray);
+            if (result == "Cancelar") return;
 
-            // Abrimos cuadro de dialogo
-            var result = await mainPage.DisplayActionSheet("Selecciona playlist", "Cancelar", null, playlistTitlesArray);
-            if (result != "Cancelar")
+            // Buscamos la playlist directamente en la ObservableCollection
+            var selectedPlaylist = Playlists.FirstOrDefault(p => p.Title == result);
+            if (selectedPlaylist == null) return;
+
+            // Aseguramos que la canción tenga Id
+            if (string.IsNullOrEmpty(fav.Id))
+                fav.Id = Guid.NewGuid().ToString();
+
+            // Verificamos que la canción no exista ya en la playlist
+            if (!selectedPlaylist.Items.Any(s => s.Id == fav.Id))
             {
-                _playlistService.AddFavorite(result, fav);
+                // Agregamos la canción a la colección observable
+                selectedPlaylist.Items.Add(fav);
+
+                // Guardamos cambios en JSON
+                _playlistService.Update(p => p.Id == selectedPlaylist.Id, p =>
+                {
+                    p.Items = selectedPlaylist.Items;
+                });
             }
 
-            // Notificamos cambios
+            // Notificamos cambios en la UI
             OnPropertyChanged(nameof(Playlist_GetTotalSong));
             OnPropertyChanged(nameof(Playlists_GetTotalDuration));
 
         }
         [RelayCommand] public async Task Playlist_Delete(string playlistId)
         {
-            // Pedimos confirmacion
-            var title   = "¿Eliminar esta playlist?";
+            // Pedimos confirmación
+            var title = "¿Eliminar esta playlist?";
             var message = "Esta acción no se puede deshacer. ¿Estás seguro de continuar?";
-            var ok      = "Eliminar";
-            var cancel  = "Atrás";
-            var result  = await DisplayMessage(title, message, ok, cancel);
+            var ok = "Eliminar";
+            var cancel = "Atrás";
+
+            var result = await DialogHelpers.DisplayMessage(title, message, ok, cancel);
             if (!result) return;
 
-            // Eliminar del servicio
-            _playlistService.Delete(playlistId);
+            // Eliminar del servicio JSON
+            _playlistService.Delete(p => p.Id == playlistId);
 
             // Eliminar de la lista observable del ViewModel
             var item = Playlists.FirstOrDefault(p => p.Id == playlistId);
-            if (item != null) Playlists.Remove(item);
+            if (item != null)
+                Playlists.Remove(item);
 
-            // Notificamos cambios
+            // Notificamos cambios en la UI
             OnPropertyChanged(nameof(Playlist_GetTotalSong));
             OnPropertyChanged(nameof(Playlists_GetTotalDuration));
         }
         [RelayCommand] public async Task Playlist_ToDelete(PlaylistRemoveParam param)
         {
-            // Verificamos si hay parametro
+            // Verificamos si hay parámetro
             if (param == null) return;
 
-            // Pedimos confirmacion
-            string title   = "¿Quitar de la playlist?";
+            // Pedimos confirmación
+            string title = "¿Quitar de la playlist?";
             string message = "No podrás revertir esta acción. ¿Deseas continuar?";
-            string accept  = "Quitar";
-            string cancel  = "Cancelar";
-            bool result    = await DisplayMessage(title, message, cancel, accept);
+            string accept = "Quitar";
+            string cancel = "Cancelar";
+
+            bool result = await DialogHelpers.DisplayMessage(title, message, accept, cancel);
             if (!result) return;
 
-            // Procesamos eliminacion
+            // Buscamos la playlist
             var pl = Playlists.FirstOrDefault(p => p.Id == param.PlaylistId);
             if (pl == null) return;
 
+            // Buscamos la canción a eliminar
             var song = pl.Items.FirstOrDefault(s => s.Id == param.FavoriteId);
             if (song == null) return;
 
-            _playlistService.RemoveFavorite(param.PlaylistId, param.FavoriteId);
+            // Eliminamos la canción del ObservableCollection
             pl.Items.Remove(song);
 
-            // Notificamos cambios
+            // Guardamos cambios en el JSON
+            _playlistService.Update(p => p.Id == pl.Id, p =>
+            {
+                p.Items = pl.Items; // Actualizamos la lista de canciones
+            });
+
+            // Notificamos cambios en la UI
             OnPropertyChanged(nameof(Playlist_GetTotalSong));
             OnPropertyChanged(nameof(Playlists_GetTotalDuration));
         }
@@ -540,11 +534,11 @@ namespace PruebaAPP.Views.Android.ViewModels
             var message = "Esta acción no se puede deshacer. ¿Estás seguro de continuar?";
             var ok      = "Eliminar";
             var cancel  = "Atrás";
-            var result  = await DisplayMessage(title, message, ok, cancel);
+            var result  = await DialogHelpers.DisplayMessage(title, message, ok, cancel);
             if (!result) return;
 
             // Eliminamos
-            _playlistService.ClearAll();
+            _playlistService.Clear();
             Playlists.Clear();
 
             //Notificamos cambio
@@ -569,16 +563,19 @@ namespace PruebaAPP.Views.Android.ViewModels
             }
 
         }
-        [RelayCommand] public async Task Playlist_Play(Playlist playlist)
+        public async Task Playlist_Play(Playlist playlist, string songid = "", int songindex = 0)
         {
             // Verificamos si hay playlist
             if (playlist is null || playlist.Items is null || playlist.Items.Count == 0)
             {
-                await DisplayMessage("Playlist", "No hay canciones en la playlist seleccionada.", "Aceptar");
+                var title   = "Playlist vacía";
+                var message = "No hay canciones en la playlist seleccionada.";
+                var ok      = "Aceptar";
+                await DialogHelpers.DisplayMessage(title, message, ok);
                 return;
             }
 
-            // Establecemos en reproducción
+            // Cambiamos el estado de las canciones
             foreach (var item in Playlists)
             {
                 if (item.Id != playlist.Id)
@@ -586,24 +583,26 @@ namespace PruebaAPP.Views.Android.ViewModels
                     item.IsPlaying = false;
                 }
             }
+
+            // Establecemos la playlist seleccionada
             playlist.IsPlaying = true;
 
             // Configuramos reproductor
             Player.SelectedPlaylist = playlist;
-            Player.ViewPlaylist = new Playlist();
-            Player.CurrentSongIndex = 0;
+            Player.CurrentSongIndex = songindex;
 
             // Cambiamos de vista
             CurrentView = new Android_View_SelectedPlaylist();
 
             // Reproducimos 
             if (playlist.Items[0].Id is not null) 
-                await PlaySongById(playlist.Items[0].Id!);
-
-            // Notificamos cambios
-            OnPropertyChanged(nameof(Playlists));
+                if (string.IsNullOrEmpty(songid))
+                    await Play(playlist.Items[0].Id!); 
+                else
+                    await Play(songid);
 
         }
+
 
         // Funciones auxiliares
         public int Playlist_GetTotalSong => Playlists.Sum(p => p.Items?.Count ?? 0);
@@ -687,13 +686,9 @@ namespace PruebaAPP.Views.Android.ViewModels
                     // Verificamos si tiene id
                     if (!string.IsNullOrEmpty(nextSong.Id))
                     {
-                        _ = PlaySongById(nextSong.Id);
+                        _ = Play(nextSong.Id);
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"Error SkipNext: {ex.Message}");
             }
             finally
             {
@@ -723,7 +718,7 @@ namespace PruebaAPP.Views.Android.ViewModels
                     // Verificamos si tiene id
                     if (!string.IsNullOrEmpty(prevSong.Id))
                     {
-                        _ = PlaySongById(prevSong.Id);
+                        _ = Play(prevSong.Id);
                     }
                 }
             }
@@ -737,5 +732,28 @@ namespace PruebaAPP.Views.Android.ViewModels
             }
         }
 
+        // =============================================================================================
+        // == Funciones de solo uso aqui
+        // =============================================================================================
+        public static string GetRandomMusicText()
+        {
+            // Declaramos una instancia de Random
+            Random _random = new();
+
+            // Lista de textos de música
+            var musicTexts = new[]
+            {
+                "Música Pop",
+                "Música Rock",
+                "Música Jazz",
+                "Top 100 2025",
+                "Música Pop",
+                "Hits del Momento"
+            };
+
+            // Seleccionamos un texto aleatorio
+            int index = _random.Next(musicTexts.Length);
+            return musicTexts[index];
+        }
     }
 }

@@ -29,16 +29,16 @@ namespace PruebaAPP.ViewModels
             this.Controller.PositionChanged  += Player_PositionChanged;
         }
 
-        public MainViewModel? vm { get; set; }
+        public MainViewModel? ViewM { get; set; }
         public MediaElement Controller { get; private set; }
 
         // =============================================================================================
         // == Propiedades
         // =============================================================================================
-        [ObservableProperty] public partial Song CurrentSong                    { get; set; } = new Song();                 // Canción actual
+        [ObservableProperty] public partial Song? CurrentSong                   { get; set; } = null;                      // Canción actual
         [ObservableProperty] public partial Playlist SelectedPlaylist           { get; set; } = new Playlist();             // Playlist seleccionada
         [ObservableProperty] public partial Playlist ViewPlaylist               { get; set; } = new Playlist();             // Playlist que se está visualizando
-        [ObservableProperty] public partial MediaElementState CurrentMediaState { get; set; } = MediaElementState.Stopped;  // Estado actual del reproductor
+        [ObservableProperty] public partial MediaElementState CurrentMediaState { get; set; } = MediaElementState.None;      // Estado actual del reproductor
         [ObservableProperty] public partial int CurrentSongIndex                { get; set; } = 0;                          // Índice de la canción actual en la lista
 
         // =============================================================================================
@@ -52,7 +52,7 @@ namespace PruebaAPP.ViewModels
         // =============================================================================================
         private void Player_MediaFailed(object? sender, MediaFailedEventArgs e)
         {
-            CurrentMediaState = MediaElementState.Stopped;
+            CurrentMediaState = MediaElementState.Failed;
         }
         private void Player_StateChanged(object? sender, MediaStateChangedEventArgs e)
         {
@@ -71,7 +71,7 @@ namespace PruebaAPP.ViewModels
         {
             if ((Position > 0) && (Duration > 0))
             {
-                vm!.Media_SkipNext();
+                ViewM!.Media_SkipNext();
             }
         }
 

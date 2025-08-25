@@ -1,3 +1,5 @@
+using PruebaAPP.Objetos.Functions;
+using PruebaAPP.Objetos.Models;
 using PruebaAPP.Views.Android.ViewModels;
 using System.Diagnostics;
 
@@ -10,72 +12,97 @@ public partial class Android_View_SelectedPlaylist : ContentView
 		InitializeComponent();
 	}
 
-    private async void Click_SelectItemsPlay(object sender, SelectionChangedEventArgs e)
-    {
-        try
-        {
-            if (BindingContext is MainViewModel vm)
-            {
-                if (e.CurrentSelection?.FirstOrDefault() is not Objetos.Models.Song selected)
-                    return;
-
-                // Limpiar selección visual
-                if (sender is CollectionView cv)
-                    cv.SelectedItem = null;
-
-                if (!string.IsNullOrWhiteSpace(selected.Id))
-                {
-                    await vm.PlaySongById(selected.Id);
-                }
-            }
-
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"Error al reproducir favorito: {ex.Message}");
-        }
-    }
 
     private async void Click_SelectedItemsMenu(object sender, EventArgs e)
     {
-        if (sender is Button btn && btn.BindingContext is Objetos.Models.Song fav)
-        {
-            // Obtener la página actual de forma segura usando la ventana asociada
-            var page = this.Window?.Page;
-            if (page == null)
-            {
-                Debug.WriteLine("No se pudo obtener la página actual para mostrar el menú contextual.");
-                return;
-            }
+        // Verificar si el sender es un botón
+        if (sender is not Button btn)
+            return;
 
-            // Verificar si el favorito es nulo o no tiene un ID válido
-            if (fav is null || string.IsNullOrWhiteSpace(fav.Id)) return;
+        // Bloquear el botón para evitar múltiples clics
+        btn.IsEnabled = false;
+
+        // Asegurarse de reactivar el botón al final
+        try
+        {
+            // Obtener la canción asociada al botón
+            if (btn.BindingContext is not Song sng)
+                return;
+
+            // Verificar si el la canción es nulo o no tiene un ID válido
+            if (sng is null || string.IsNullOrWhiteSpace(sng.Id)) 
+                return;
+
+            // Verificar si el BindingContext es del tipo esperado
+            if (BindingContext is not MainViewModel vm)
+                return;
 
             // Abrir el menú contextual
-            string title = "Selecciona acción";
-            string cancel = "Cancelar";
-            string[] param = { "Reproducir", "Quitar de la playlist", "Almacenar en memoria" };
-            string action = await page.DisplayActionSheet(title, cancel, null, param);
+            var title  = "Selecciona acción";
+            var cancel = "Cancelar";
+            var param  = new[] { "Reproducir", "Quitar de la playlist" };
+            var action = await DialogHelpers.DisplayAction(title, cancel, null, param);
 
             // Ejecutar la acción seleccionada
-            if (BindingContext is MainViewModel vm)
+            switch (action)
             {
-                switch (action)
-                {
-                    case "Reproducir":
-                        await vm.PlaySongById(fav.Id!);
-                        break;
+                // Reproducir canción
+                case "Reproducir":
+                    await vm.Play(sng.Id!);
+                    break;
 
-                    case "Quitar de la playlist":
-                        if (vm.Player.SelectedPlaylist?.Id is null) return;
+                // Quitar canción de la playlist
+                case "Quitar de la playlist":
 
-                        await vm.Playlist_ToDelete(new MainViewModel.PlaylistRemoveParam(vm.Player.SelectedPlaylist.Id, fav.Id));
-                        break;
+                    // Verificar si hay una playlist seleccionada
+                    if (vm.Player.SelectedPlaylist?.Id is null) return;
 
-                    case "Almacenar en memoria":
-                        break;
-                }
+                    // Quitar canción de la playlist
+                    await vm.Playlist_ToDelete(new MainViewModel.PlaylistRemoveParam(vm.Player.SelectedPlaylist.Id, sng.Id));
+                    break;
             }
+        } finally
+        {
+            // Reactivar el botón
+            btn.IsEnabled = true;
         }
+    }
+
+    private async void CollectionView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (sender is not CollectionView cv || BindingContext is not MainViewModel vm)
+            return;
+
+        if (vm.IsLoading2) return;
+
+        if (e.CurrentSelection.Count == 0 || e.CurrentSelection[0] is not Song selected)
+            return;
+
+
+        cv.IsEnabled = false;
+
+        try
+        {
+            // Obtener índice en la colección
+            if (cv.ItemsSource is IList<Song> items)
+                vm.Player.CurrentSongIndex = items.IndexOf(selected);
+            else
+                vm.Player.CurrentSongIndex = 0;
+
+            // Reproducir canción
+            await vm.Play(selected.Id!);
+        }
+        finally
+        {
+            cv.IsEnabled = true;
+        }
+    }
+
+    private void Click_BackPage(object sender, EventArgs e)
+    {
+        if (BindingContext is not MainViewModel vm)
+            return;
+
+        vm.CurrentView = new Android_View_Playlist();
     }
 }

@@ -42,18 +42,25 @@ namespace PruebaAPP.Views.Android
 
 
         }
-
+        protected override bool OnBackButtonPressed()
+        {
+            return true;
+        }
 
         // Cuando el usuario selecciona un item en el CollectionView
         private async void ResultsCollection_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var selected = e.CurrentSelection?.FirstOrDefault() as VideoSearchResult;
-            if (selected == null) return;
+            // Verificamos que haya una selección válida
+            if (e.CurrentSelection.Count == 0 || e.CurrentSelection[0] is not VideoSearchResult selected) 
+                return;
 
             // Limpiar selección visual
-            if (sender is CollectionView cv) cv.SelectedItem = null;
+            if (sender is CollectionView cv) 
+                cv.SelectedItem = null;
 
-            await _vm.PlaySong(selected);
+            // Reproducimos la canción seleccionada
+            await _vm.Play(selected.Id);
+
         }
 
         private async void Click_AddFavoriteSong(object sender, EventArgs e)

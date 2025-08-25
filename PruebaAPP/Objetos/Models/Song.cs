@@ -1,7 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
-using YoutubeExplode.Common;
 
 namespace PruebaAPP.Objetos.Models
 {
@@ -15,12 +13,12 @@ namespace PruebaAPP.Objetos.Models
         public TimeSpan? Duration       { get; set; } = null;
 
         // Atributos no guardables
-        [JsonIgnore][ObservableProperty] public partial double? SizeFile       { get; set; } = null;
+        [JsonIgnore][ObservableProperty] public partial double? SizeFile { get; set; } = null;
 
         // Atributos de estado
         [JsonIgnore][ObservableProperty] public partial bool IsFavorite { get; set; } = false;
-        [JsonIgnore][ObservableProperty] public partial bool IsCache    { get; set; } = false;
-        [JsonIgnore][ObservableProperty] public partial bool IsPlay     { get; set; } = false;
+        [JsonIgnore][ObservableProperty] public partial bool IsCache { get; set; } = false;
+        [JsonIgnore][ObservableProperty] public partial bool IsPlay { get; set; } = false;
 
     }
 }

@@ -2,10 +2,10 @@
 <ContentPage
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:i="clr-namespace:PruebaAPP.Controls"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
-    xmlns:local="clr-namespace:PruebaAPP.Controls"
     xmlns:vm="clr-namespace:PruebaAPP.Views.Android.ViewModels"
-    xmlns:yt="clr-namespace:YoutubeExplode.Search;assembly=YoutubeExplode"
+    xmlns:yt="clr-namespace:YoutubeExplode.Search;assembly=YoutubeExplode"  
     xmlns:md="clr-namespace:PruebaAPP.Objetos.Models"
     xmlns:tk="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     x:Class="PruebaAPP.Views.Android.Android_Page_Main"
@@ -79,36 +79,33 @@
                 </StackLayout>
                 
                 <!-- Button de expancion -->
-                <Border Grid.Column="2" HeightRequest="52" StrokeThickness="0" StrokeShape="Ellipse" VerticalOptions="Center">
-                    <Button FontSize="24" FontFamily="MaterialIconsOutlinedRegular" BackgroundColor="Transparent" Clicked="Click_AddFavoriteSong">
-                        <Button.Style>
-                            <Style TargetType="Button">
-                                <Setter Property="Text" Value="&#xe87e;"/>
-                                <Setter Property="TextColor" Value="Red"/>
-                                <Style.Triggers>
-                                    <DataTrigger TargetType="Button" Binding="{Binding Player.CurrentSong.IsFavorite}" Value="True">
-                                        <Setter Property="Text" Value="&#xe87d;"/>
-                                        <Setter Property="TextColor" Value="Red"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
-                    </Button>
-                </Border>
-
+                <i:CheckGif WidthRequest="50" HeightRequest="50" Source="like.json"/>
             </Grid>
 
             <!-- Barra de progreso -->
             <Grid Grid.Row="1" ColumnDefinitions="Auto,*,Auto" Margin="20,0,20,10">
                 
                 <!-- Tiempo transcurrido -->
-                <Label Grid.Column="0" Text="{Binding Player.Controller.Position, Converter={StaticResource TimeSpanFormat}}" TextColor="{StaticResource foreg_night_2}"/>
+                <Label Grid.Column="0" Text="{Binding Player.Controller.Position, Converter={StaticResource TimeSpanFormat}}" TextColor="{StaticResource foreg_night_2}" VerticalOptions="Center"/>
 
                 <!-- Barra de progreso -->
-                <Slider Grid.Column="1" HeightRequest="10" Margin="10,0" Minimum="0" Maximum="{Binding Player.Duration}"  Value="{Binding Player.Position}" ThumbColor="{StaticResource foreg_night_0}" MinimumTrackColor="{StaticResource foreg_night_0}" BackgroundColor="Transparent" DragStarted="Slider_DragStarted" DragCompleted="Slider_DragCompleted"/>
+                <Slider Grid.Column="1" Margin="10,0" Minimum="0" Maximum="{Binding Player.Duration}"  Value="{Binding Player.Position}" ThumbColor="{StaticResource foreg_night_0}" MinimumTrackColor="{StaticResource foreg_night_0}" DragStarted="Slider_DragStarted" DragCompleted="Slider_DragCompleted">
+                    <Slider.HeightRequest>
+                        <OnPlatform x:TypeArguments="x:Double">
+                            <On Platform="Android" Value="10"/>
+                            <On Platform="WinUI" Value="NaN"/>
+                        </OnPlatform>
+                    </Slider.HeightRequest>
+                    <Slider.BackgroundColor>
+                        <OnPlatform x:TypeArguments="Color">
+                            <On Platform="Android" Value="Transparent"/>
+                            <On Platform="WinUI" Value="{StaticResource backg_night_2}"/>
+                        </OnPlatform>
+                    </Slider.BackgroundColor>
+                </Slider>
 
                 <!-- Tiempo total-->
-                <Label Grid.Column="2" Text="{Binding Player.Controller.Duration, Converter={StaticResource TimeSpanFormat}}" TextColor="{StaticResource foreg_night_2}"/>
+                <Label Grid.Column="2" Text="{Binding Player.Controller.Duration, Converter={StaticResource TimeSpanFormat}}" TextColor="{StaticResource foreg_night_2}" VerticalOptions="Center"/>
 
             </Grid>
 

@@ -6,17 +6,16 @@
              x:DataType="vm:MainViewModel"
              x:Class="PruebaAPP.Views.Android.Android_View_Favorite">
 
-    <Grid RowDefinitions="Auto,1,*" Margin="0,10,0,0" RowSpacing="10">
+    <Grid RowDefinitions="60,Auto,*" RowSpacing="10">
         
-        <!-- Titulo -->
-        <Grid ColumnDefinitions="30,*,44" Margin="15,0,15,15">
-            
-            <!-- Icono -->
-            <Label Grid.Column="0" Text="&#xe87d;" Margin="0,2,5,0" FontSize="25" FontFamily="MaterialIconsOutlinedRegular" TextColor="{StaticResource foreg_night_1}"/>
+        <!-- Barra Titulo -->
+        <Grid Grid.Row="0">
 
-            <!-- Informacion -->
-            <VerticalStackLayout Grid.Column="1">
-                <Label Text="Mi lista de favoritos" TextColor="{StaticResource foreg_night_2}"/>
+            <!-- Fondo -->
+            <Rectangle Grid.ColumnSpan="2" Fill="{StaticResource backg_night_2}" StrokeThickness="0" Opacity="0.7"/>
+
+            <VerticalStackLayout Grid.Column="1" Margin="15,0" VerticalOptions="Center">
+                <Label Text="Mi lista de favoritos" FontSize="18" FontAttributes="Bold" TextColor="{StaticResource foreg_night_2}"/>
                 <Label>
                     <Label.FormattedText>
                         <FormattedString>
@@ -29,17 +28,11 @@
                     </Label.FormattedText>
                 </Label>
             </VerticalStackLayout>
-
-            <!-- Controles -->
-            <Button Grid.Column="2" Text="&#xe5d4;" FontSize="20" FontFamily="MaterialIconsOutlinedRegular" IsVisible="Collapse" Padding="0" TextColor="{StaticResource foreg_night_2}" BackgroundColor="Transparent"/>
-
         </Grid>
-        
-        <!-- Separador -->
-        <Rectangle Grid.Row="1" HeightRequest="1" Fill="{StaticResource backg_night_2}"/>
 
+        
         <!-- Reproducir todo -->
-        <Border Grid.Row="2" WidthRequest="52" HeightRequest="52" Margin="0,-36,20,0" StrokeThickness="1" Stroke="{StaticResource backg_night_2}" StrokeShape="Ellipse" HorizontalOptions="End" VerticalOptions="Start">
+        <Border Grid.Row="1" WidthRequest="52" HeightRequest="52" Margin="0,-36,20,0" StrokeThickness="1" Stroke="{StaticResource backg_night_2}" StrokeShape="Ellipse" HorizontalOptions="End" VerticalOptions="Start">
             <Button Text="&#xe037;" FontSize="24" FontFamily="MaterialIconsRegular" Padding="0" TextColor="{StaticResource foreg_night_2}" BackgroundColor="{StaticResource backg_night_4}" Clicked="Click_PlayAll"/>
         </Border>
         
@@ -83,7 +76,7 @@
                                     </Image>
 
                                     <!-- Loader mientras carga -->
-                                    <ActivityIndicator x:DataType="{x:Null}" WidthRequest="40" HeightRequest="40" 
+                                    <ActivityIndicator x:DataType="Image" WidthRequest="40" HeightRequest="40" 
                                                            IsRunning="{Binding Source={x:Reference MainImage}, Path=IsLoading}" 
                                                            Color="{StaticResource foreg_night_2}" 
                                                            IsVisible="{Binding Source={x:Reference MainImage}, Path=IsLoading}" />
@@ -101,16 +94,15 @@
                             <VerticalStackLayout Grid.Column="1" Margin="0,0,10,0" VerticalOptions="Center">
                             
                                 <!-- Titulo de la cancion -->
-                                <Label Text="{Binding Title}"   
-                                       MaxLines="1"
-                                       LineBreakMode="TailTruncation" 
-                                       HorizontalTextAlignment="Start">
+                                <Label Text="{Binding Title}" MaxLines="1" LineBreakMode="TailTruncation" HorizontalTextAlignment="Start">
                                     <Label.Style>
                                         <Style TargetType="Label">
-                                            <Setter Property="TextColor" Value="{StaticResource foreg_night_2}"/>
                                             <Style.Triggers>
                                                 <DataTrigger TargetType="Label" Binding="{Binding IsPlay}" Value="True">
                                                     <Setter Property="TextColor" Value="{StaticResource foreg_night_0}"/>
+                                                </DataTrigger>
+                                                <DataTrigger TargetType="Label" Binding="{Binding IsPlay}" Value="False">
+                                                    <Setter Property="TextColor" Value="{StaticResource foreg_night_2}"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>

@@ -13,7 +13,7 @@
             <Border.StrokeShape>
                 <RoundRectangle CornerRadius="25"/>
             </Border.StrokeShape>
-            <SearchBar x:Name="txt_search" Text="{Binding SearchText}" Placeholder="Buscar: Artista / Canción" TextColor="{StaticResource foreg_night_2}" CancelButtonColor="{x:StaticResource foreg_night_2}" PlaceholderColor="{StaticResource foreg_night_1}" BackgroundColor="Transparent" SearchCommand="{Binding SearchCommand}" TextChanged="SearchBar_TextChanged"/>
+            <SearchBar x:Name="txt_search" Placeholder="Buscar: Artista / Canción" TextColor="{StaticResource foreg_night_2}" CancelButtonColor="{x:StaticResource foreg_night_2}" PlaceholderColor="{StaticResource foreg_night_1}" BackgroundColor="Transparent" TextChanged="txt_search_TextChanged" SearchButtonPressed="SearchButtonPressed"/>
         </Border>
         
         <!-- Sugerencia -->
@@ -30,6 +30,12 @@
         
         <!-- Lista -->
         <CollectionView Grid.Row="1" x:Name="ResultsCollection" Margin="0,10,0,0" ItemsSource="{Binding ListItems}" ItemsUpdatingScrollMode="KeepScrollOffset" ItemSizingStrategy="MeasureFirstItem" RemainingItemsThreshold="2" RemainingItemsThresholdReached="ResultsCollection_RemainingItemsThresholdReached" SelectionMode="Single" SelectionChanged="Click_SelectedItems">
+            <CollectionView.EmptyView>
+                <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="10">
+                    <Label Text="&#xe811;" FontSize="46" FontFamily="MaterialIconsRegular" Padding="0" TextColor="{StaticResource foreg_night_2}" HorizontalOptions="Center" VerticalOptions="Center"/>
+                    <Label Text="No se encontraron resultados" TextColor="{StaticResource foreg_night_2}"/>
+                </VerticalStackLayout>
+            </CollectionView.EmptyView>
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="yt:VideoSearchResult">
                     <Grid ColumnDefinitions="Auto,*,Auto" Padding="15,5">
@@ -49,7 +55,7 @@
                                 </Image>
 
                                 <!-- Loader mientras carga -->
-                                <ActivityIndicator x:DataType="{x:Null}" WidthRequest="50" HeightRequest="50"
+                                <ActivityIndicator x:DataType="Image" WidthRequest="50" HeightRequest="50"
                                                    IsRunning="{Binding Source={x:Reference MainImage}, Path=IsLoading}" 
                                                    Color="{StaticResource foreg_night_2}" 
                                                    IsVisible="{Binding Source={x:Reference MainImage}, Path=IsLoading}" />

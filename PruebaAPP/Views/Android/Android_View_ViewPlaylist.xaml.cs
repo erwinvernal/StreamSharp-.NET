@@ -1,3 +1,5 @@
+using PruebaAPP.Objetos.Functions;
+using PruebaAPP.Objetos.Models;
 using PruebaAPP.Views.Android.ViewModels;
 using System.Diagnostics;
 
@@ -12,103 +14,86 @@ public partial class Android_View_ViewPlaylist : ContentView
 
     private async void Click_PlayAll(object sender, EventArgs e)
     {
-        if (BindingContext is MainViewModel vm)
-        {
-            await vm.Playlist_Play(vm.Player.ViewPlaylist);
-        }
+        // Verificar si el BindingContext es del tipo esperado
+        if (BindingContext is not MainViewModel vm)
+            return;
+
+        // Cargamos lista
+        await vm.Playlist_Play(vm.Player.ViewPlaylist);
     }
 
     private async void Click_SelectView(object sender, SelectionChangedEventArgs e)
     {
-        try
-        {
-            if (BindingContext is MainViewModel vm)
-            {
-                if (e.CurrentSelection?.FirstOrDefault() is not Objetos.Models.Song selected)
-                    return; // Salimos si no hay selección
 
-                // Limpiar selección visual
-                if (sender is CollectionView cv)
-                    cv.SelectedItem = null;
+        // Verificar si hay una selección actual y obtener el primer elemento
+        if (e.CurrentSelection.Count == 0 || e.CurrentSelection[0] is not Song selected)
+            return;
 
-                // Obtener el índice del item seleccionado
-                int selectedIndex = vm.Player.ViewPlaylist.Items.IndexOf(selected);
+        // Verificamos si se esta cargando
+        if (BindingContext is not MainViewModel vm)
+            return;
 
-                // Guardamos índice y playlist
-                vm.Player.CurrentSongIndex = selectedIndex;
-                vm.Player.SelectedPlaylist = vm.Player.ViewPlaylist;
+        // Limpiar selección visual
+        if (sender is CollectionView cv)
+            cv.SelectedItem = null;
 
-                // Asignamos a la playlist que se está visualizando
-                foreach (var item in vm.Playlists)
-                {
-                    if (item.Id != vm.Player.SelectedPlaylist.Id)
-                    {
-                        item.IsPlaying = false;
-                    }
-                }
-                vm.Player.SelectedPlaylist.IsPlaying = true;
+        // Obtener el índice del item seleccionado
+        int selectedIndex = vm.Player.ViewPlaylist.Items.IndexOf(selected);
 
-
-                // Limpeamos viewplaylist
-                vm.Player.ViewPlaylist = new Objetos.Models.Playlist();
-
-                // Abrimos vista
-                vm.CurrentView = new Android_View_SelectedPlaylist();
-
-                // Reproducimos
-                await vm.PlaySongById(selected.Id!);
-
-            }
-
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"Error al reproducir favorito: {ex.Message}");
-        }
+        // Asignamos la playlist seleccionada
+        await vm.Playlist_Play(vm.Player.ViewPlaylist, selected.Id!, selectedIndex);
+        vm.Player.SelectedPlaylist = vm.Player.ViewPlaylist;
 
     }
 
     private async void Click_DeleteItems(object sender, EventArgs e)
     {
-        if (sender is Button btn && btn.BindingContext is Objetos.Models.Song fav)
+        // Verificar si el elemento sender es un botón
+        if (sender is not Button btn)
+            return;
+
+        // Verificar si el BindingContext del botón es del tipo esperado
+        if (btn.BindingContext is not Song fav)
+            return;
+
+        // Verificar si el BindingContext es del tipo esperado
+        if (BindingContext is not MainViewModel vm)
+            return;
+
+        // Verificar si el favorito es nulo o no tiene un ID válido
+        if (fav is null || string.IsNullOrWhiteSpace(fav.Id)) return;
+
+        // Abrir el menú contextual
+        var title = "Selecciona acción";
+        var cancel = "Cancelar";
+        var param = new[] { "Reproducir", "Quitar de la playlist" };
+        var action = await DialogHelpers.DisplayAction(title, cancel, null, param);
+
+        // Ejecutar la acción seleccionada
+        switch (action)
         {
-            // Obtener la página actual de forma segura usando la ventana asociada
-            var page = this.Window?.Page;
-            if (page == null)
-            {
-                Debug.WriteLine("No se pudo obtener la página actual para mostrar el menú contextual.");
-                return;
-            }
+            case "Reproducir":
+                await vm.Play(fav.Id!);
+                break;
 
-            // Verificar si el favorito es nulo o no tiene un ID válido
-            if (fav is null || string.IsNullOrWhiteSpace(fav.Id)) return;
+            case "Quitar de la playlist":
 
-            // Abrir el menú contextual
-            string title = "Selecciona acción";
-            string cancel = "Cancelar";
-            string[] param = { "Reproducir", "Quitar de la playlist", "Almacenar en memoria" };
-            string action = await page.DisplayActionSheet(title, cancel, null, param);
+                // Verificamos que la playlist este asignada
+                if (vm.Player.ViewPlaylist.Id is null) 
+                    return;
 
-            // Ejecutar la acción seleccionada
-            if (BindingContext is MainViewModel vm)
-            {
-                switch (action)
-                {
-                    case "Reproducir":
-                        await vm.PlaySongById(fav.Id!);
-                        break;
+                // Procedemos a eliminar
+                await vm.Playlist_ToDelete(new MainViewModel.PlaylistRemoveParam(vm.Player.ViewPlaylist.Id, fav.Id));
+                break;
 
-                    case "Quitar de la playlist":
-                        if (vm.Player.SelectedPlaylist?.Id is null) return;
-
-                        await vm.Playlist_ToDelete(new MainViewModel.PlaylistRemoveParam(vm.Player.SelectedPlaylist.Id, fav.Id));
-                        break;
-
-                    case "Almacenar en memoria":
-                        break;
-                }
-            }
         }
     }
 
+    private void Click_BackPage(object sender, EventArgs e)
+    {
+        if (BindingContext is not MainViewModel vm)
+            return;
+
+        vm.CurrentView = new Android_View_Playlist();
+    }
 }

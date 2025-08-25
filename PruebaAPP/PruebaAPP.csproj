@@ -41,6 +41,7 @@
 		<TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
 		<MauiEnableXamlCBindingWithSourceCompilation>true</MauiEnableXamlCBindingWithSourceCompilation>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -93,10 +94,16 @@
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
 		<PackageReference Include="Microsoft.Maui.Controls" Version="9.0.100" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.8" />
+		<PackageReference Include="SkiaSharp" Version="3.119.0" />
+		<PackageReference Include="SkiaSharp.Extended.UI.Maui" Version="2.0.0" />
+		<PackageReference Include="SkiaSharp.Views.Maui.Controls" Version="3.119.0" />
 		<PackageReference Include="YoutubeExplode" Version="6.5.4" />
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Compile Update="Controls\CheckGif.xaml.cs">
+	    <DependentUpon>CheckGif.xaml</DependentUpon>
+	  </Compile>
 	  <Compile Update="Views\Android\Android_View_ViewPlaylist.xaml.cs">
 	    <DependentUpon>Android_View_ViewPlaylist.xaml</DependentUpon>
 	  </Compile>
@@ -106,6 +113,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <MauiXaml Update="Controls\CheckGif.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Views\Android\Android_Page_Main.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
@@ -125,9 +135,6 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\Android\Android_View_Search.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Views\Android\Android_View_Channel.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	</ItemGroup>
